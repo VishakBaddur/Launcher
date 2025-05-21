@@ -10,4 +10,5 @@ pytrends
 yfinance
 textblob
 jwt
-flask_sqlalchemy
+SQLAlchemy<2.0
+Flask-SQLAlchemy>=2.5,<3.0
