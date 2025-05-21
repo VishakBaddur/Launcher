@@ -12,3 +12,4 @@ textblob
 jwt
 SQLAlchemy<2.0
 Flask-SQLAlchemy>=2.5,<3.0
+psycopg2
