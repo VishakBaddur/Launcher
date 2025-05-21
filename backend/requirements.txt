@@ -10,3 +10,4 @@ pytrends
 yfinance
 textblob
 jwt
+flask_sqlalchemy
