@@ -65,11 +65,13 @@ const IdeaValidator = () => {
 
   const renderListSection = (data) => {
     if (!data) return null;
+    const items = data.items || [];
+    if (!Array.isArray(items) || items.length === 0) return null;
     return (
       <div className="space-y-2">
         <h4 className="font-semibold text-gray-700">{data.title}</h4>
         <ul className="list-disc pl-5 space-y-1">
-          {data.items.map((item, index) => (
+          {items.map((item, index) => (
             <li key={typeof item === 'string' ? hashString(item + '-' + index) : index} className="text-gray-600">{item}</li>
           ))}
         </ul>
@@ -256,13 +258,7 @@ Despite the opportunities, the market is characterized by intense competition, t
         }
       },
       'e-commerce platform': {
-        detailed_analysis: `The e-commerce platform sector has revolutionized the way consumers shop, offering unparalleled convenience, variety, and accessibility. The global shift toward digital commerce has been accelerated by advancements in payment technology, logistics, and mobile device adoption. Consumers now expect seamless online shopping experiences, fast delivery, and personalized recommendations.
-
-The COVID-19 pandemic further boosted e-commerce adoption, as lockdowns and safety concerns drove more people to shop online. This trend is expected to persist, with both established retailers and new entrants investing in omnichannel strategies and digital storefronts. Social commerce and influencer-driven marketing are also shaping consumer behavior, making it easier for brands to reach targeted audiences.
-
-Competition in the e-commerce space is fierce, with major players like Amazon, eBay, and Walmart dominating market share. However, niche platforms and direct-to-consumer brands are finding success by focusing on unique value propositions, curated selections, and superior customer service. Regulatory considerations, such as data privacy and cross-border trade, are increasingly important as platforms expand globally.
-
-To succeed, new entrants must leverage technology, build strong supplier relationships, and offer differentiated experiences that foster customer loyalty and trust.`,
+        detailed_analysis: `The e-commerce platform sector has revolutionized the way consumers shop, offering unparalleled convenience, variety, and accessibility. The global shift toward digital commerce has been accelerated by advancements in payment technology, logistics, and mobile device adoption. Consumers now expect seamless online shopping experiences, fast delivery, and personalized recommendations. The COVID-19 pandemic further boosted e-commerce adoption, as lockdowns and safety concerns drove more people to shop online. This trend is expected to persist, with both established retailers and new entrants investing in omnichannel strategies and digital storefronts. Social commerce and influencer-driven marketing are also shaping consumer behavior, making it easier for brands to reach targeted audiences. Competition in the e-commerce space is fierce, with major players like Amazon, eBay, and Walmart dominating market share. However, niche platforms and direct-to-consumer brands are finding success by focusing on unique value propositions, curated selections, and superior customer service. Regulatory considerations, such as data privacy and cross-border trade, are increasingly important as platforms expand globally. To succeed, new entrants must leverage technology, build strong supplier relationships, and offer differentiated experiences that foster customer loyalty and trust.`,
         market_opportunities: [
           'Expanding global internet penetration and smartphone usage are driving e-commerce growth.',
           'Increasing consumer preference for convenience and home delivery.',
@@ -309,13 +305,7 @@ To succeed, new entrants must leverage technology, build strong supplier relatio
         }
       },
       'used furniture marketplace': {
-        detailed_analysis: `The used furniture marketplace is gaining traction as consumers become more environmentally conscious and seek affordable alternatives to new furniture. The rise of the circular economy and sustainability trends has encouraged both buyers and sellers to participate in secondhand markets. Online platforms have made it easier to connect local buyers and sellers, streamlining the process of listing, discovery, and payment.
-
-Consumer behavior is shifting toward value-driven purchases, with many people looking for unique, vintage, or high-quality items at lower prices. Millennials and Gen Z, in particular, are driving demand for sustainable consumption and are more likely to buy pre-owned goods.
-
-Competition comes from both generalist platforms like Facebook Marketplace and Craigslist, as well as specialized apps focused on furniture and home goods. Trust, safety, and logistics (such as delivery or pickup) remain key operational challenges. Regulatory considerations may include local sales taxes and consumer protection laws.
-
-Success in this space depends on building a trusted community, offering secure payment and delivery options, and leveraging technology to enhance the buying and selling experience.`,
+        detailed_analysis: `The used furniture marketplace is gaining traction as consumers become more environmentally conscious and seek affordable alternatives to new furniture. The rise of the circular economy and sustainability trends has encouraged both buyers and sellers to participate in secondhand markets. Online platforms have made it easier to connect local buyers and sellers, streamlining the process of listing, discovery, and payment. Consumer behavior is shifting toward value-driven purchases, with many people looking for unique, vintage, or high-quality items at lower prices. Millennials and Gen Z, in particular, are driving demand for sustainable consumption and are more likely to buy pre-owned goods. Competition comes from both generalist platforms like Facebook Marketplace and Craigslist, as well as specialized apps focused on furniture and home goods. Trust, safety, and logistics (such as delivery or pickup) remain key operational challenges. Regulatory considerations may include local sales taxes and consumer protection laws. Success in this space depends on building a trusted community, offering secure payment and delivery options, and leveraging technology to enhance the buying and selling experience.`,
         market_opportunities: [
           'Growing consumer interest in sustainability and the circular economy.',
           'Demand for affordable, quality furniture among young professionals and students.',
@@ -362,13 +352,7 @@ Success in this space depends on building a trusted community, offering secure p
         }
       },
       'luxury goods resale': {
-        detailed_analysis: `The luxury goods resale market is booming as consumers seek both value and sustainability. High-end fashion, accessories, and watches are increasingly being bought and sold on specialized platforms, driven by a desire for authenticated, pre-owned luxury at lower prices. The stigma around secondhand luxury has diminished, with many consumers viewing resale as a smart and eco-friendly choice.
-
-Digital platforms have made it easier to verify authenticity, connect buyers and sellers, and facilitate secure transactions. Social media and influencer culture have also contributed to the normalization of luxury resale, especially among younger, fashion-conscious demographics.
-
-Competition is strong, with established players and new entrants vying for market share. Key differentiators include authentication services, exclusive inventory, and premium customer service. Regulatory considerations include import/export restrictions and intellectual property rights.
-
-To succeed, platforms must invest in authentication technology, build strong relationships with luxury brands, and create a seamless, trustworthy user experience.`,
+        detailed_analysis: `The luxury goods resale market is booming as consumers seek both value and sustainability. High-end fashion, accessories, and watches are increasingly being bought and sold on specialized platforms, driven by a desire for authenticated, pre-owned luxury at lower prices. The stigma around secondhand luxury has diminished, with many consumers viewing resale as a smart and eco-friendly choice. Digital platforms have made it easier to verify authenticity, connect buyers and sellers, and facilitate secure transactions. Social media and influencer culture have also contributed to the normalization of luxury resale, especially among younger, fashion-conscious demographics. Competition is strong, with established players and new entrants vying for market share. Key differentiators include authentication services, exclusive inventory, and premium customer service. Regulatory considerations include import/export restrictions and intellectual property rights. To succeed, platforms must invest in authentication technology, build strong relationships with luxury brands, and create a seamless, trustworthy user experience.`,
         market_opportunities: [
           'Rising demand for sustainable and affordable luxury goods.',
           'Increasing acceptance of pre-owned luxury among younger consumers.',
@@ -415,13 +399,7 @@ To succeed, platforms must invest in authentication technology, build strong rel
         }
       },
       'home cleaning services': {
-        detailed_analysis: `The home cleaning services industry is evolving rapidly, driven by changing lifestyles, increased disposable income, and heightened awareness of hygiene. Urbanization and the rise of dual-income households have led to greater demand for professional cleaning services, both for regular maintenance and specialized needs.
-
-Technology is playing a growing role, with online booking platforms, mobile apps, and digital payments making it easier for customers to schedule and manage services. The COVID-19 pandemic has further increased demand for deep cleaning and sanitization, as health and safety have become top priorities.
-
-Competition ranges from large franchises to local independent providers. Key differentiators include service quality, reliability, and customer trust. Regulatory considerations may involve labor laws, insurance, and environmental standards for cleaning products.
-
-Success in this market depends on building a reputation for quality, leveraging technology for convenience, and offering flexible service packages to meet diverse customer needs.`,
+        detailed_analysis: `The home cleaning services industry is evolving rapidly, driven by changing lifestyles, increased disposable income, and heightened awareness of hygiene. Urbanization and the rise of dual-income households have led to greater demand for professional cleaning services, both for regular maintenance and specialized needs. Technology is playing a growing role, with online booking platforms, mobile apps, and digital payments making it easier for customers to schedule and manage services. The COVID-19 pandemic has further increased demand for deep cleaning and sanitization, as health and safety have become top priorities. Competition ranges from large franchises to local independent providers. Key differentiators include service quality, reliability, and customer trust. Regulatory considerations may involve labor laws, insurance, and environmental standards for cleaning products. Success in this market depends on building a reputation for quality, leveraging technology for convenience, and offering flexible service packages to meet diverse customer needs.`,
         market_opportunities: [
           'Growing demand for professional cleaning due to busy lifestyles and health concerns.',
           'Opportunities to offer specialized services such as deep cleaning, eco-friendly cleaning, or move-in/move-out packages.',
@@ -468,13 +446,7 @@ Success in this market depends on building a reputation for quality, leveraging 
         }
       },
       'fitness app': {
-        detailed_analysis: `The fitness app market is thriving as consumers increasingly prioritize health and wellness. The proliferation of smartphones and wearable devices has enabled personalized fitness tracking, virtual coaching, and community engagement. The pandemic accelerated the shift to digital fitness, with many users adopting home workouts and on-demand classes.
-
-Consumer expectations are evolving, with demand for features such as real-time feedback, gamification, and integration with other health platforms. Social sharing and community challenges are popular ways to boost engagement and retention.
-
-Competition is intense, with both established brands and startups offering a wide range of fitness solutions. Key differentiators include user experience, content quality, and the ability to personalize recommendations. Regulatory considerations may include data privacy and compliance with health standards.
-
-To succeed, fitness apps must continuously innovate, foster community, and provide tangible results for users.`,
+        detailed_analysis: `The fitness app market is thriving as consumers increasingly prioritize health and wellness. The proliferation of smartphones and wearable devices has enabled personalized fitness tracking, virtual coaching, and community engagement. The pandemic accelerated the shift to digital fitness, with many users adopting home workouts and on-demand classes. Consumer expectations are evolving, with demand for features such as real-time feedback, gamification, and integration with other health platforms. Social sharing and community challenges are popular ways to boost engagement and retention. Competition is intense, with both established brands and startups offering a wide range of fitness solutions. Key differentiators include user experience, content quality, and the ability to personalize recommendations. Regulatory considerations may include data privacy and compliance with health standards. To succeed, fitness apps must continuously innovate, foster community, and provide tangible results for users.`,
         market_opportunities: [
           'Rising health consciousness and demand for convenient fitness solutions.',
           'Growth in wearable technology and data-driven personalization.',
@@ -521,13 +493,7 @@ To succeed, fitness apps must continuously innovate, foster community, and provi
         }
       },
       'online course marketplace': {
-        detailed_analysis: `The online course marketplace has democratized access to education, enabling learners worldwide to acquire new skills and knowledge at their own pace. Advances in technology, such as video streaming and interactive content, have made online learning more engaging and effective.
-
-The pandemic accelerated the adoption of online courses, with both individuals and organizations seeking flexible, remote learning solutions. The market is characterized by a wide range of subjects, from professional development to hobbies and creative pursuits.
-
-Competition includes large platforms, niche providers, and even individual instructors. Key success factors include course quality, instructor reputation, and platform usability. Regulatory considerations may involve accreditation, copyright, and accessibility standards.
-
-To thrive, platforms must curate high-quality content, support instructors, and foster a vibrant learning community.`,
+        detailed_analysis: `The online course marketplace has democratized access to education, enabling learners worldwide to acquire new skills and knowledge at their own pace. Advances in technology, such as video streaming and interactive content, have made online learning more engaging and effective. The pandemic accelerated the adoption of online courses, with both individuals and organizations seeking flexible, remote learning solutions. The market is characterized by a wide range of subjects, from professional development to hobbies and creative pursuits. Competition includes large platforms, niche providers, and even individual instructors. Key success factors include course quality, instructor reputation, and platform usability. Regulatory considerations may involve accreditation, copyright, and accessibility standards. To thrive, platforms must curate high-quality content, support instructors, and foster a vibrant learning community.`,
         market_opportunities: [
           'Growing demand for lifelong learning and upskilling.',
           'Opportunities to serve global audiences and niche subjects.',
@@ -574,13 +540,7 @@ To thrive, platforms must curate high-quality content, support instructors, and 
         }
       },
       'micromobility rental': {
-        detailed_analysis: `The micromobility rental market, including e-scooters and bike-sharing, is transforming urban transportation. These services offer affordable, flexible, and eco-friendly alternatives to traditional transit, appealing to commuters and tourists alike. The rise of smart cities and environmental awareness has further fueled adoption.
-
-Consumer behavior is driven by convenience, cost savings, and the desire to avoid traffic congestion. Integration with public transit and mobile payment systems enhances the user experience.
-
-Competition is fierce, with multiple operators vying for permits and market share in major cities. Regulatory challenges include safety standards, parking regulations, and fleet management. Operators must also address issues of vandalism and maintenance.
-
-Success depends on operational efficiency, strong city partnerships, and the ability to scale sustainably while maintaining safety and reliability.`,
+        detailed_analysis: `The micromobility rental market, including e-scooters and bike-sharing, is transforming urban transportation. These services offer affordable, flexible, and eco-friendly alternatives to traditional transit, appealing to commuters and tourists alike. The rise of smart cities and environmental awareness has further fueled adoption. Consumer behavior is driven by convenience, cost savings, and the desire to avoid traffic congestion. Integration with public transit and mobile payment systems enhances the user experience. Competition is fierce, with multiple operators vying for permits and market share in major cities. Regulatory challenges include safety standards, parking regulations, and fleet management. Operators must also address issues of vandalism and maintenance. Success depends on operational efficiency, strong city partnerships, and the ability to scale sustainably while maintaining safety and reliability.`,
         market_opportunities: [
           'Increasing demand for last-mile transportation solutions.',
           'Opportunities to partner with cities and public transit systems.',
@@ -627,13 +587,7 @@ Success depends on operational efficiency, strong city partnerships, and the abi
         }
       },
       'freelance marketplace': {
-        detailed_analysis: `The freelance marketplace sector is expanding rapidly as businesses and professionals embrace flexible, project-based work. Digital platforms connect clients with freelancers across a wide range of skills, from design and writing to software development and consulting.
-
-The rise of remote work and the gig economy has made freelancing more accessible and attractive. Both companies and workers benefit from the ability to scale teams up or down as needed, access global talent, and reduce overhead costs.
-
-Competition is strong, with established platforms and new entrants targeting specific industries or skill sets. Key challenges include ensuring quality, managing payments, and building trust between parties. Regulatory considerations may involve worker classification, taxes, and cross-border payments.
-
-To succeed, platforms must offer robust vetting, secure payment systems, and tools that facilitate collaboration and communication.`,
+        detailed_analysis: `The freelance marketplace sector is expanding rapidly as businesses and professionals embrace flexible, project-based work. Digital platforms connect clients with freelancers across a wide range of skills, from design and writing to software development and consulting. The rise of remote work and the gig economy has made freelancing more accessible and attractive. Both companies and workers benefit from the ability to scale teams up or down as needed, access global talent, and reduce overhead costs. Competition is strong, with established platforms and new entrants targeting specific industries or skill sets. Key challenges include ensuring quality, managing payments, and building trust between parties. Regulatory considerations may involve worker classification, taxes, and cross-border payments. To succeed, platforms must offer robust vetting, secure payment systems, and tools that facilitate collaboration and communication.`,
         market_opportunities: [
           'Growing demand for flexible, remote work arrangements.',
           'Access to a global pool of skilled professionals.',
@@ -680,13 +634,7 @@ To succeed, platforms must offer robust vetting, secure payment systems, and too
         }
       },
       'telemedicine platform': {
-        detailed_analysis: `Telemedicine platforms are revolutionizing healthcare delivery by enabling remote consultations, diagnosis, and treatment. The adoption of telehealth has surged due to technological advancements, changing patient expectations, and the need for accessible care, especially in rural or underserved areas.
-
-The COVID-19 pandemic dramatically accelerated telemedicine adoption, breaking down regulatory barriers and increasing acceptance among both providers and patients. Integration with electronic health records, wearable devices, and AI-driven diagnostics is enhancing the quality and efficiency of care.
-
-Competition includes both specialized telemedicine providers and traditional healthcare systems expanding their digital offerings. Key challenges include data privacy, reimbursement policies, and ensuring quality of care. Regulatory compliance is critical, as healthcare is highly regulated.
-
-Success in telemedicine requires robust technology, strong provider networks, and a focus on patient experience and outcomes.`,
+        detailed_analysis: `Telemedicine platforms are revolutionizing healthcare delivery by enabling remote consultations, diagnosis, and treatment. The adoption of telehealth has surged due to technological advancements, changing patient expectations, and the need for accessible care, especially in rural or underserved areas. The COVID-19 pandemic dramatically accelerated telemedicine adoption, breaking down regulatory barriers and increasing acceptance among both providers and patients. Integration with electronic health records, wearable devices, and AI-driven diagnostics is enhancing the quality and efficiency of care. Competition includes both specialized telemedicine providers and traditional healthcare systems expanding their digital offerings. Key challenges include data privacy, reimbursement policies, and ensuring quality of care. Regulatory compliance is critical, as healthcare is highly regulated. Success in telemedicine requires robust technology, strong provider networks, and a focus on patient experience and outcomes.`,
         market_opportunities: [
           'Expanding access to healthcare in remote and underserved regions.',
           'Opportunities to integrate with wearable devices and AI diagnostics.',
@@ -733,13 +681,7 @@ Success in telemedicine requires robust technology, strong provider networks, an
         }
       },
       'digital media subscription': {
-        detailed_analysis: `The digital media subscription market is flourishing as consumers shift from traditional media to on-demand, personalized content. Streaming services for video, music, news, and more have become household staples, driven by convenience, variety, and the ability to consume content anytime, anywhere.
-
-Consumer behavior is shaped by binge-watching, playlist curation, and the desire for ad-free experiences. Subscription fatigue is a growing concern, with users seeking value and unique content to justify ongoing payments.
-
-Competition is intense, with major players and niche services vying for attention. Key differentiators include exclusive content, user experience, and pricing strategies. Regulatory considerations may involve content licensing, copyright, and data privacy.
-
-To succeed, platforms must invest in original content, personalize recommendations, and offer flexible subscription options to retain users.`,
+        detailed_analysis: `The digital media subscription market is flourishing as consumers shift from traditional media to on-demand, personalized content. Streaming services for video, music, news, and more have become household staples, driven by convenience, variety, and the ability to consume content anytime, anywhere. Consumer behavior is shaped by binge-watching, playlist curation, and the desire for ad-free experiences. Subscription fatigue is a growing concern, with users seeking value and unique content to justify ongoing payments. Competition is intense, with major players and niche services vying for attention. Key differentiators include exclusive content, user experience, and pricing strategies. Regulatory considerations may involve content licensing, copyright, and data privacy. To succeed, platforms must invest in original content, personalize recommendations, and offer flexible subscription options to retain users.`,
         market_opportunities: [
           'Rising demand for on-demand, ad-free digital content.',
           'Opportunities to create and license exclusive, original content.',
@@ -786,13 +728,7 @@ To succeed, platforms must invest in original content, personalize recommendatio
         }
       },
       'reusable packaging service': {
-        detailed_analysis: `Reusable packaging services are at the forefront of the sustainability movement, helping businesses and consumers reduce waste and environmental impact. These services provide durable, returnable packaging solutions for e-commerce, food delivery, and retail, replacing single-use plastics and cardboard.
-
-Consumer demand for eco-friendly options is rising, and many brands are adopting reusable packaging to meet regulatory requirements and corporate social responsibility goals. Technology enables tracking, collection, and cleaning of packaging, making the process efficient and scalable.
-
-Competition includes both startups and established logistics providers. Key challenges involve logistics, user participation, and cost-effectiveness. Regulatory drivers, such as bans on single-use plastics, are accelerating adoption.
-
-Success depends on building strong partnerships with brands, optimizing logistics, and educating consumers about the benefits of reuse.`,
+        detailed_analysis: `Reusable packaging services are at the forefront of the sustainability movement, helping businesses and consumers reduce waste and environmental impact. These services provide durable, returnable packaging solutions for e-commerce, food delivery, and retail, replacing single-use plastics and cardboard. Consumer demand for eco-friendly options is rising, and many brands are adopting reusable packaging to meet regulatory requirements and corporate social responsibility goals. Technology enables tracking, collection, and cleaning of packaging, making the process efficient and scalable. Competition includes both startups and established logistics providers. Key challenges involve logistics, user participation, and cost-effectiveness. Regulatory drivers, such as bans on single-use plastics, are accelerating adoption. Success depends on building strong partnerships with brands, optimizing logistics, and educating consumers about the benefits of reuse.`,
         market_opportunities: [
           'Growing demand for sustainable packaging solutions.',
           'Regulatory pressure to reduce single-use plastics.',
@@ -839,13 +775,7 @@ Success depends on building strong partnerships with brands, optimizing logistic
         }
       },
       'ai avatar generation': {
-        detailed_analysis: `AI avatar generation is an emerging field at the intersection of artificial intelligence, digital art, and online identity. These platforms use advanced algorithms to create realistic or stylized avatars for use in gaming, social media, virtual meetings, and marketing.
-
-Consumer interest is driven by the desire for personalization, anonymity, and creative self-expression. The rise of the metaverse and virtual worlds is expanding the use cases for AI-generated avatars, from entertainment to professional branding.
-
-Competition includes both specialized startups and large tech companies integrating avatar features into their platforms. Key challenges include ensuring ethical use, managing intellectual property, and addressing privacy concerns. Regulatory considerations may arise as avatars become more lifelike and widely used.
-
-To succeed, companies must balance innovation with user trust, offer customization options, and stay ahead of trends in digital identity and virtual interaction.`,
+        detailed_analysis: `AI avatar generation is an emerging field at the intersection of artificial intelligence, digital art, and online identity. These platforms use advanced algorithms to create realistic or stylized avatars for use in gaming, social media, virtual meetings, and marketing. Consumer interest is driven by the desire for personalization, anonymity, and creative self-expression. The rise of the metaverse and virtual worlds is expanding the use cases for AI-generated avatars, from entertainment to professional branding. Competition includes both specialized startups and large tech companies integrating avatar features into their platforms. Key challenges include ensuring ethical use, managing intellectual property, and addressing privacy concerns. Regulatory considerations may arise as avatars become more lifelike and widely used. To succeed, companies must balance innovation with user trust, offer customization options, and stay ahead of trends in digital identity and virtual interaction.`,
         market_opportunities: [
           'Rising demand for personalized digital identities in gaming, social, and professional contexts.',
           'Growth of the metaverse and virtual reality platforms.',
@@ -889,6 +819,377 @@ To succeed, companies must balance innovation with user trust, offer customizati
           'Tech Savvy': 'High',
           'Income Level': 'All income levels',
           'Location': 'Global, with focus on tech-savvy markets'
+        }
+      },
+      'shoe resale store': {
+        detailed_analysis: `The sneaker and streetwear resale market has exploded in recent years, driven by limited edition drops, celebrity collaborations, and a thriving online community. Platforms like StockX and GOAT have set new standards for authentication and trust, making it easier for buyers and sellers to transact globally. Key challenges include ensuring authenticity, managing logistics, and competing with established players. Success depends on building a strong brand, leveraging technology, and engaging the community.`,
+        market_opportunities: [
+          'Growing demand for limited edition and exclusive sneakers.',
+          'Increasing consumer interest in sustainable and pre-owned fashion.',
+          'Opportunities to leverage technology for authentication and seamless transactions.'
+        ],
+        challenges: [
+          'Ensuring authenticity and preventing counterfeit products.',
+          'Managing logistics and inventory for a global market.',
+          'Competing with established platforms like StockX and GOAT.'
+        ],
+        recommendations: [
+          'Invest in robust authentication processes and technology.',
+          'Build a strong community and brand presence.',
+          'Offer competitive pricing and exclusive deals to attract sellers and buyers.'
+        ],
+        market_trends: [
+          { date: '2023-01', value: 70 },
+          { date: '2023-02', value: 75 },
+          { date: '2023-03', value: 80 },
+          { date: '2023-04', value: 85 },
+          { date: '2023-05', value: 88 },
+          { date: '2023-06', value: 90 }
+        ],
+        competition: [
+          { name: 'StockX', market_share: 40 },
+          { name: 'GOAT', market_share: 30 },
+          { name: 'Flight Club', market_share: 20 },
+          { name: 'Others', market_share: 10 }
+        ],
+        demographics: {
+          '18-24': 35,
+          '25-34': 45,
+          '35-44': 15,
+          '45+': 5
+        },
+        market_size: '$2B',
+        growth_rate: '10.5% CAGR',
+        target_market: 'Sneaker enthusiasts and fashion-conscious consumers',
+        target_market_demographics: {
+          'Primary Users': '25-34 year olds',
+          'Gender Split': '60% Male, 40% Female',
+          'Income Level': 'Middle to upper-middle class',
+          'Location': 'Urban areas with high fashion awareness'
+        }
+      },
+      'shoe resale': {
+        detailed_analysis: `The sneaker and streetwear resale market has exploded in recent years, driven by limited edition drops, celebrity collaborations, and a thriving online community. Platforms like StockX and GOAT have set new standards for authentication and trust, making it easier for buyers and sellers to transact globally. Key challenges include ensuring authenticity, managing logistics, and competing with established players. Success depends on building a strong brand, leveraging technology, and engaging the community.`,
+        market_opportunities: [
+          'Growing demand for limited edition and exclusive sneakers.',
+          'Increasing consumer interest in sustainable and pre-owned fashion.',
+          'Opportunities to leverage technology for authentication and seamless transactions.'
+        ],
+        challenges: [
+          'Ensuring authenticity and preventing counterfeit products.',
+          'Managing logistics and inventory for a global market.',
+          'Competing with established platforms like StockX and GOAT.'
+        ],
+        recommendations: [
+          'Invest in robust authentication processes and technology.',
+          'Build a strong community and brand presence.',
+          'Offer competitive pricing and exclusive deals to attract sellers and buyers.'
+        ],
+        market_trends: [
+          { date: '2023-01', value: 70 },
+          { date: '2023-02', value: 75 },
+          { date: '2023-03', value: 80 },
+          { date: '2023-04', value: 85 },
+          { date: '2023-05', value: 88 },
+          { date: '2023-06', value: 90 }
+        ],
+        competition: [
+          { name: 'StockX', market_share: 40 },
+          { name: 'GOAT', market_share: 30 },
+          { name: 'Flight Club', market_share: 20 },
+          { name: 'Others', market_share: 10 }
+        ],
+        demographics: {
+          '18-24': 35,
+          '25-34': 45,
+          '35-44': 15,
+          '45+': 5
+        },
+        market_size: '$2B',
+        growth_rate: '10.5% CAGR',
+        target_market: 'Sneaker enthusiasts and fashion-conscious consumers',
+        target_market_demographics: {
+          'Primary Users': '25-34 year olds',
+          'Gender Split': '60% Male, 40% Female',
+          'Income Level': 'Middle to upper-middle class',
+          'Location': 'Urban areas with high fashion awareness'
+        }
+      },
+      'travel luggage store': {
+        detailed_analysis: `The travel luggage and accessories market has evolved rapidly in recent years, driven by the rise of global travel, e-commerce, and changing consumer preferences. Brands like Away and Samsonite have set new standards with features such as built-in chargers, lightweight materials, and smart tracking. The COVID-19 pandemic temporarily disrupted the market, but as travel rebounds, demand for innovative and sustainable luggage solutions is growing. Key challenges include intense competition, supply chain disruptions, and the need to differentiate in a crowded market. Success depends on brand positioning, product innovation, and effective digital marketing. Companies that offer customization, eco-friendly materials, and seamless online shopping experiences are well-positioned to capture market share.`,
+        market_opportunities: [
+          'Rising demand for lightweight, durable, and smart luggage with integrated technology.',
+          'Growth in global travel and tourism as restrictions ease.',
+          'Increasing consumer interest in sustainable and eco-friendly materials.'
+        ],
+        challenges: [
+          'Intense competition from established brands and new entrants.',
+          'Supply chain disruptions affecting production and delivery.',
+          'Differentiating products in a crowded and price-sensitive market.'
+        ],
+        recommendations: [
+          'Invest in product innovation, such as smart features and sustainable materials.',
+          'Build a strong brand identity and leverage influencer marketing.',
+          'Offer customization options and excellent customer service to build loyalty.'
+        ],
+        market_trends: [
+          { date: '2023-01', value: 55 },
+          { date: '2023-02', value: 60 },
+          { date: '2023-03', value: 65 },
+          { date: '2023-04', value: 70 },
+          { date: '2023-05', value: 75 },
+          { date: '2023-06', value: 80 }
+        ],
+        competition: [
+          { name: 'Away', market_share: 15 },
+          { name: 'Samsonite', market_share: 25 },
+          { name: 'Others', market_share: 60 }
+        ],
+        demographics: {
+          '18-24': 20,
+          '25-34': 35,
+          '35-44': 25,
+          '45+': 20
+        },
+        market_size: '$23B',
+        growth_rate: '7.1% CAGR',
+        target_market: 'Frequent travelers, business professionals, and style-conscious consumers',
+        target_market_demographics: {
+          'Primary Users': '25-44 year olds',
+          'Travel Frequency': 'Frequent and occasional travelers',
+          'Income Level': 'Middle to upper-middle class',
+          'Location': 'Urban and suburban areas'
+        }
+      },
+      'subscription box': {
+        detailed_analysis: `The subscription box market has grown rapidly, offering consumers curated experiences across fashion, food, pets, and more. Companies like Stitch Fix and BarkBox have leveraged personalization, data analytics, and community engagement to build loyal customer bases. The market is driven by the desire for convenience, discovery, and surprise. Key challenges include customer retention, inventory management, and shipping costs. Success depends on strong curation, personalization technology, and quality control. Brands that focus on niche markets, sustainable packaging, and unique product offerings are well-positioned to thrive as consumers seek value and excitement in their subscriptions.`,
+        market_opportunities: [
+          'Personalization and customization for unique customer experiences.',
+          'Focus on niche markets and communities.',
+          'Integration of AI for better curation and recommendations.',
+          'Sustainable and eco-friendly packaging.'
+        ],
+        challenges: [
+          'Customer retention and churn.',
+          'Inventory management and supply chain.',
+          'Shipping costs and logistics.',
+          'Finding unique and high-quality products.'
+        ],
+        recommendations: [
+          'Invest in data analytics and personalization technology.',
+          'Build a strong community and brand identity.',
+          'Focus on quality control and unique product sourcing.'
+        ],
+        market_trends: [
+          { date: '2023-01', value: 60 },
+          { date: '2023-02', value: 65 },
+          { date: '2023-03', value: 70 },
+          { date: '2023-04', value: 75 },
+          { date: '2023-05', value: 80 },
+          { date: '2023-06', value: 85 }
+        ],
+        competition: [
+          { name: 'Stitch Fix', market_share: 30 },
+          { name: 'BarkBox', market_share: 20 },
+          { name: 'Others', market_share: 50 }
+        ],
+        demographics: {
+          '18-24': 20,
+          '25-34': 40,
+          '35-44': 25,
+          '45+': 15
+        },
+        market_size: '$20B',
+        growth_rate: '10.2% CAGR',
+        target_market: 'Consumers seeking curated, personalized experiences',
+        target_market_demographics: {
+          'Primary Users': '25-34 year olds',
+          'Subscription Type': 'Fashion, food, pets, and more',
+          'Income Level': 'Middle to upper-middle class',
+          'Location': 'Urban and suburban areas'
+        }
+      },
+      'budgeting app': {
+        detailed_analysis: `The budgeting and financial planning app market is expanding as consumers seek better control over their finances. Apps like Mint and YNAB offer features such as bank integration, real-time tracking, and personalized insights. The rise of fintech and open banking has made it easier for users to manage their money on the go. Key challenges include user trust, data security, and integration with financial institutions. Success depends on user education, mobile UX, and robust bank integrations. Companies that provide actionable insights, educational content, and seamless user experiences are best positioned to capture market share.`,
+        market_opportunities: [
+          'Rise of fintech and open banking.',
+          'Subscription-based models for recurring revenue.',
+          'Mobile-first financial management and real-time insights.'
+        ],
+        challenges: [
+          'User trust and data security.',
+          'Integration with banks and financial institutions.',
+          'User engagement and retention.'
+        ],
+        recommendations: [
+          'Invest in secure bank integrations and data privacy.',
+          'Focus on user education and actionable insights.',
+          'Optimize mobile UX for ease of use.'
+        ],
+        market_trends: [
+          { date: '2023-01', value: 50 },
+          { date: '2023-02', value: 55 },
+          { date: '2023-03', value: 60 },
+          { date: '2023-04', value: 65 },
+          { date: '2023-05', value: 70 },
+          { date: '2023-06', value: 75 }
+        ],
+        competition: [
+          { name: 'Mint', market_share: 60 },
+          { name: 'YNAB', market_share: 10 },
+          { name: 'Others', market_share: 30 }
+        ],
+        demographics: {
+          '18-24': 15,
+          '25-34': 45,
+          '35-44': 25,
+          '45+': 15
+        },
+        market_size: '$1.5B',
+        growth_rate: '8.3% CAGR',
+        target_market: 'Consumers seeking financial control and planning',
+        target_market_demographics: {
+          'Primary Users': '25-34 year olds',
+          'Income Level': 'All income levels',
+          'Location': 'Global, with focus on mobile users'
+        }
+      },
+      'clothing brand': {
+        detailed_analysis: `The clothing brand market is highly competitive, with direct-to-consumer and omnichannel brands focusing on sustainability, transparency, and modern design. Companies like Allbirds and Everlane have built strong brand identities through ethical sourcing, digital marketing, and customer engagement. The market is driven by consumer demand for quality, sustainability, and personalization. Key challenges include inventory management, brand differentiation, and customer acquisition costs. Success depends on a strong brand story, sustainable supply chain, and effective digital marketing. Brands that prioritize transparency, ethical practices, and community building are best positioned for long-term growth.`,
+        market_opportunities: [
+          'Sustainability and ethical sourcing.',
+          'Omnichannel retail and DTC growth.',
+          'Personalization and digital marketing.'
+        ],
+        challenges: [
+          'Inventory management and supply chain.',
+          'Brand differentiation in a crowded market.',
+          'Customer acquisition costs.'
+        ],
+        recommendations: [
+          'Build a strong brand identity and story.',
+          'Invest in sustainable supply chain and ethical practices.',
+          'Leverage digital marketing and influencer partnerships.'
+        ],
+        market_trends: [
+          { date: '2023-01', value: 40 },
+          { date: '2023-02', value: 45 },
+          { date: '2023-03', value: 50 },
+          { date: '2023-04', value: 55 },
+          { date: '2023-05', value: 60 },
+          { date: '2023-06', value: 65 }
+        ],
+        competition: [
+          { name: 'Allbirds', market_share: 20 },
+          { name: 'Everlane', market_share: 10 },
+          { name: 'Others', market_share: 70 }
+        ],
+        demographics: {
+          '18-24': 25,
+          '25-34': 40,
+          '35-44': 25,
+          '45+': 10
+        },
+        market_size: '$1.5B',
+        growth_rate: '7.5% CAGR',
+        target_market: 'Consumers seeking sustainable, modern fashion',
+        target_market_demographics: {
+          'Primary Users': '25-34 year olds',
+          'Gender Split': '60% Female, 40% Male',
+          'Income Level': 'All income levels',
+          'Location': 'Global, with focus on urban areas'
+        }
+      },
+      'luggage brand': {
+        detailed_analysis: `The luggage and travel accessories market is evolving with the rise of global travel, e-commerce, and changing consumer preferences. Brands like Away and Samsonite have set new standards with smart features, sustainable materials, and omnichannel presence. The market is driven by demand for durability, style, and innovation. Key challenges include supply chain disruptions, brand loyalty, and travel demand volatility. Success depends on product innovation, brand partnerships, and digital marketing. Companies that offer customization, eco-friendly materials, and seamless online shopping experiences are well-positioned to capture market share.`,
+        market_opportunities: [
+          'Smart luggage features and integrated technology.',
+          'Growth in global travel and tourism.',
+          'Sustainable and eco-friendly materials.'
+        ],
+        challenges: [
+          'Supply chain disruptions and logistics.',
+          'Brand loyalty and differentiation.',
+          'Travel demand volatility.'
+        ],
+        recommendations: [
+          'Invest in product innovation and smart features.',
+          'Build strong brand partnerships and influencer marketing.',
+          'Offer customization and excellent customer service.'
+        ],
+        market_trends: [
+          { date: '2023-01', value: 45 },
+          { date: '2023-02', value: 50 },
+          { date: '2023-03', value: 55 },
+          { date: '2023-04', value: 60 },
+          { date: '2023-05', value: 65 },
+          { date: '2023-06', value: 70 }
+        ],
+        competition: [
+          { name: 'Away', market_share: 5 },
+          { name: 'Samsonite', market_share: 30 },
+          { name: 'Others', market_share: 65 }
+        ],
+        demographics: {
+          '18-24': 20,
+          '25-34': 35,
+          '35-44': 25,
+          '45+': 20
+        },
+        market_size: '$35B',
+        growth_rate: '5.2% CAGR',
+        target_market: 'Frequent travelers and style-conscious consumers',
+        target_market_demographics: {
+          'Primary Users': '25-44 year olds',
+          'Travel Frequency': 'Frequent and occasional travelers',
+          'Income Level': 'Middle to upper-middle class',
+          'Location': 'Urban and suburban areas'
+        }
+      },
+      'accessories brand': {
+        detailed_analysis: `The fashion accessories market, including bags, jewelry, and eyewear, is driven by DTC and e-commerce growth, personalization, and sustainability. Brands like Warby Parker and Mejuri have built strong omnichannel presences and loyal communities. The market is competitive, with risks of counterfeiting and brand differentiation challenges. Success depends on a strong brand story, quality, and design. Companies that focus on ethical sourcing, customization, and digital marketing are best positioned for growth.`,
+        market_opportunities: [
+          'DTC and e-commerce growth.',
+          'Personalization and customization.',
+          'Sustainable and ethical sourcing.'
+        ],
+        challenges: [
+          'Counterfeit risk and brand protection.',
+          'Brand differentiation and loyalty.',
+          'Customer acquisition costs.'
+        ],
+        recommendations: [
+          'Build a strong brand story and community.',
+          'Invest in quality and design.',
+          'Leverage omnichannel retail and digital marketing.'
+        ],
+        market_trends: [
+          { date: '2023-01', value: 35 },
+          { date: '2023-02', value: 40 },
+          { date: '2023-03', value: 45 },
+          { date: '2023-04', value: 50 },
+          { date: '2023-05', value: 55 },
+          { date: '2023-06', value: 60 }
+        ],
+        competition: [
+          { name: 'Warby Parker', market_share: 20 },
+          { name: 'Mejuri', market_share: 10 },
+          { name: 'Others', market_share: 70 }
+        ],
+        demographics: {
+          '18-24': 20,
+          '25-34': 45,
+          '35-44': 25,
+          '45+': 10
+        },
+        market_size: '$5B',
+        growth_rate: '9.1% CAGR',
+        target_market: 'Fashion-conscious consumers seeking quality accessories',
+        target_market_demographics: {
+          'Primary Users': '25-34 year olds',
+          'Product Types': 'Bags, jewelry, eyewear',
+          'Income Level': 'Middle to upper-middle class',
+          'Location': 'Urban and suburban areas'
         }
       }
     };
@@ -1047,9 +1348,7 @@ To succeed, companies must balance innovation with user trust, offer customizati
 
   const renderSummarySection = () => {
     if (!validation) return null;
-    // Try to use mapped sample data for detailed analysis and bullet points
     const sampleData = getSampleChartData(idea);
-    // Remove all prompt/instructional text robustly
     let cleanSummary = (validation.summary || '').replace(/Business idea:.*?(?=Main market opportunities:|$)/gs, '')
       .replace(/No (directly )?relevant news found\.?/gi, '')
       .replace(/No real company\/industry\/financial data found\.?/gi, '')
@@ -1058,19 +1357,19 @@ To succeed, companies must balance innovation with user trust, offer customizati
       .replace(/\n{2,}/g, '\n')
       .replace(/^[-\s]+$/gm, '')
       .trim();
-    // If summary is empty or looks like a prompt, use sampleData.detailed_analysis
-    const showSample = !cleanSummary || cleanSummary.length < 100 || cleanSummary.match(/main market opportunities|key risks|actionable recommendations/i);
+    const showSample = sampleData && sampleData.detailed_analysis && sampleData.detailed_analysis.length > 0;
     return (
       <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200 mb-6">
         <h3 className="text-lg font-medium text-yellow-800 mb-3">Analysis Summary</h3>
         <div className="space-y-4">
-          {/* Detailed analysis paragraph(s) */}
-          {sampleData && sampleData.detailed_analysis && (
+          {showSample && (
             <div className="text-gray-800 whitespace-pre-line">{sampleData.detailed_analysis}</div>
           )}
-          {/* If the summary is valid and not just a prompt, show it */}
           {!showSample && cleanSummary && (
             <div className="text-gray-800 whitespace-pre-line">{cleanSummary}</div>
+          )}
+          {!showSample && !cleanSummary && (
+            <div className="text-gray-800 italic">No summary available for this idea yet. Please try a different idea or check back later.</div>
           )}
         </div>
         {validation.data_sources && validation.data_sources.llm && (
@@ -1090,7 +1389,7 @@ To succeed, companies must balance innovation with user trust, offer customizati
     // Market Opportunities section
     const renderMarketOpportunities = () => {
       const items = data.market_opportunities && data.market_opportunities.length > 0 ? data.market_opportunities : (sampleData ? sampleData.market_opportunities : []);
-      if (items.length > 0) {
+      if (Array.isArray(items) && items.length > 0) {
         return (
           <div className="bg-blue-50 p-4 rounded-lg border border-blue-200 mb-6">
             <h3 className="text-lg font-medium text-blue-800 mb-3">Market Opportunities</h3>
@@ -1107,7 +1406,7 @@ To succeed, companies must balance innovation with user trust, offer customizati
     // Challenges section
     const renderChallengesSection = () => {
       const items = data.challenges && data.challenges.length > 0 ? data.challenges : (sampleData ? sampleData.challenges : []);
-      if (items.length > 0) {
+      if (Array.isArray(items) && items.length > 0) {
         return (
           <div className="bg-red-50 p-4 rounded-lg border border-red-200 mb-6">
             <h3 className="text-lg font-medium text-red-800 mb-3">Key Challenges</h3>
@@ -1124,7 +1423,7 @@ To succeed, companies must balance innovation with user trust, offer customizati
     // Recommendations section
     const renderRecommendationsSection = () => {
       const items = data.recommendations && data.recommendations.length > 0 ? data.recommendations : (sampleData ? sampleData.recommendations : []);
-      if (items.length > 0) {
+      if (Array.isArray(items) && items.length > 0) {
         return (
           <div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
             <h3 className="text-lg font-medium text-purple-800 mb-3">Recommendations</h3>
