@@ -1,8 +1,11 @@
 import axios from 'axios';
 
+// Use environment variable if available, otherwise default to Render URL
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://launcher-wh3d.onrender.com/api';
+
 // Create axios instance with default config
 const axiosInstance = axios.create({
-  baseURL: 'http://localhost:5001/api',
+  baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json'
   },
