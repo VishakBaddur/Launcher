@@ -5,9 +5,10 @@ export class MCPService {
   private baseUrl: string;
 
   constructor() {
-    this.baseUrl = process.env.NODE_ENV === 'production' 
-      ? 'https://your-mcp-server.com' 
-      : 'http://localhost:3001';
+    this.baseUrl = import.meta.env.VITE_API_URL || 
+      (process.env.NODE_ENV === 'production' 
+        ? 'https://startup-genie-backend.onrender.com' 
+        : 'http://localhost:3001');
   }
 
   async validateIdea(ideaDescription: string): Promise<ValidationResult> {
