@@ -3,8 +3,8 @@
 echo "🚀 Startup Genie - Render Deployment Script"
 echo "=========================================="
 
-# Check if git is initialized
-if [ ! -d ".git" ]; then
+# Check if git is initialized (look in parent directory)
+if [ ! -d "../.git" ]; then
     echo "❌ Error: Git repository not found. Please initialize git first."
     exit 1
 fi

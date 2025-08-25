@@ -4,8 +4,9 @@ services:
     name: startup-genie-backend
     env: node
     plan: free
-    buildCommand: cd mcp-server && npm install && npm run build
-    startCommand: cd mcp-server && npm start
+    rootDir: startup-genie/mcp-server
+    buildCommand: npm install && npm run build
+    startCommand: npm start
     envVars:
       - key: NODE_ENV
         value: production

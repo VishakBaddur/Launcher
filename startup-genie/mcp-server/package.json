@@ -4,10 +4,10 @@
   "description": "MCP Server for Startup Genie - Free Data Sources",
   "main": "dist/test-server.js",
   "scripts": {
-    "build": "tsc",
+    "build": "npx tsc",
     "start": "node dist/test-server.js",
     "dev": "ts-node src/test-server.ts",
-    "test": "jest"
+    "postinstall": "npm run build"
   },
   "dependencies": {
     "axios": "^1.6.0",
