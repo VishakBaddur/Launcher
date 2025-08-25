@@ -5,9 +5,8 @@
   "main": "dist/test-server.js",
   "scripts": {
     "build": "npx tsc",
-    "start": "node dist/test-server.js",
-    "dev": "ts-node src/test-server.ts",
-    "postinstall": "npm run build"
+    "start": "npm run build && node dist/test-server.js",
+    "dev": "ts-node src/test-server.ts"
   },
   "dependencies": {
     "axios": "^1.6.0",
