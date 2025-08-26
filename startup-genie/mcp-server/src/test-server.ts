@@ -39,13 +39,14 @@ app.post('/api/validate_idea', async (req, res) => {
     console.log('Keywords:', keywords);
     console.log('Industry:', industry);
 
-    // Fetch live data from all sources
-    const [trends, sentiment, competitors, marketSize, industryTrends] = await Promise.all([
+    // Fetch live data from all sources including real-time news
+    const [trends, sentiment, competitors, marketSize, industryTrends, realTimeNews] = await Promise.all([
       googleTrends.fetchTrends(keywords),
       redditData.fetchSentiment(keywords),
       webScraper.scrapeCompetitorAnalysis(keywords),
       webScraper.scrapeMarketSize(industry),
-      webScraper.scrapeIndustryTrends(industry)
+      webScraper.scrapeIndustryTrends(industry),
+      webScraper.scrapeRealTimeNews(idea_description)
     ]);
 
     console.log('Live data fetched:', { 
@@ -53,14 +54,15 @@ app.post('/api/validate_idea', async (req, res) => {
       sentiment, 
       competitors: competitors.length, 
       marketSize,
-      trendsFound: industryTrends.length 
+      trendsFound: industryTrends.length,
+      realTimeNews: realTimeNews.length
     });
 
-    // Analyze and generate insights based on live data
-    const feasibilityScore = calculateFeasibilityScoreFromLiveData(trends, sentiment, competitors, marketSize);
-    const opportunities = identifyOpportunitiesFromLiveData(keywords, trends, sentiment, industryTrends);
-    const risks = identifyRisksFromLiveData(competitors, sentiment, marketSize);
-    const recommendations = generateRecommendationsFromLiveData(idea_description, trends, competitors, industryTrends);
+    // Analyze and generate insights based on live data including real-time news
+    const feasibilityScore = calculateFeasibilityScoreFromLiveData(trends, sentiment, competitors, marketSize, realTimeNews);
+    const opportunities = identifyOpportunitiesFromLiveData(keywords, trends, sentiment, industryTrends, realTimeNews);
+    const risks = identifyRisksFromLiveData(competitors, sentiment, marketSize, realTimeNews);
+    const recommendations = generateRecommendationsFromLiveData(idea_description, trends, competitors, industryTrends, realTimeNews);
 
     const result: ValidationResult = {
       feasibilityScore,
@@ -524,7 +526,7 @@ function generateDynamicRelationships(analysis: any): string[] {
 }
 
 // Live data analysis functions
-function calculateFeasibilityScoreFromLiveData(trends: any, sentiment: any, competitors: any[], marketSize: string): number {
+function calculateFeasibilityScoreFromLiveData(trends: any, sentiment: any, competitors: any[], marketSize: string, realTimeNews: string[]): number {
   let score = 50; // Base score
   
   // Analyze trends data
@@ -571,7 +573,7 @@ function calculateFeasibilityScoreFromLiveData(trends: any, sentiment: any, comp
   return Math.min(10, Math.max(1, Math.round(score / 10)));
 }
 
-function identifyOpportunitiesFromLiveData(keywords: string[], trends: any, sentiment: any, industryTrends: string[]): string[] {
+function identifyOpportunitiesFromLiveData(keywords: string[], trends: any, sentiment: any, industryTrends: string[], realTimeNews: string[]): string[] {
   const opportunities = [];
   
   // Analyze trends
@@ -605,7 +607,7 @@ function identifyOpportunitiesFromLiveData(keywords: string[], trends: any, sent
   return opportunities.length > 0 ? opportunities : ['Market research indicates potential for innovation and growth'];
 }
 
-function identifyRisksFromLiveData(competitors: any[], sentiment: any, marketSize: string): string[] {
+function identifyRisksFromLiveData(competitors: any[], sentiment: any, marketSize: string, realTimeNews: string[]): string[] {
   const risks = [];
   
   // Analyze competition
@@ -640,7 +642,7 @@ function identifyRisksFromLiveData(competitors: any[], sentiment: any, marketSiz
   return risks.length > 0 ? risks : ['Standard market risks apply - conduct thorough due diligence'];
 }
 
-function generateRecommendationsFromLiveData(ideaDescription: string, trends: any, competitors: any[], industryTrends: string[]): string[] {
+function generateRecommendationsFromLiveData(ideaDescription: string, trends: any, competitors: any[], industryTrends: string[], realTimeNews: string[]): string[] {
   const recommendations = [];
   
   // Competition-based recommendations

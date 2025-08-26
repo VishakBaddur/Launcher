@@ -9,12 +9,22 @@ export class WebScraperDataSource {
     const startups: StartupData[] = [];
     
     try {
-      // Use multiple real data sources
+      // Use multiple real data sources with dynamic search
+      const searchTerms = [
+        industry,
+        `${industry} startup`,
+        `${industry} companies`,
+        `${industry} business`,
+        `${industry} technology`
+      ];
+      
       const sources = [
         `https://www.crunchbase.com/search/organizations/field/organizations/categories/${encodeURIComponent(industry)}`,
         `https://angel.co/companies?markets=${encodeURIComponent(industry)}`,
         `https://www.startupblink.com/startups/${encodeURIComponent(industry)}`,
-        `https://www.linkedin.com/search/results/companies/?keywords=${encodeURIComponent(industry)}%20startup`
+        `https://www.linkedin.com/search/results/companies/?keywords=${encodeURIComponent(industry)}%20startup`,
+        `https://www.ycombinator.com/companies?search=${encodeURIComponent(industry)}`,
+        `https://www.techcrunch.com/search/?q=${encodeURIComponent(industry)}`
       ];
 
       for (const source of sources) {
@@ -359,6 +369,63 @@ export class WebScraperDataSource {
     }
 
     return results;
+  }
+
+  async scrapeRealTimeNews(idea: string): Promise<string[]> {
+    const news: string[] = [];
+    
+    try {
+      // Scrape real-time news about the specific idea
+      const searchQueries = [
+        `${idea} startup news`,
+        `${idea} latest developments`,
+        `${idea} market trends`,
+        `${idea} industry analysis`,
+        `${idea} funding news`
+      ];
+      
+      for (const query of searchQueries) {
+        try {
+          const response = await axios.get(`https://www.google.com/search`, {
+            params: { 
+              q: query,
+              num: 5,
+              hl: 'en',
+              tbm: 'nws' // News search
+            },
+            headers: { 
+              'User-Agent': this.userAgent,
+              'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+              'Accept-Language': 'en-US,en;q=0.5',
+              'Accept-Encoding': 'gzip, deflate',
+              'Connection': 'keep-alive',
+              'Upgrade-Insecure-Requests': '1'
+            },
+            timeout: 10000
+          });
+
+          const $ = cheerio.load(response.data);
+          
+          $('.g, .rc, .result, .dbsr').each((i, element) => {
+            const title = $(element).find('h3, .title, .result__title, .n0jPhd').first().text().trim();
+            const snippet = $(element).find('.VwiC3b, .snippet, .result__snippet, .xBbh9').first().text().trim();
+            
+            if (title && snippet) {
+              const newsText = `${title}: ${snippet}`;
+              if (newsText.length > 30 && newsText.length < 300) {
+                news.push(newsText);
+              }
+            }
+          });
+        } catch (error) {
+          console.error(`Error scraping news for ${query}:`, error);
+        }
+      }
+    } catch (error) {
+      console.error('Error in real-time news scraping:', error);
+    }
+
+    return news.slice(0, 10);
   }
 
   private estimateMarketSize(industry: string): string {
