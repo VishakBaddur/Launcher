@@ -4,7 +4,7 @@ Launcher is an AI-powered platform designed to accelerate the journey of early-s
 
 # Live Demo
 
-Experience the application live at: https://startup-genius-forge.lovable.app
+Experience the application live at: https://launcher-frontend.onrender.com
 
 # Features
 
