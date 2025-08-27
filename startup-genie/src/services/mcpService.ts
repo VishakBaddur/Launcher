@@ -7,7 +7,7 @@ export class MCPService {
   constructor() {
     this.baseUrl = import.meta.env.VITE_API_URL || 
       (process.env.NODE_ENV === 'production' 
-        ? 'https://startup-genie-backend.onrender.com' 
+        ? 'https://launcher-backend-cxxk.onrender.com' 
         : 'http://localhost:3001');
   }
 

@@ -23,7 +23,7 @@ services:
     staticPublishPath: ./dist
     envVars:
       - key: VITE_API_URL
-        value: https://startup-genie-backend.onrender.com
+        value: https://launcher-backend-cxxk.onrender.com
     routes:
       - type: rewrite
         source: /*
