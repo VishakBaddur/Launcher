@@ -111,9 +111,9 @@ const IdeaValidator = ({ user, onLogout }: IdeaValidatorProps) => {
                 <div className="bg-gray-50 p-4 rounded-lg mb-6">
                   <div className="flex items-center justify-between">
                     <span className="text-lg font-medium text-gray-700">Feasibility Score</span>
-                    <span className={`text-2xl font-bold ${getScoreColor(result.feasibilityScore)}`}>
-                      {result.feasibilityScore}/10
-                    </span>
+                                    <span className={`text-2xl font-bold ${getScoreColor(result.feasibilityScore)}`}>
+                  {result.feasibilityScore}/100
+                </span>
                   </div>
                 </div>
 

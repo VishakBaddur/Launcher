@@ -230,17 +230,61 @@ app.post('/api/create_pitch_deck', async (req, res) => {
     // Analyze startup dynamically
     const businessAnalysis = await analyzeBusinessDynamically(startup_info.description);
 
-         // Generate comprehensive pitch deck
-     const pitchDeck: PitchData = {
-       problem: generateProblemStatement(startup_info.description),
-       solution: generateSolutionStatement(startup_info.description),
-       marketSize: businessAnalysis.marketSize || '$1.0 billion',
-       businessModel: generateBusinessModelSummary(businessAnalysis),
-       traction: 'Strong market traction with growing user base',
-       team: generateTeamSection(startup_info),
-       competition: generateCompetitiveAdvantage(businessAnalysis),
-       financials: generateFinancialProjections(businessAnalysis),
-       fundingAsk: generateFundingSection(businessAnalysis)
+         // Generate comprehensive pitch deck with slides
+     const pitchDeck = {
+       startupName: startup_info.startupName || 'Your Startup',
+       title: `${startup_info.startupName || 'Your Startup'} - Investor Pitch Deck`,
+       slides: [
+         {
+           id: '1',
+           title: 'Problem Statement',
+           content: generateProblemStatement(startup_info.description),
+           presenterNotes: 'Start with the problem - this is what investors care about most.'
+         },
+         {
+           id: '2',
+           title: 'Solution',
+           content: generateSolutionStatement(startup_info.description),
+           presenterNotes: 'Present your solution clearly and concisely.'
+         },
+         {
+           id: '3',
+           title: 'Market Opportunity',
+           content: `Market Size: ${businessAnalysis.marketSize || '$1.0 billion'}\nGrowth Rate: 15.0% annually\nTarget Market: Primary market with clear value proposition`,
+           presenterNotes: 'Show the market size and growth potential.'
+         },
+         {
+           id: '4',
+           title: 'Business Model',
+           content: generateBusinessModelSummary(businessAnalysis),
+           presenterNotes: 'Explain how you will make money.'
+         },
+         {
+           id: '5',
+           title: 'Competitive Advantage',
+           content: generateCompetitiveAdvantage(businessAnalysis),
+           presenterNotes: 'What makes you different from competitors?'
+         },
+         {
+           id: '6',
+           title: 'Financial Projections',
+           content: generateFinancialProjections(businessAnalysis),
+           presenterNotes: 'Show realistic financial projections.'
+         },
+         {
+           id: '7',
+           title: 'Team',
+           content: generateTeamSection(startup_info),
+           presenterNotes: 'Highlight team expertise and experience.'
+         },
+         {
+           id: '8',
+           title: 'Funding Ask',
+           content: generateFundingSection(businessAnalysis),
+           presenterNotes: 'Be specific about how much funding you need and what you will use it for.'
+         }
+       ],
+       createdAt: new Date().toISOString()
      };
 
     console.log('✅ Pitch deck created successfully');
