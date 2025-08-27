@@ -1,7 +1,7 @@
 services:
   # Backend MCP Server
   - type: web
-    name: startup-genie-backend
+    name: launcher-backend
     env: node
     plan: free
     rootDir: startup-genie/mcp-server
@@ -16,7 +16,7 @@ services:
 
   # Frontend React App
   - type: web
-    name: startup-genie-frontend
+    name: launcher-frontend
     env: static
     plan: free
     buildCommand: npm install && npm run build

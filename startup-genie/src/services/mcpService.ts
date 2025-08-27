@@ -5,10 +5,9 @@ export class MCPService {
   private baseUrl: string;
 
   constructor() {
-    this.baseUrl = import.meta.env.VITE_API_URL || 
-      (process.env.NODE_ENV === 'production' 
-        ? 'https://launcher-backend-cxxk.onrender.com' 
-        : 'http://localhost:3001');
+    // Hardcode the backend URL for now to ensure it works
+    this.baseUrl = 'https://launcher-backend-cxxk.onrender.com';
+    console.log('🔗 MCP Service initialized with backend URL:', this.baseUrl);
   }
 
   async validateIdea(ideaDescription: string): Promise<ValidationResult> {
