@@ -11,7 +11,7 @@ import * as _ from 'lodash';
 
 const app = express();
 const server = createServer(app);
-const port = 3001;
+const port = process.env.PORT || 3001;
 
 app.use(cors());
 app.use(express.json());
@@ -579,7 +579,7 @@ function detectIndustry(text: string): string {
   return 'technology';
 }
 
-// Start the enhanced server
+// Start the enhanced server with error handling
 server.listen(port, () => {
   console.log(`🚀 Real-Time Market Intelligence Platform running on port ${port}`);
   console.log(`📊 Advanced Analytics & ML Components: ACTIVE`);
@@ -587,4 +587,9 @@ server.listen(port, () => {
   console.log(`🧠 Machine Learning Models: LOADED`);
   console.log(`📈 Technical Indicators: ENABLED`);
   console.log(`🎯 Market Predictions: OPERATIONAL`);
+  console.log(`🌐 Server URL: http://localhost:${port}`);
+  console.log(`🔗 Health Check: http://localhost:${port}/api/health`);
+}).on('error', (error) => {
+  console.error('❌ Failed to start server:', error);
+  process.exit(1);
 });
