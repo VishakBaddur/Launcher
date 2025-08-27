@@ -1,7 +1,7 @@
 {
   "name": "startup-genie-mcp-server",
   "version": "1.0.0",
-  "description": "MCP Server for Startup Genie - Free Data Sources",
+  "description": "Real-Time Market Intelligence Platform - Advanced Analytics & ML",
   "main": "dist/test-server.js",
   "scripts": {
     "build": "npx tsc",
@@ -12,17 +12,34 @@
     "axios": "^1.6.0",
     "cheerio": "^1.0.0-rc.12",
     "express": "^4.18.0",
-    "cors": "^2.8.5"
+    "cors": "^2.8.5",
+    "socket.io": "^4.7.0",
+    "node-cron": "^3.0.0",
+    "natural": "^6.0.0",
+    "ml-matrix": "^6.10.0",
+    "ml-regression": "^5.0.0",
+    "ml-kmeans": "^2.0.0",
+    "compromise": "^14.0.0",
+    "sentiment": "^5.0.2",
+    "technicalindicators": "^3.1.0",
+    "moment": "^2.29.4",
+    "lodash": "^4.17.21",
+    "node-cache": "^5.1.2",
+    "ws": "^8.0.0"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
     "@types/cheerio": "^0.22.0",
     "@types/express": "^4.17.0",
     "@types/cors": "^2.8.0",
+    "@types/natural": "^5.1.0",
+    "@types/node-cron": "^3.0.0",
+    "@types/lodash": "^4.14.0",
+    "@types/ws": "^8.0.0",
     "typescript": "^5.0.0",
     "ts-node": "^10.9.0"
   },
-  "keywords": ["mcp", "startup", "ai", "data", "free"],
-  "author": "Startup Genie",
+  "keywords": ["market intelligence", "real-time analytics", "ml", "ai", "startup", "data science"],
+  "author": "Market Intelligence Platform",
   "license": "MIT"
 } 
