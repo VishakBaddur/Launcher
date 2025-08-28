@@ -4,6 +4,7 @@ import { createServer } from 'http';
 import { GoogleTrendsDataSource } from './data-sources/google-trends';
 import { RedditDataSource } from './data-sources/reddit-data';
 import { WebScraperDataSource } from './data-sources/web-scraper';
+import { RAGSystem } from './rag/rag-system';
 import { ValidationResult, BusinessModelData, PitchData } from './types/index';
 import * as _ from 'lodash';
 
@@ -14,28 +15,67 @@ const port = process.env.PORT || 3001;
 app.use(cors());
 app.use(express.json());
 
-// Initialize data sources
+// Initialize data sources and RAG system
 const googleTrends = new GoogleTrendsDataSource();
 const redditData = new RedditDataSource();
 const webScraper = new WebScraperDataSource();
+const ragSystem = new RAGSystem();
 
 // Enhanced health endpoint with system status
 app.get('/api/health', (req, res) => {
   const systemStatus = {
     status: 'OK',
-    message: 'Real-Time Market Intelligence Platform is running!',
+    message: 'Real-Time Market Intelligence Platform with RAG is running!',
     features: {
       realTimeMonitoring: true,
       marketIntelligence: true,
       advancedAnalytics: true,
       marketPredictions: true,
-      sentimentAnalysis: true
+      sentimentAnalysis: true,
+      ragSystem: true,
+      dynamicContentGeneration: true
     },
     uptime: process.uptime(),
     timestamp: Date.now(),
     port: port
   };
   res.json(systemStatus);
+});
+
+// RAG-powered market intelligence endpoint
+app.post('/api/rag_intelligence', async (req, res) => {
+  try {
+    const { query, industry } = req.body;
+    
+    if (!query) {
+      return res.status(400).json({ error: 'query is required' });
+    }
+
+    console.log(`🧠 RAG Processing query: "${query}" for industry: ${industry || 'general'}`);
+
+    // Process query through RAG system
+    const ragResponse = await ragSystem.processRAGQuery(query, industry || 'technology');
+
+    const response = {
+      query,
+      industry: industry || 'technology',
+      timestamp: Date.now(),
+      ragResponse,
+      confidence: ragResponse.confidence,
+      dataSources: {
+        retrievedDataPoints: ragResponse.retrievedData.length,
+        insights: ragResponse.insights.length,
+        recommendations: ragResponse.recommendations.length
+      }
+    };
+
+    console.log(`✅ RAG Intelligence generated with ${ragResponse.confidence.toFixed(1)}% confidence`);
+    res.json(response);
+
+  } catch (error) {
+    console.error('Error in RAG intelligence:', error);
+    res.status(500).json({ error: 'Failed to generate RAG intelligence', details: (error as Error).message });
+  }
 });
 
 // Simplified market intelligence endpoint
@@ -143,26 +183,29 @@ app.post('/api/validate_idea', async (req, res) => {
       marketSize
     });
 
-    // Calculate feasibility score based on data
+    // Use RAG system for enhanced analysis
+    const ragResponse = await ragSystem.processRAGQuery(idea_description, industry);
+    
+    // Calculate feasibility score based on RAG data
     const feasibilityScore = calculateFeasibilityScore(trends, sentiment, competitors, marketSize);
     const riskScore = calculateRiskScore(competitors, sentiment);
     const opportunityScore = calculateOpportunityScore(trends, marketSize);
 
-    // Enhanced validation result
+    // Enhanced validation result with RAG insights
     const result: ValidationResult = {
       feasibilityScore,
       marketSize: formatMarketSize(marketSize),
       competitionLevel: assessCompetitionLevel(competitors),
       trends: extractTrends(trends),
-      opportunities: identifyOpportunities(trends, marketSize),
+      opportunities: ragResponse.recommendations.length > 0 ? ragResponse.recommendations.slice(0, 3) : identifyOpportunities(trends, marketSize),
       risks: identifyRisks(competitors, sentiment),
-      recommendations: generateRecommendations(feasibilityScore, competitors),
+      recommendations: ragResponse.recommendations.length > 0 ? ragResponse.recommendations : generateRecommendations(feasibilityScore, competitors),
       similarStartups: competitors.slice(0, 5),
       marketInsights: {
         marketSize: formatMarketSize(marketSize),
         growthRate: '15.0% annually',
         trends: extractTrends(trends),
-        opportunities: identifyOpportunities(trends, marketSize),
+        opportunities: ragResponse.insights.length > 0 ? ragResponse.insights.slice(0, 3) : identifyOpportunities(trends, marketSize),
         threats: identifyRisks(competitors, sentiment)
       }
     };
