@@ -1,7 +1,7 @@
 #!/bin/bash
 
-echo "🚀 Startup Genie - Render Deployment Script"
-echo "=========================================="
+echo "🚀 Launcher - Render Deployment Script"
+echo "====================================="
 
 # Check if git is initialized (look in parent directory)
 if [ ! -d "../.git" ]; then
@@ -11,7 +11,7 @@ fi
 
 # Check if we're in the right directory
 if [ ! -f "package.json" ] || [ ! -d "mcp-server" ]; then
-    echo "❌ Error: Please run this script from the startup-genie directory"
+    echo "❌ Error: Please run this script from the launcher directory"
     exit 1
 fi
 
@@ -46,8 +46,8 @@ echo "   git push origin main"
 echo ""
 echo "2. Deploy on Render:"
 echo "   - Go to https://dashboard.render.com"
-echo "   - Create Web Service for backend (startup-genie/mcp-server)"
-echo "   - Create Static Site for frontend (startup-genie)"
+echo "   - Create Web Service for backend (launcher/mcp-server)"
+echo "   - Create Static Site for frontend (launcher)"
 echo ""
 echo "3. Set environment variables:"
 echo "   Backend: NODE_ENV=production, PORT=3001"

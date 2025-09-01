@@ -1,4 +1,4 @@
-# Startup Genie MCP Server
+# Launcher MCP Server
 
 A Model Context Protocol (MCP) server that provides AI-powered startup insights using free data sources.
 
@@ -111,9 +111,9 @@ Creates investor-ready pitch deck content.
 }
 ```
 
-## 🌐 Integration with Startup Genie
+## 🌐 Integration with Launcher
 
-The MCP server integrates seamlessly with your Startup Genie React application:
+The MCP server integrates seamlessly with your Launcher React application:
 
 ```typescript
 // In your React app

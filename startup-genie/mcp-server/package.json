@@ -1,5 +1,5 @@
 {
-  "name": "startup-genie-mcp-server",
+  "name": "launcher-mcp-server",
   "version": "1.0.0",
   "description": "Real-Time Market Intelligence Platform - Advanced Analytics & ML",
   "main": "dist/test-server.js",

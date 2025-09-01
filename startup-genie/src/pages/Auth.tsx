@@ -47,8 +47,8 @@ const Auth = ({ onLogin }: AuthProps) => {
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
           <Link to="/" className="inline-block">
-            <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-blue-600">
-              🚀 Startup Genie
+            <h1 className="text-3xl font-bold text-gray-900 mb-6">
+              🚀 Launcher
             </h1>
           </Link>
           <h2 className="mt-6 text-3xl font-bold text-gray-900">

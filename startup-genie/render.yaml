@@ -4,7 +4,7 @@ services:
     name: launcher-backend
     env: node
     plan: free
-    rootDir: startup-genie/mcp-server
+    rootDir: launcher/mcp-server
     buildCommand: npm install
     startCommand: npm start
     envVars:

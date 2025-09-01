@@ -44,8 +44,8 @@ const BusinessModel = ({ user, onLogout }: BusinessModelProps) => {
     <div className="min-h-screen bg-gray-50">
       <div className="bg-white shadow-sm border-b border-gray-200 px-6 py-4">
         <div className="flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-blue-600">
-            🚀 Startup Genie - Business Model Generator
+          <h1 className="text-3xl font-bold text-gray-900 mb-6">
+            🚀 Launcher - Business Model Generator
           </h1>
           <div className="flex items-center space-x-4">
             <button

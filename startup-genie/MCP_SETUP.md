@@ -2,13 +2,14 @@
 
 ## Quick Start (Zero Cost!)
 
-You now have a complete MCP server that uses **100% free data sources** for your Startup Genie application!
+You now have a complete MCP server that uses **100% free data sources** for your Launcher application!
 
 ### 📁 What You Have
 
 ```
-startup-genie/
-├── mcp-server/           # Your MCP server
+launcher/
+├── src/                    # Frontend React code
+├── mcp-server/            # Backend Node.js code
 │   ├── src/
 │   │   ├── data-sources/ # Free data sources
 │   │   ├── types/        # TypeScript types
@@ -98,7 +99,7 @@ const pitchDeck = await mcpService.createPitchDeck(startupInfo);
 
 ### 🚀 Ready to Launch!
 
-Your Startup Genie platform now has:
+Your Launcher platform now has:
 - ✅ Beautiful React UI
 - ✅ Real AI-powered insights (when MCP server is running)
 - ✅ Fallback to quality mock data

@@ -1,6 +1,6 @@
-# 🚀 Startup Genie - Render Deployment Guide
+# 🚀 Launcher - Render Deployment Guide
 
-This guide will help you deploy both the frontend and backend of Startup Genie on Render.
+This guide will help you deploy both the frontend and backend of Launcher on Render.
 
 ## 📋 Prerequisites
 
@@ -27,7 +27,7 @@ We'll deploy two services:
 
 2. **Verify your repository structure**:
    ```
-   startup-genie/
+   launcher/
    ├── src/                    # Frontend React code
    ├── mcp-server/            # Backend Node.js code
    ├── package.json           # Frontend dependencies
@@ -35,7 +35,7 @@ We'll deploy two services:
    ├── Dockerfile             # Frontend Docker config
    └── nginx.conf             # Nginx configuration
    
-   startup-genie/mcp-server/
+   launcher/mcp-server/
    ├── src/                   # Backend source code
    ├── package.json           # Backend dependencies
    ├── tsconfig.json          # TypeScript config
@@ -52,11 +52,11 @@ We'll deploy two services:
    - Connect your GitHub repository
 
 3. **Configure Backend Service**:
-   - **Name**: `startup-genie-backend`
+   - **Name**: `launcher-backend`
    - **Environment**: `Node`
    - **Region**: Choose closest to your users
    - **Branch**: `main`
-   - **Root Directory**: `startup-genie/mcp-server`
+   - **Root Directory**: `launcher/mcp-server`
    - **Build Command**: `npm install && npm run build`
    - **Start Command**: `npm start`
    - **Plan**: Free (or paid if needed)
@@ -67,7 +67,7 @@ We'll deploy two services:
 
 5. **Click "Create Web Service"**
 
-6. **Wait for deployment** and note the URL (e.g., `https://startup-genie-backend.onrender.com`)
+6. **Wait for deployment** and note the URL (e.g., `https://launcher-backend.onrender.com`)
 
 ### Step 3: Deploy Frontend
 
@@ -77,32 +77,32 @@ We'll deploy two services:
    - Connect your GitHub repository
 
 2. **Configure Frontend Service**:
-   - **Name**: `startup-genie-frontend`
+   - **Name**: `launcher-frontend`
    - **Environment**: `Static Site`
    - **Region**: Same as backend
    - **Branch**: `main`
-   - **Root Directory**: `startup-genie`
+   - **Root Directory**: `launcher`
    - **Build Command**: `npm install && npm run build`
    - **Publish Directory**: `dist`
    - **Plan**: Free
 
 3. **Environment Variables**:
-   - `VITE_API_URL`: `https://startup-genie-backend.onrender.com` (use your backend URL)
+   - `VITE_API_URL`: `https://launcher-backend.onrender.com` (use your backend URL)
 
 4. **Click "Create Static Site"**
 
-5. **Wait for deployment** and note the URL (e.g., `https://startup-genie-frontend.onrender.com`)
+5. **Wait for deployment** and note the URL (e.g., `https://launcher-frontend.onrender.com`)
 
 ### Step 4: Configure Custom Domain (Optional)
 
 1. **In your frontend service**:
    - Go to Settings → Custom Domains
-   - Add your domain (e.g., `startupgenie.com`)
+   - Add your domain (e.g., `launcher.com`)
    - Configure DNS as instructed
 
 2. **In your backend service**:
    - Go to Settings → Custom Domains
-   - Add your API domain (e.g., `api.startupgenie.com`)
+   - Add your API domain (e.g., `api.launcher.com`)
 
 ## 🔧 Alternative: Using render.yaml (Blue-Green Deployment)
 
@@ -121,7 +121,7 @@ If you want to deploy both services at once:
 ```bash
 curl https://your-backend-url.onrender.com/api/health
 ```
-Should return: `{"status":"OK","message":"Startup Genie MCP Server is running!"}`
+Should return: `{"status":"OK","message":"Launcher MCP Server is running!"}`
 
 ### Test Frontend:
 1. Visit your frontend URL
@@ -151,13 +151,13 @@ Should return: `{"status":"OK","message":"Startup Genie MCP Server is running!"}
 
 ```bash
 # Test backend locally
-cd startup-genie/mcp-server
+cd launcher/mcp-server
 npm install
 npm run build
 npm start
 
 # Test frontend locally
-cd startup-genie
+cd launcher
 npm install
 npm run build
 npm run preview
@@ -204,6 +204,6 @@ If you encounter issues:
 
 ---
 
-**Your Startup Genie is now live! 🎉**
+**Your Launcher is now live! 🎉**
 
 Visit your frontend URL to start using the AI-powered startup assistant platform.

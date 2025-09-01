@@ -1,4 +1,4 @@
-# Startup Genie - AI-Powered Startup Assistant Platform
+# Launcher - AI-Powered Startup Assistant Platform
 
 A comprehensive React TypeScript web application that helps entrepreneurs validate, plan, and pitch their startup ideas using AI-powered tools.
 
@@ -31,7 +31,7 @@ A comprehensive React TypeScript web application that helps entrepreneurs valida
 1. Clone the repository:
 ```bash
 git clone <repository-url>
-cd startup-genie
+cd launcher
 ```
 
 2. Install dependencies:
@@ -186,4 +186,4 @@ For support and questions, please open an issue in the repository.
 
 ---
 
-**Startup Genie** - Your AI-powered co-founder platform for building successful startups! 🚀
+**Launcher** - Your AI-powered co-founder platform for building successful startups! 🚀

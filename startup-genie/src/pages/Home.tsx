@@ -13,7 +13,7 @@ const Home = ({ onLogin: _onLogin }: HomeProps) => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
           <div className="text-center">
             <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">
-              🚀 Startup Genie
+              🚀 Launcher
             </h1>
             <p className="text-xl md:text-2xl text-purple-100 mb-8 max-w-3xl mx-auto">
               AI-Powered Startup Assistant Platform
@@ -86,7 +86,7 @@ const Home = ({ onLogin: _onLogin }: HomeProps) => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Why Choose Startup Genie?
+              Why Choose Launcher?
             </h2>
           </div>
           

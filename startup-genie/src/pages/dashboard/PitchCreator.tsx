@@ -85,8 +85,8 @@ ${slide.presenterNotes}
     <div className="min-h-screen bg-gray-50">
       <div className="bg-white shadow-sm border-b border-gray-200 px-6 py-4">
         <div className="flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-blue-600">
-            🚀 Startup Genie - Pitch Creator
+          <h1 className="text-3xl font-bold text-gray-900 mb-6">
+            🚀 Launcher - Pitch Creator
           </h1>
           <div className="flex items-center space-x-4">
             <span className="text-gray-700">Welcome, {user.email}</span>
