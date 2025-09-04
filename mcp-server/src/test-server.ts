@@ -1227,6 +1227,232 @@ const redditData = new RedditDataSource();
 const webScraper = new WebScraperDataSource();
 const ragSystem = new RAGSystem();
 
+// Helper functions for real-time analysis
+function calculateFeasibilityScore(trends: any, sentiment: any, competitors: any[], marketSize: string): number {
+  let score = 50; // Base score
+  
+  // Market size factor
+  if (marketSize && marketSize.includes('billion')) {
+    const size = parseFloat(marketSize.replace(/[^0-9.]/g, ''));
+    if (size > 100) score += 20;
+    else if (size > 50) score += 15;
+    else if (size > 10) score += 10;
+  }
+  
+  // Competition factor (less competition = higher score)
+  if (competitors.length === 0) score += 25;
+  else if (competitors.length < 3) score += 15;
+  else if (competitors.length < 10) score += 5;
+  else score -= 10;
+  
+  // Trend factor
+  const avgTrend = Object.values(trends).reduce((sum: number, val: any) => sum + (val || 0), 0) / Object.keys(trends).length;
+  if (avgTrend > 70) score += 15;
+  else if (avgTrend > 40) score += 10;
+  else if (avgTrend > 20) score += 5;
+  
+  // Sentiment factor
+  const avgSentiment = Object.values(sentiment).reduce((sum: number, val: any) => sum + (val || 0), 0) / Object.keys(sentiment).length;
+  if (avgSentiment > 0.5) score += 10;
+  else if (avgSentiment > 0) score += 5;
+  else if (avgSentiment < -0.5) score -= 15;
+  
+  return Math.min(Math.max(score, 0), 100);
+}
+
+function analyzeMarketGaps(competitors: any[], idea: string): string[] {
+  const gaps = [];
+  const ideaKeywords = idea.toLowerCase().split(/\s+/);
+  
+  if (competitors.length === 0) {
+    gaps.push('First-mover advantage - no direct competitors identified');
+    gaps.push('Market education opportunity - need to create awareness');
+  } else if (competitors.length < 5) {
+    gaps.push('Moderate competition - opportunity for differentiation');
+    gaps.push('Niche market positioning available');
+  } else {
+    gaps.push('High competition - focus on unique value proposition');
+    gaps.push('Market saturation risk - need strong differentiation');
+  }
+  
+  // Analyze specific gaps based on competitor descriptions
+  const competitorDescriptions = competitors.map(c => c.description?.toLowerCase() || '').join(' ');
+  
+  if (!competitorDescriptions.includes('ai') && ideaKeywords.includes('ai')) {
+    gaps.push('AI integration gap - competitors lack AI capabilities');
+  }
+  
+  if (!competitorDescriptions.includes('real-time') && ideaKeywords.includes('real-time')) {
+    gaps.push('Real-time processing gap in current market');
+  }
+  
+  if (!competitorDescriptions.includes('mobile') && ideaKeywords.includes('mobile')) {
+    gaps.push('Mobile-first approach gap');
+  }
+  
+  return gaps;
+}
+
+function analyzeProductMarketFit(sentiment: any, trends: any, marketSize: string): any {
+  const avgSentiment = Object.values(sentiment).reduce((sum: number, val: any) => sum + (val || 0), 0) / Object.keys(sentiment).length;
+  const avgTrend = Object.values(trends).reduce((sum: number, val: any) => sum + (val || 0), 0) / Object.keys(trends).length;
+  
+  let fitScore = 50;
+  let fitLevel = 'Unknown';
+  
+  if (avgSentiment > 0.3 && avgTrend > 60) {
+    fitScore = 85;
+    fitLevel = 'Strong';
+  } else if (avgSentiment > 0.1 && avgTrend > 40) {
+    fitScore = 70;
+    fitLevel = 'Good';
+  } else if (avgSentiment > -0.1 && avgTrend > 20) {
+    fitScore = 55;
+    fitLevel = 'Moderate';
+  } else {
+    fitScore = 30;
+    fitLevel = 'Weak';
+  }
+  
+  return {
+    score: fitScore,
+    level: fitLevel,
+    indicators: {
+      marketSentiment: avgSentiment > 0 ? 'Positive' : 'Negative',
+      trendMomentum: avgTrend > 50 ? 'Growing' : 'Stable',
+      marketSize: marketSize ? 'Large Market' : 'Unknown Size'
+    },
+    recommendations: fitScore > 70 ? 
+      ['Market shows strong demand', 'Focus on execution and scaling'] :
+      ['Market validation needed', 'Consider pivoting or market education']
+  };
+}
+
+function getCompetitionLevel(competitorCount: number): string {
+  if (competitorCount === 0) return 'Very Low';
+  if (competitorCount < 3) return 'Low';
+  if (competitorCount < 10) return 'Moderate';
+  if (competitorCount < 20) return 'High';
+  return 'Very High';
+}
+
+function generateOpportunities(trends: any, sentiment: any, marketGaps: string[]): string[] {
+  const opportunities = [...marketGaps];
+  
+  const avgTrend = Object.values(trends).reduce((sum: number, val: any) => sum + (val || 0), 0) / Object.keys(trends).length;
+  const avgSentiment = Object.values(sentiment).reduce((sum: number, val: any) => sum + (val || 0), 0) / Object.keys(sentiment).length;
+  
+  if (avgTrend > 70) {
+    opportunities.push('High market interest - capitalize on trending demand');
+  }
+  
+  if (avgSentiment > 0.3) {
+    opportunities.push('Positive market sentiment - leverage community enthusiasm');
+  }
+  
+  if (Object.keys(trends).length > 5) {
+    opportunities.push('Multiple market segments - diversify target audience');
+  }
+  
+  return opportunities.slice(0, 5);
+}
+
+function generateRisks(competitors: any[], sentiment: any, trends: any): string[] {
+  const risks = [];
+  
+  if (competitors.length > 10) {
+    risks.push('High competition - market saturation risk');
+  }
+  
+  const avgSentiment = Object.values(sentiment).reduce((sum: number, val: any) => sum + (val || 0), 0) / Object.keys(sentiment).length;
+  if (avgSentiment < -0.2) {
+    risks.push('Negative market sentiment - adoption challenges');
+  }
+  
+  const avgTrend = Object.values(trends).reduce((sum: number, val: any) => sum + (val || 0), 0) / Object.keys(trends).length;
+  if (avgTrend < 20) {
+    risks.push('Low market interest - need market education');
+  }
+  
+  if (competitors.some(c => c.funding && c.funding.includes('million'))) {
+    risks.push('Well-funded competitors - capital requirements high');
+  }
+  
+  risks.push('Technology disruption risk');
+  risks.push('Market volatility');
+  
+  return risks.slice(0, 5);
+}
+
+function generateRecommendations(feasibilityScore: number, marketGaps: string[], productMarketFit: any): string[] {
+  const recommendations = [];
+  
+  if (feasibilityScore > 80) {
+    recommendations.push('High feasibility - proceed with aggressive market entry');
+    recommendations.push('Focus on rapid scaling and market capture');
+  } else if (feasibilityScore > 60) {
+    recommendations.push('Good feasibility - proceed with careful planning');
+    recommendations.push('Focus on differentiation and unique value proposition');
+  } else {
+    recommendations.push('Moderate feasibility - conduct deeper market research');
+    recommendations.push('Consider pivoting or market education strategy');
+  }
+  
+  if (marketGaps.length > 0) {
+    recommendations.push('Leverage identified market gaps for competitive advantage');
+  }
+  
+  if (productMarketFit.score > 70) {
+    recommendations.push('Strong product-market fit signals - focus on execution');
+  } else {
+    recommendations.push('Improve product-market fit through customer validation');
+  }
+  
+  recommendations.push('Build strategic partnerships');
+  recommendations.push('Invest in technology and innovation');
+  
+  return recommendations.slice(0, 5);
+}
+
+function calculateRelevance(competitor: any, idea: string): number {
+  const ideaWords = idea.toLowerCase().split(/\s+/);
+  const compText = (competitor.name + ' ' + competitor.description).toLowerCase();
+  
+  const matches = ideaWords.filter(word => 
+    word.length > 3 && compText.includes(word)
+  ).length;
+  
+  return Math.min((matches / ideaWords.length) * 100, 100);
+}
+
+function calculateGrowthRate(trends: any): string {
+  const avgTrend = Object.values(trends).reduce((sum: number, val: any) => sum + (val || 0), 0) / Object.keys(trends).length;
+  
+  if (avgTrend > 70) return '25%+ annually';
+  if (avgTrend > 50) return '15-25% annually';
+  if (avgTrend > 30) return '5-15% annually';
+  return '0-5% annually';
+}
+
+function generateThreats(competitors: any[], sentiment: any): string[] {
+  const threats = [];
+  
+  if (competitors.length > 5) {
+    threats.push('Market saturation');
+  }
+  
+  const avgSentiment = Object.values(sentiment).reduce((sum: number, val: any) => sum + (val || 0), 0) / Object.keys(sentiment).length;
+  if (avgSentiment < 0) {
+    threats.push('Negative market perception');
+  }
+  
+  threats.push('Technology disruption');
+  threats.push('Regulatory changes');
+  threats.push('Economic downturn impact');
+  
+  return threats.slice(0, 3);
+}
+
 // API Endpoints
 app.get('/api/health', (req, res) => {
   res.json({ status: 'healthy', message: 'Launcher MCP Server is running' });
@@ -1278,8 +1504,75 @@ app.post('/api/validate_idea', async (req, res) => {
 
     console.log(`🔍 Validating idea: ${idea_description}`);
     
-    const result = await ragSystem.processRAGQuery(idea_description, 'technology');
-    res.json(result);
+    // Get comprehensive market intelligence
+    const ragResponse = await ragSystem.processRAGQuery(idea_description, 'technology');
+    
+    // Extract keywords for deeper analysis
+    const keywords = idea_description.toLowerCase().split(/\s+/).filter((word: string) => 
+      word.length > 3 && !['the', 'and', 'for', 'with', 'that', 'this', 'from', 'they', 'have', 'been', 'were', 'said', 'each', 'which', 'their', 'time', 'will', 'about', 'there', 'could', 'other', 'after', 'first', 'well', 'also', 'new', 'want', 'because', 'any', 'these', 'give', 'day', 'most', 'us'].includes(word)
+    );
+
+    // Get real-time market data
+    const [trends, sentiment, competitors, marketSize, newsData] = await Promise.all([
+      googleTrends.fetchTrends(keywords),
+      redditData.fetchSentiment(keywords),
+      webScraper.scrapeCompetitorAnalysis(keywords),
+      webScraper.scrapeMarketSize(idea_description),
+      webScraper.scrapeRealTimeNews(idea_description)
+    ]);
+
+    // Calculate real feasibility score based on data
+    const feasibilityScore = calculateFeasibilityScore(trends, sentiment, competitors, marketSize);
+    
+    // Generate market gap analysis
+    const marketGaps = analyzeMarketGaps(competitors, idea_description);
+    
+    // Product-market fit analysis
+    const productMarketFit = analyzeProductMarketFit(sentiment, trends, marketSize);
+    
+    // Create comprehensive validation report
+    const validationReport = {
+      idea: idea_description,
+      timestamp: new Date().toISOString(),
+      dataSources: {
+        trends: Object.keys(trends).length,
+        sentiment: Object.keys(sentiment).length,
+        competitors: competitors.length,
+        news: newsData.length
+      },
+      feasibilityScore: feasibilityScore,
+      marketAnalysis: {
+        marketSize: marketSize || 'Data not available',
+        competitionLevel: getCompetitionLevel(competitors.length),
+        marketTrends: Object.entries(trends).map(([keyword, score]) => ({
+          keyword,
+          trendScore: score,
+          interpretation: score > 70 ? 'High Interest' : score > 40 ? 'Moderate Interest' : 'Low Interest'
+        })),
+        marketGaps: marketGaps
+      },
+      productMarketFit: productMarketFit,
+      opportunities: generateOpportunities(trends, sentiment, marketGaps),
+      risks: generateRisks(competitors, sentiment, trends),
+      recommendations: generateRecommendations(feasibilityScore, marketGaps, productMarketFit),
+      similarStartups: competitors.slice(0, 5).map(comp => ({
+        name: comp.name,
+        description: comp.description,
+        funding: comp.funding,
+        relevance: calculateRelevance(comp, idea_description)
+      })),
+      marketInsights: {
+        marketSize: marketSize || 'Data not available',
+        growthRate: calculateGrowthRate(trends),
+        trends: Object.keys(trends).slice(0, 5),
+        opportunities: marketGaps.slice(0, 3),
+        threats: generateThreats(competitors, sentiment)
+      },
+      confidence: ragResponse.confidence,
+      lastUpdated: new Date().toISOString()
+    };
+
+    res.json(validationReport);
   } catch (error) {
     console.error('Error validating idea:', error);
     res.status(500).json({ error: 'Failed to validate idea' });
