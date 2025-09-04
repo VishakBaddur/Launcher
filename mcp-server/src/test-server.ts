@@ -2996,6 +2996,203 @@ app.post('/api/time_to_mvp', async (req, res) => {
   }
 });
 
+// Risk Analysis Feature
+function analyzeRisks(ideaDescription: string): any {
+  const lower = ideaDescription.toLowerCase();
+  const risks: any[] = [];
+  const mitigations: any[] = [];
+
+  // Regulation Risks
+  const regulationKeywords = ['fda', 'hipaa', 'compliance', 'regulation', 'regulatory', 'gdpr', 'sox', 'pci', 'iso', 'certification', 'audit', 'legal', 'patent'];
+  const hasRegulationRisk = regulationKeywords.some(keyword => lower.includes(keyword));
+  
+  if (hasRegulationRisk) {
+    risks.push({
+      category: 'Regulation',
+      risk: 'Regulatory compliance and legal requirements',
+      severity: 'High',
+      description: 'Complex regulatory environment requiring significant legal expertise and compliance costs',
+      probability: 'High'
+    });
+    mitigations.push({
+      category: 'Regulation',
+      mitigation: 'Hire legal and compliance experts early',
+      description: 'Engage specialized legal counsel and compliance consultants to navigate regulatory requirements',
+      priority: 'High'
+    });
+  }
+
+  // Competition Risks
+  const competitionKeywords = ['marketplace', 'platform', 'saas', 'b2b', 'e-commerce', 'fintech', 'healthcare', 'ai', 'blockchain'];
+  const hasCompetitionRisk = competitionKeywords.some(keyword => lower.includes(keyword));
+  
+  if (hasCompetitionRisk) {
+    risks.push({
+      category: 'Competition',
+      risk: 'High competition from established players',
+      severity: 'Medium',
+      description: 'Market may be saturated with well-funded competitors and established solutions',
+      probability: 'High'
+    });
+    mitigations.push({
+      category: 'Competition',
+      mitigation: 'Focus on unique value proposition and niche market',
+      description: 'Differentiate through superior user experience, specific use cases, or innovative features',
+      priority: 'High'
+    });
+  }
+
+  // Adoption Risks
+  const adoptionKeywords = ['ai', 'blockchain', 'cryptocurrency', 'machine learning', 'deep learning', 'neural networks', 'enterprise', 'b2b'];
+  const hasAdoptionRisk = adoptionKeywords.some(keyword => lower.includes(keyword));
+  
+  if (hasAdoptionRisk) {
+    risks.push({
+      category: 'Adoption',
+      risk: 'Slow market adoption and user acquisition',
+      severity: 'Medium',
+      description: 'Complex or new technology may face resistance from users and slow adoption rates',
+      probability: 'Medium'
+    });
+    mitigations.push({
+      category: 'Adoption',
+      mitigation: 'Invest in user education and gradual rollout',
+      description: 'Focus on user onboarding, education, and start with early adopters before scaling',
+      priority: 'Medium'
+    });
+  }
+
+  // Technical Risks
+  const technicalKeywords = ['ai infrastructure', 'machine learning', 'deep learning', 'neural networks', 'blockchain', 'microservices', 'distributed systems', 'scalability', 'security', 'encryption'];
+  const hasTechnicalRisk = technicalKeywords.some(keyword => lower.includes(keyword));
+  
+  if (hasTechnicalRisk) {
+    risks.push({
+      category: 'Technical',
+      risk: 'Complex technical implementation and scalability challenges',
+      severity: 'High',
+      description: 'Advanced technology requirements may lead to development delays and technical debt',
+      probability: 'Medium'
+    });
+    mitigations.push({
+      category: 'Technical',
+      mitigation: 'Build strong technical team and use proven technologies',
+      description: 'Hire experienced developers and leverage existing frameworks and cloud services',
+      priority: 'High'
+    });
+  }
+
+  // Market Risks (always present)
+  risks.push({
+    category: 'Market',
+    risk: 'Market timing and economic conditions',
+    severity: 'Medium',
+    description: 'Economic downturns or market shifts could impact funding and customer demand',
+    probability: 'Medium'
+  });
+  mitigations.push({
+    category: 'Market',
+    mitigation: 'Build sustainable business model and maintain runway',
+    description: 'Focus on revenue generation, maintain 18+ months runway, and adapt to market conditions',
+    priority: 'Medium'
+  });
+
+  // Technology Disruption Risk (always present)
+  risks.push({
+    category: 'Technology',
+    risk: 'Technology disruption and obsolescence',
+    severity: 'Low',
+    description: 'Rapid technological changes could make current approach obsolete',
+    probability: 'Low'
+  });
+  mitigations.push({
+    category: 'Technology',
+    mitigation: 'Stay current with technology trends and build adaptable architecture',
+    description: 'Monitor industry trends, use modular architecture, and plan for technology evolution',
+    priority: 'Low'
+  });
+
+  // Sort risks by severity and probability
+  const sortedRisks = risks.sort((a, b) => {
+    const severityWeight: { [key: string]: number } = { 'High': 3, 'Medium': 2, 'Low': 1 };
+    const probabilityWeight: { [key: string]: number } = { 'High': 3, 'Medium': 2, 'Low': 1 };
+    const scoreA = severityWeight[a.severity] * probabilityWeight[a.probability];
+    const scoreB = severityWeight[b.severity] * probabilityWeight[b.probability];
+    return scoreB - scoreA;
+  });
+
+  // Get top 3 risks
+  const topRisks = sortedRisks.slice(0, 3);
+
+  // Get corresponding mitigations
+  const topMitigations = topRisks.map(risk => 
+    mitigations.find(mit => mit.category === risk.category)
+  ).filter(Boolean);
+
+  return {
+    topRisks,
+    topMitigations,
+    riskSummary: {
+      totalRisks: risks.length,
+      highSeverityRisks: risks.filter(r => r.severity === 'High').length,
+      highProbabilityRisks: risks.filter(r => r.probability === 'High').length,
+      riskCategories: [...new Set(risks.map(r => r.category))]
+    },
+    allRisks: risks,
+    allMitigations: mitigations
+  };
+}
+
+// Risk Analysis API Endpoint
+app.post('/api/risk_analysis', async (req, res) => {
+  try {
+    const { idea_description } = req.body;
+    
+    if (!idea_description) {
+      return res.status(400).json({ 
+        error: 'Idea description is required' 
+      });
+    }
+
+    console.log(`⚠️ Analyzing risks for: ${idea_description}`);
+    
+    // Analyze risks
+    const riskAnalysis = analyzeRisks(idea_description);
+    
+    const response = {
+      timestamp: new Date().toISOString(),
+      idea: idea_description,
+      riskAnalysis: riskAnalysis,
+      summary: {
+        topRisk: riskAnalysis.topRisks[0],
+        topMitigation: riskAnalysis.topMitigations[0],
+        riskLevel: getOverallRiskLevel(riskAnalysis.riskSummary),
+        keyRiskCategories: riskAnalysis.riskSummary.riskCategories.slice(0, 3)
+      }
+    };
+
+    console.log(`✅ Risk analysis completed: ${riskAnalysis.topRisks.length} risks identified`);
+    res.json(response);
+    
+  } catch (error) {
+    console.error('Error analyzing risks:', error);
+    res.status(500).json({ error: 'Failed to analyze risks' });
+  }
+});
+
+function getOverallRiskLevel(riskSummary: any): string {
+  const highSeverityCount = riskSummary.highSeverityRisks;
+  const highProbabilityCount = riskSummary.highProbabilityRisks;
+  
+  if (highSeverityCount >= 2 || highProbabilityCount >= 2) {
+    return 'High';
+  } else if (highSeverityCount >= 1 || highProbabilityCount >= 1) {
+    return 'Medium';
+  } else {
+    return 'Low';
+  }
+}
+
 // Start server
 app.listen(PORT, () => {
   console.log(`🚀 Launcher MCP Server running on http://localhost:${PORT}`);
