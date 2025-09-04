@@ -1820,43 +1820,455 @@ function generateCostStructureFromData(description: string, competitors: any[]):
   return costs.slice(0, 6);
 }
 
-function generateRevenueStreamsFromData(description: string, trends: any, marketSize: string): string[] {
-  const streams = [];
+function generateRevenueStreamsFromData(description: string, trends: any, marketSize: string): any {
   const descriptionLower = description.toLowerCase();
   const avgTrend = Object.values(trends).reduce((sum: number, val: any) => sum + (val || 0), 0) / Object.keys(trends).length;
+  const revenueStreams = [];
   
   if (descriptionLower.includes('marketplace') || descriptionLower.includes('platform')) {
-    streams.push('Transaction fees and commissions');
-    streams.push('Subscription and membership fees');
-    streams.push('Premium listing and advertising');
+    revenueStreams.push({
+      stream: 'Transaction fees and commissions',
+      priority: 'Primary',
+      projectedPercentage: 60,
+      description: 'Percentage fee on each transaction processed through the platform',
+      unitEconomics: {
+        arpu: 15, // Average fee per transaction
+        churnRate: 0.10, // Higher churn for marketplaces
+        ltv: 150,
+        cac: 25 // Customer Acquisition Cost
+      }
+    });
+    revenueStreams.push({
+      stream: 'Subscription and membership fees',
+      priority: 'Secondary',
+      projectedPercentage: 25,
+      description: 'Recurring revenue from platform subscriptions',
+      unitEconomics: {
+        arpu: 30,
+        churnRate: 0.08,
+        ltv: 375,
+        cac: 50
+      }
+    });
+    revenueStreams.push({
+      stream: 'Premium listing and advertising',
+      priority: 'Secondary',
+      projectedPercentage: 15,
+      description: 'Fees for premium listings and advertising placements',
+      unitEconomics: {
+        arpu: 20,
+        churnRate: 0.12,
+        ltv: 167,
+        cac: 30
+      }
+    });
   }
   
   if (descriptionLower.includes('ai') || descriptionLower.includes('technology')) {
-    streams.push('Software licensing and subscriptions');
-    streams.push('API access and usage fees');
-    streams.push('Consulting and implementation services');
+    revenueStreams.push({
+      stream: 'Software licensing and subscriptions',
+      priority: 'Primary',
+      projectedPercentage: 50,
+      description: 'Recurring revenue from software subscriptions and licensing',
+      unitEconomics: {
+        arpu: 100,
+        churnRate: 0.05,
+        ltv: 2000,
+        cac: 200
+      }
+    });
+    revenueStreams.push({
+      stream: 'API access and usage fees',
+      priority: 'Secondary',
+      projectedPercentage: 30,
+      description: 'Pay-per-use API access and consumption-based pricing',
+      unitEconomics: {
+        arpu: 50,
+        churnRate: 0.08,
+        ltv: 625,
+        cac: 100
+      }
+    });
+    revenueStreams.push({
+      stream: 'Consulting and implementation services',
+      priority: 'Secondary',
+      projectedPercentage: 20,
+      description: 'Professional services and custom implementation',
+      unitEconomics: {
+        arpu: 500,
+        churnRate: 0.03,
+        ltv: 16667,
+        cac: 1000
+      }
+    });
   }
   
   if (descriptionLower.includes('service') || descriptionLower.includes('delivery')) {
-    streams.push('Service fees and delivery charges');
-    streams.push('Subscription and membership plans');
-    streams.push('Premium service offerings');
+    revenueStreams.push({
+      stream: 'Service fees and delivery charges',
+      priority: 'Primary',
+      projectedPercentage: 70,
+      description: 'Fees for services provided and delivery charges',
+      unitEconomics: {
+        arpu: 25,
+        churnRate: 0.15,
+        ltv: 167,
+        cac: 40
+      }
+    });
+    revenueStreams.push({
+      stream: 'Subscription and membership plans',
+      priority: 'Secondary',
+      projectedPercentage: 20,
+      description: 'Recurring revenue from service subscriptions',
+      unitEconomics: {
+        arpu: 40,
+        churnRate: 0.10,
+        ltv: 400,
+        cac: 60
+      }
+    });
+    revenueStreams.push({
+      stream: 'Premium service offerings',
+      priority: 'Secondary',
+      projectedPercentage: 10,
+      description: 'High-value premium services and add-ons',
+      unitEconomics: {
+        arpu: 100,
+        churnRate: 0.08,
+        ltv: 1250,
+        cac: 150
+      }
+    });
   }
   
   // Add trend-based streams
   if (avgTrend > 70) {
-    streams.push('High-demand premium services');
+    revenueStreams.push({
+      stream: 'High-demand premium services',
+      priority: 'Secondary',
+      projectedPercentage: 15,
+      description: 'Premium services leveraging high market demand',
+      unitEconomics: {
+        arpu: 75,
+        churnRate: 0.06,
+        ltv: 1250,
+        cac: 120
+      }
+    });
   }
   
   // Add market size-based streams
   if (marketSize && marketSize.includes('billion')) {
-    streams.push('Large market revenue opportunities');
+    revenueStreams.push({
+      stream: 'Large market revenue opportunities',
+      priority: 'Secondary',
+      projectedPercentage: 10,
+      description: 'Revenue streams targeting large market segments',
+      unitEconomics: {
+        arpu: 200,
+        churnRate: 0.04,
+        ltv: 5000,
+        cac: 300
+      }
+    });
   }
   
   // Add common streams
-  streams.push('Data monetization and analytics');
+  revenueStreams.push({
+    stream: 'Data monetization and analytics',
+    priority: 'Secondary',
+    projectedPercentage: 5,
+    description: 'Revenue from data insights and analytics services',
+    unitEconomics: {
+      arpu: 30,
+      churnRate: 0.10,
+      ltv: 300,
+      cac: 50
+    }
+  });
   
-  return streams.slice(0, 6);
+  return revenueStreams.slice(0, 6);
+}
+
+// Unit Economics & Profitability Analysis
+function analyzeUnitEconomics(revenueStreams: any[]): any {
+  const primaryStream = revenueStreams.find(stream => stream.priority === 'Primary');
+  if (!primaryStream) return null;
+
+  const unitEcon = primaryStream.unitEconomics;
+  const contributionMargin = (unitEcon.ltv - unitEcon.cac) / unitEcon.ltv;
+  const paybackPeriod = unitEcon.cac / unitEcon.arpu;
+  const ltvCacRatio = unitEcon.ltv / unitEcon.cac;
+
+  let profitabilityAssessment = 'Poor';
+  if (ltvCacRatio >= 3 && contributionMargin >= 0.3) {
+    profitabilityAssessment = 'Excellent';
+  } else if (ltvCacRatio >= 2 && contributionMargin >= 0.2) {
+    profitabilityAssessment = 'Good';
+  } else if (ltvCacRatio >= 1.5 && contributionMargin >= 0.1) {
+    profitabilityAssessment = 'Moderate';
+  }
+
+  return {
+    primaryStream: primaryStream.stream,
+    unitEconomics: {
+      arpu: unitEcon.arpu,
+      churnRate: unitEcon.churnRate,
+      ltv: unitEcon.ltv,
+      cac: unitEcon.cac,
+      contributionMargin: Math.round(contributionMargin * 100),
+      paybackPeriod: Math.round(paybackPeriod * 10) / 10,
+      ltvCacRatio: Math.round(ltvCacRatio * 10) / 10
+    },
+    profitabilityAssessment,
+    recommendations: generateProfitabilityRecommendations(ltvCacRatio, contributionMargin, paybackPeriod)
+  };
+}
+
+function generateProfitabilityRecommendations(ltvCacRatio: number, contributionMargin: number, paybackPeriod: number): string[] {
+  const recommendations = [];
+  
+  if (ltvCacRatio < 2) {
+    recommendations.push('Focus on reducing customer acquisition costs or increasing customer lifetime value');
+  }
+  
+  if (contributionMargin < 0.2) {
+    recommendations.push('Improve unit economics by reducing variable costs or increasing pricing');
+  }
+  
+  if (paybackPeriod > 12) {
+    recommendations.push('Payback period is too long - consider reducing CAC or increasing ARPU');
+  }
+  
+  if (ltvCacRatio >= 3 && contributionMargin >= 0.3) {
+    recommendations.push('Excellent unit economics - focus on scaling customer acquisition');
+  }
+  
+  return recommendations;
+}
+
+// Scalability Stress-Test
+function analyzeScalabilityChallenges(description: string, revenueStreams: any[]): any {
+  const lower = description.toLowerCase();
+  let challenges = [];
+  let scalabilityLevel = 'High';
+  let reasoning = '';
+
+  // Marketplace challenges
+  if (lower.includes('marketplace') || lower.includes('platform')) {
+    challenges.push({
+      challenge: 'Cold start problem',
+      severity: 'High',
+      description: 'Need both buyers and sellers to create network effects',
+      mitigation: 'Focus on one side first, then expand to the other'
+    });
+    scalabilityLevel = 'Medium';
+    reasoning = 'Marketplace models face significant cold start challenges';
+  }
+
+  // SaaS challenges
+  if (lower.includes('saas') || lower.includes('software') || lower.includes('subscription')) {
+    challenges.push({
+      challenge: 'Churn risk',
+      severity: 'Medium',
+      description: 'High churn rates can significantly impact growth',
+      mitigation: 'Focus on customer success and retention programs'
+    });
+    if (scalabilityLevel === 'High') {
+      scalabilityLevel = 'Medium';
+      reasoning = 'SaaS models face churn and retention challenges';
+    }
+  }
+
+  // Service-based challenges
+  if (lower.includes('service') || lower.includes('consulting') || lower.includes('delivery')) {
+    challenges.push({
+      challenge: 'Margin compression',
+      severity: 'High',
+      description: 'Service-based models have limited scalability due to human resources',
+      mitigation: 'Automate processes and build scalable systems'
+    });
+    scalabilityLevel = 'Low';
+    reasoning = 'Service-based models have inherent scalability limitations';
+  }
+
+  // AI/ML challenges
+  if (lower.includes('ai') || lower.includes('machine learning') || lower.includes('artificial intelligence')) {
+    challenges.push({
+      challenge: 'Data dependency',
+      severity: 'Medium',
+      description: 'AI models require large amounts of quality data to perform well',
+      mitigation: 'Focus on data acquisition and quality improvement'
+    });
+    if (scalabilityLevel === 'High') {
+      scalabilityLevel = 'Medium';
+      reasoning = 'AI models face data dependency and quality challenges';
+    }
+  }
+
+  // Fintech challenges
+  if (lower.includes('fintech') || lower.includes('payment') || lower.includes('financial')) {
+    challenges.push({
+      challenge: 'Regulatory compliance',
+      severity: 'High',
+      description: 'Financial services face strict regulatory requirements',
+      mitigation: 'Invest in compliance infrastructure and legal expertise'
+    });
+    if (scalabilityLevel === 'High') {
+      scalabilityLevel = 'Medium';
+      reasoning = 'Fintech models face regulatory and compliance challenges';
+    }
+  }
+
+  return {
+    scalabilityLevel,
+    reasoning,
+    challenges,
+    recommendations: generateScalabilityRecommendations(scalabilityLevel, challenges)
+  };
+}
+
+function generateScalabilityRecommendations(scalabilityLevel: string, challenges: any[]): string[] {
+  const recommendations = [];
+  
+  if (scalabilityLevel === 'Low') {
+    recommendations.push('Consider pivoting to a more scalable business model');
+    recommendations.push('Focus on automation and systemization');
+  } else if (scalabilityLevel === 'Medium') {
+    recommendations.push('Address key scalability challenges before scaling');
+    recommendations.push('Build strong operational processes');
+  } else {
+    recommendations.push('Excellent scalability potential - focus on growth');
+    recommendations.push('Invest in scalable infrastructure early');
+  }
+  
+  return recommendations;
+}
+
+// Partnership Viability Analysis
+function analyzePartnershipViability(partnerships: string[], description: string): any {
+  const lower = description.toLowerCase();
+  const viablePartnerships: any[] = [];
+  const challengingPartnerships: any[] = [];
+  
+  partnerships.forEach(partnership => {
+    const partnershipLower = partnership.toLowerCase();
+    let viability = 'Feasible';
+    let reasoning = '';
+    let effort = 'Low';
+    
+    // Large enterprise partnerships
+    if (partnershipLower.includes('aws') || partnershipLower.includes('microsoft') || partnershipLower.includes('google')) {
+      viability = 'Feasible';
+      reasoning = 'Tech giants have established partner programs for startups';
+      effort = 'Medium';
+    }
+    
+    // Financial institution partnerships
+    if (partnershipLower.includes('bank') || partnershipLower.includes('financial') || partnershipLower.includes('payment processor')) {
+      viability = 'Challenging';
+      reasoning = 'Large financial institutions require significant compliance and credibility';
+      effort = 'High';
+    }
+    
+    // Healthcare partnerships
+    if (partnershipLower.includes('hospital') || partnershipLower.includes('healthcare') || partnershipLower.includes('medical')) {
+      viability = 'Challenging';
+      reasoning = 'Healthcare partnerships require regulatory compliance and long sales cycles';
+      effort = 'High';
+    }
+    
+    // Government partnerships
+    if (partnershipLower.includes('government') || partnershipLower.includes('public sector')) {
+      viability = 'Very Challenging';
+      reasoning = 'Government partnerships have complex procurement processes';
+      effort = 'Very High';
+    }
+    
+    // Startup partnerships
+    if (partnershipLower.includes('startup') || partnershipLower.includes('small business')) {
+      viability = 'Feasible';
+      reasoning = 'Startup-to-startup partnerships are typically easier to establish';
+      effort = 'Low';
+    }
+    
+    const partnershipAnalysis = {
+      partnership,
+      viability,
+      reasoning,
+      effort,
+      timeline: getPartnershipTimeline(effort),
+      recommendations: getPartnershipRecommendations(viability, effort)
+    };
+    
+    if (viability === 'Feasible') {
+      viablePartnerships.push(partnershipAnalysis);
+    } else {
+      challengingPartnerships.push(partnershipAnalysis);
+    }
+  });
+  
+  return {
+    viablePartnerships,
+    challengingPartnerships,
+    overallViability: calculateOverallPartnershipViability(viablePartnerships, challengingPartnerships),
+    recommendations: generatePartnershipRecommendations(viablePartnerships, challengingPartnerships)
+  };
+}
+
+function getPartnershipTimeline(effort: string): string {
+  switch (effort) {
+    case 'Low': return '1-3 months';
+    case 'Medium': return '3-6 months';
+    case 'High': return '6-12 months';
+    case 'Very High': return '12+ months';
+    default: return '3-6 months';
+  }
+}
+
+function getPartnershipRecommendations(viability: string, effort: string): string[] {
+  const recommendations = [];
+  
+  if (viability === 'Feasible') {
+    recommendations.push('Start partnership discussions early');
+    recommendations.push('Prepare clear value proposition');
+  } else if (viability === 'Challenging') {
+    recommendations.push('Build credibility and track record first');
+    recommendations.push('Consider smaller, more accessible partners initially');
+  } else {
+    recommendations.push('Focus on other growth strategies');
+    recommendations.push('Consider indirect partnerships or partnerships with intermediaries');
+  }
+  
+  return recommendations;
+}
+
+function calculateOverallPartnershipViability(viable: any[], challenging: any[]): string {
+  const total = viable.length + challenging.length;
+  if (total === 0) return 'Unknown';
+  
+  const viablePercentage = (viable.length / total) * 100;
+  
+  if (viablePercentage >= 70) return 'High';
+  if (viablePercentage >= 40) return 'Medium';
+  return 'Low';
+}
+
+function generatePartnershipRecommendations(viable: any[], challenging: any[]): string[] {
+  const recommendations = [];
+  
+  if (viable.length > 0) {
+    recommendations.push(`Focus on ${viable.length} feasible partnerships first`);
+    recommendations.push('Build strong relationships with accessible partners');
+  }
+  
+  if (challenging.length > 0) {
+    recommendations.push(`Defer ${challenging.length} challenging partnerships until later stage`);
+    recommendations.push('Build credibility and track record before pursuing difficult partnerships');
+  }
+  
+  return recommendations;
 }
 
 function analyzeTargetMarket(description: string, marketSize: string): string {
@@ -2366,7 +2778,10 @@ app.post('/api/generate_business_model', async (req, res) => {
       webScraper.scrapeRealTimeNews(company_info.description)
     ]);
 
-    // Generate business model based on real data
+    // Generate enhanced business model with new features
+    const revenueStreams = generateRevenueStreamsFromData(company_info.description, trends, marketSize);
+    const partnerships = generateKeyPartnershipsFromData(competitors, trends, company_info.description);
+    
     const businessModel = {
       companyName: company_info.companyName || 'Your Company',
       description: company_info.description,
@@ -2378,7 +2793,7 @@ app.post('/api/generate_business_model', async (req, res) => {
         news: newsData.length
       },
       businessModelCanvas: {
-        keyPartnerships: generateKeyPartnershipsFromData(competitors, trends, company_info.description),
+        keyPartnerships: partnerships,
         keyActivities: generateKeyActivitiesFromData(company_info.description, trends),
         keyResources: generateKeyResourcesFromData(company_info.description, competitors),
         valuePropositions: generateValuePropositionsFromData(company_info.description, sentiment, trends),
@@ -2386,8 +2801,12 @@ app.post('/api/generate_business_model', async (req, res) => {
         channels: generateChannelsFromData(company_info.description, trends),
         customerSegments: generateCustomerSegmentsFromData(company_info.description, marketSize),
         costStructure: generateCostStructureFromData(company_info.description, competitors),
-        revenueStreams: generateRevenueStreamsFromData(company_info.description, trends, marketSize)
+        revenueStreams: revenueStreams
       },
+      // NEW: Enhanced Business Model Features
+      unitEconomics: analyzeUnitEconomics(revenueStreams),
+      scalabilityAnalysis: analyzeScalabilityChallenges(company_info.description, revenueStreams),
+      partnershipViability: analyzePartnershipViability(partnerships, company_info.description),
       marketAnalysis: {
         marketSize: marketSize || 'Data not available',
         competitionLevel: getCompetitionLevel(competitors.length),
