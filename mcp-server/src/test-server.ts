@@ -1453,6 +1453,480 @@ function generateThreats(competitors: any[], sentiment: any): string[] {
   return threats.slice(0, 3);
 }
 
+// Business Model Generation Helper Functions
+function generateKeyPartnershipsFromData(competitors: any[], trends: any, description: string): string[] {
+  const partnerships = [];
+  const descriptionLower = description.toLowerCase();
+  
+  // Industry-specific partnerships based on description
+  if (descriptionLower.includes('ai') || descriptionLower.includes('technology')) {
+    partnerships.push('Cloud computing providers (AWS, Google Cloud, Azure)');
+    partnerships.push('AI/ML technology partners');
+    partnerships.push('Data providers and analytics companies');
+  }
+  
+  if (descriptionLower.includes('healthcare') || descriptionLower.includes('medical')) {
+    partnerships.push('Healthcare providers and hospitals');
+    partnerships.push('Medical device manufacturers');
+    partnerships.push('Insurance companies');
+  }
+  
+  if (descriptionLower.includes('finance') || descriptionLower.includes('payment')) {
+    partnerships.push('Banks and financial institutions');
+    partnerships.push('Payment processors');
+    partnerships.push('Regulatory compliance partners');
+  }
+  
+  // Add common partnerships
+  partnerships.push('Technology providers');
+  partnerships.push('Marketing and distribution partners');
+  partnerships.push('Strategic industry partners');
+  
+  return partnerships.slice(0, 6);
+}
+
+function generateKeyActivitiesFromData(description: string, trends: any): string[] {
+  const activities = [];
+  const descriptionLower = description.toLowerCase();
+  
+  if (descriptionLower.includes('ai') || descriptionLower.includes('technology')) {
+    activities.push('AI/ML algorithm development');
+    activities.push('Data processing and analysis');
+    activities.push('Software development and maintenance');
+  }
+  
+  if (descriptionLower.includes('marketplace') || descriptionLower.includes('platform')) {
+    activities.push('Platform development and maintenance');
+    activities.push('User acquisition and onboarding');
+    activities.push('Quality assurance and verification');
+  }
+  
+  if (descriptionLower.includes('service') || descriptionLower.includes('delivery')) {
+    activities.push('Service delivery and operations');
+    activities.push('Customer support and satisfaction');
+    activities.push('Quality control and monitoring');
+  }
+  
+  // Add common activities
+  activities.push('Product development and innovation');
+  activities.push('Marketing and customer acquisition');
+  activities.push('Business development and partnerships');
+  
+  return activities.slice(0, 6);
+}
+
+function generateKeyResourcesFromData(description: string, competitors: any[]): string[] {
+  const resources = [];
+  const descriptionLower = description.toLowerCase();
+  
+  if (descriptionLower.includes('ai') || descriptionLower.includes('technology')) {
+    resources.push('AI/ML algorithms and models');
+    resources.push('Technology platform and infrastructure');
+    resources.push('Data and analytics capabilities');
+  }
+  
+  if (descriptionLower.includes('marketplace') || descriptionLower.includes('platform')) {
+    resources.push('Technology platform');
+    resources.push('User base and network effects');
+    resources.push('Brand and reputation');
+  }
+  
+  if (descriptionLower.includes('service') || descriptionLower.includes('delivery')) {
+    resources.push('Service delivery network');
+    resources.push('Operational expertise');
+    resources.push('Customer relationships');
+  }
+  
+  // Add common resources
+  resources.push('Development team and expertise');
+  resources.push('Intellectual property and patents');
+  resources.push('Financial resources and funding');
+  
+  return resources.slice(0, 6);
+}
+
+function generateValuePropositionsFromData(description: string, sentiment: any, trends: any): string[] {
+  const propositions = [];
+  const descriptionLower = description.toLowerCase();
+  const avgSentiment = Object.values(sentiment).reduce((sum: number, val: any) => sum + (val || 0), 0) / Object.keys(sentiment).length;
+  
+  if (descriptionLower.includes('ai') || descriptionLower.includes('technology')) {
+    propositions.push('Advanced AI-powered solutions');
+    propositions.push('Automated and efficient processes');
+    propositions.push('Data-driven insights and analytics');
+  }
+  
+  if (descriptionLower.includes('marketplace') || descriptionLower.includes('platform')) {
+    propositions.push('Comprehensive marketplace platform');
+    propositions.push('Trusted and verified transactions');
+    propositions.push('Seamless user experience');
+  }
+  
+  if (descriptionLower.includes('service') || descriptionLower.includes('delivery')) {
+    propositions.push('Reliable and fast service delivery');
+    propositions.push('High-quality customer service');
+    propositions.push('Convenient and accessible solutions');
+  }
+  
+  // Add sentiment-based propositions
+  if (avgSentiment > 0.3) {
+    propositions.push('Market-validated solution with positive reception');
+  }
+  
+  // Add common propositions
+  propositions.push('Cost-effective alternative to existing solutions');
+  propositions.push('Innovative approach to market problems');
+  
+  return propositions.slice(0, 5);
+}
+
+function generateCustomerRelationshipsFromData(description: string, sentiment: any): string[] {
+  const relationships = [];
+  const descriptionLower = description.toLowerCase();
+  const avgSentiment = Object.values(sentiment).reduce((sum: number, val: any) => sum + (val || 0), 0) / Object.keys(sentiment).length;
+  
+  if (descriptionLower.includes('enterprise') || descriptionLower.includes('b2b')) {
+    relationships.push('Dedicated account management');
+    relationships.push('Custom training and onboarding');
+    relationships.push('24/7 enterprise support');
+  }
+  
+  if (descriptionLower.includes('consumer') || descriptionLower.includes('b2c')) {
+    relationships.push('Self-service platform');
+    relationships.push('Community support and forums');
+    relationships.push('Automated customer service');
+  }
+  
+  if (descriptionLower.includes('marketplace') || descriptionLower.includes('platform')) {
+    relationships.push('Community building and engagement');
+    relationships.push('Trust and safety programs');
+    relationships.push('User feedback and rating systems');
+  }
+  
+  // Add sentiment-based relationships
+  if (avgSentiment > 0.2) {
+    relationships.push('Positive community engagement');
+  }
+  
+  // Add common relationships
+  relationships.push('Personal customer support');
+  relationships.push('Ongoing relationship management');
+  
+  return relationships.slice(0, 5);
+}
+
+function generateChannelsFromData(description: string, trends: any): string[] {
+  const channels = [];
+  const descriptionLower = description.toLowerCase();
+  const avgTrend = Object.values(trends).reduce((sum: number, val: any) => sum + (val || 0), 0) / Object.keys(trends).length;
+  
+  if (descriptionLower.includes('online') || descriptionLower.includes('digital')) {
+    channels.push('Online platform and website');
+    channels.push('Mobile applications');
+    channels.push('Social media marketing');
+  }
+  
+  if (descriptionLower.includes('enterprise') || descriptionLower.includes('b2b')) {
+    channels.push('Direct enterprise sales');
+    channels.push('Partner channel sales');
+    channels.push('Industry conferences and events');
+  }
+  
+  if (descriptionLower.includes('marketplace') || descriptionLower.includes('platform')) {
+    channels.push('Digital marketplace platform');
+    channels.push('API integrations');
+    channels.push('Partner network distribution');
+  }
+  
+  // Add trend-based channels
+  if (avgTrend > 60) {
+    channels.push('Trending social media platforms');
+  }
+  
+  // Add common channels
+  channels.push('Direct sales and marketing');
+  channels.push('Referral programs');
+  
+  return channels.slice(0, 6);
+}
+
+function generateCustomerSegmentsFromData(description: string, marketSize: string): string[] {
+  const segments = [];
+  const descriptionLower = description.toLowerCase();
+  
+  if (descriptionLower.includes('enterprise') || descriptionLower.includes('business')) {
+    segments.push('Large enterprises and corporations');
+    segments.push('Small to medium businesses');
+    segments.push('Startups and entrepreneurs');
+  }
+  
+  if (descriptionLower.includes('consumer') || descriptionLower.includes('individual')) {
+    segments.push('Individual consumers');
+    segments.push('Tech-savvy early adopters');
+    segments.push('Price-conscious users');
+  }
+  
+  if (descriptionLower.includes('healthcare') || descriptionLower.includes('medical')) {
+    segments.push('Healthcare providers');
+    segments.push('Medical professionals');
+    segments.push('Patients and healthcare consumers');
+  }
+  
+  if (descriptionLower.includes('finance') || descriptionLower.includes('banking')) {
+    segments.push('Financial institutions');
+    segments.push('Fintech companies');
+    segments.push('Individual investors');
+  }
+  
+  // Add market size-based segments
+  if (marketSize && marketSize.includes('billion')) {
+    segments.push('Large market opportunity');
+  }
+  
+  // Add common segments
+  segments.push('Target market segments');
+  
+  return segments.slice(0, 5);
+}
+
+function generateCostStructureFromData(description: string, competitors: any[]): string[] {
+  const costs = [];
+  const descriptionLower = description.toLowerCase();
+  
+  if (descriptionLower.includes('ai') || descriptionLower.includes('technology')) {
+    costs.push('AI/ML development and training');
+    costs.push('Cloud infrastructure and computing');
+    costs.push('Data acquisition and processing');
+  }
+  
+  if (descriptionLower.includes('marketplace') || descriptionLower.includes('platform')) {
+    costs.push('Platform development and maintenance');
+    costs.push('User acquisition and marketing');
+    costs.push('Trust and safety operations');
+  }
+  
+  if (descriptionLower.includes('service') || descriptionLower.includes('delivery')) {
+    costs.push('Service delivery operations');
+    costs.push('Quality assurance and monitoring');
+    costs.push('Customer support and service');
+  }
+  
+  // Add competition-based costs
+  if (competitors.length > 5) {
+    costs.push('Competitive marketing and differentiation');
+  }
+  
+  // Add common costs
+  costs.push('Employee salaries and benefits');
+  costs.push('Legal and compliance costs');
+  
+  return costs.slice(0, 6);
+}
+
+function generateRevenueStreamsFromData(description: string, trends: any, marketSize: string): string[] {
+  const streams = [];
+  const descriptionLower = description.toLowerCase();
+  const avgTrend = Object.values(trends).reduce((sum: number, val: any) => sum + (val || 0), 0) / Object.keys(trends).length;
+  
+  if (descriptionLower.includes('marketplace') || descriptionLower.includes('platform')) {
+    streams.push('Transaction fees and commissions');
+    streams.push('Subscription and membership fees');
+    streams.push('Premium listing and advertising');
+  }
+  
+  if (descriptionLower.includes('ai') || descriptionLower.includes('technology')) {
+    streams.push('Software licensing and subscriptions');
+    streams.push('API access and usage fees');
+    streams.push('Consulting and implementation services');
+  }
+  
+  if (descriptionLower.includes('service') || descriptionLower.includes('delivery')) {
+    streams.push('Service fees and delivery charges');
+    streams.push('Subscription and membership plans');
+    streams.push('Premium service offerings');
+  }
+  
+  // Add trend-based streams
+  if (avgTrend > 70) {
+    streams.push('High-demand premium services');
+  }
+  
+  // Add market size-based streams
+  if (marketSize && marketSize.includes('billion')) {
+    streams.push('Large market revenue opportunities');
+  }
+  
+  // Add common streams
+  streams.push('Data monetization and analytics');
+  
+  return streams.slice(0, 6);
+}
+
+function analyzeTargetMarket(description: string, marketSize: string): string {
+  const descriptionLower = description.toLowerCase();
+  
+  if (descriptionLower.includes('enterprise') || descriptionLower.includes('business')) {
+    return 'B2B enterprise market with high-value customers';
+  }
+  
+  if (descriptionLower.includes('consumer') || descriptionLower.includes('individual')) {
+    return 'B2C consumer market with mass appeal';
+  }
+  
+  if (descriptionLower.includes('healthcare') || descriptionLower.includes('medical')) {
+    return 'Healthcare industry with regulatory requirements';
+  }
+  
+  if (descriptionLower.includes('finance') || descriptionLower.includes('banking')) {
+    return 'Financial services market with compliance needs';
+  }
+  
+  if (marketSize && marketSize.includes('billion')) {
+    return 'Large market with significant growth potential';
+  }
+  
+  return 'Target market with growth opportunities';
+}
+
+function generateCompetitiveAdvantages(competitors: any[], description: string): string[] {
+  const advantages = [];
+  const descriptionLower = description.toLowerCase();
+  
+  if (competitors.length === 0) {
+    advantages.push('First-mover advantage in the market');
+    advantages.push('No direct competition identified');
+  } else if (competitors.length < 3) {
+    advantages.push('Limited competition with differentiation opportunity');
+    advantages.push('Niche market positioning');
+  } else {
+    advantages.push('Unique value proposition and differentiation');
+    advantages.push('Superior technology and innovation');
+  }
+  
+  if (descriptionLower.includes('ai') || descriptionLower.includes('technology')) {
+    advantages.push('Advanced AI/ML capabilities');
+    advantages.push('Cutting-edge technology stack');
+  }
+  
+  if (descriptionLower.includes('marketplace') || descriptionLower.includes('platform')) {
+    advantages.push('Network effects and platform benefits');
+    advantages.push('Comprehensive marketplace solution');
+  }
+  
+  // Add common advantages
+  advantages.push('Superior user experience and interface');
+  advantages.push('Strong team and execution capabilities');
+  
+  return advantages.slice(0, 5);
+}
+
+function generateRevenueProjections(marketSize: string, trends: any): string {
+  const avgTrend = Object.values(trends).reduce((sum: number, val: any) => sum + (val || 0), 0) / Object.keys(trends).length;
+  
+  if (marketSize && marketSize.includes('billion')) {
+    if (avgTrend > 70) {
+      return 'High growth potential with $10M+ revenue by year 3';
+    } else if (avgTrend > 40) {
+      return 'Strong growth with $5M+ revenue by year 3';
+    } else {
+      return 'Moderate growth with $2M+ revenue by year 3';
+    }
+  }
+  
+  if (avgTrend > 60) {
+    return 'Strong growth trajectory with scalable revenue model';
+  }
+  
+  return 'Steady growth with multiple revenue streams';
+}
+
+function generateCostProjections(description: string, competitors: any[]): string {
+  const descriptionLower = description.toLowerCase();
+  
+  if (descriptionLower.includes('ai') || descriptionLower.includes('technology')) {
+    return 'Technology-focused cost structure with R&D investment';
+  }
+  
+  if (descriptionLower.includes('marketplace') || descriptionLower.includes('platform')) {
+    return 'Platform development and user acquisition costs';
+  }
+  
+  if (competitors.length > 5) {
+    return 'Competitive market requiring significant marketing investment';
+  }
+  
+  return 'Balanced cost structure with growth investments';
+}
+
+function calculateProfitability(marketSize: string, trends: any, competitors: any[]): string {
+  const avgTrend = Object.values(trends).reduce((sum: number, val: any) => sum + (val || 0), 0) / Object.keys(trends).length;
+  
+  if (marketSize && marketSize.includes('billion') && avgTrend > 60) {
+    return 'High profitability potential with strong unit economics';
+  }
+  
+  if (competitors.length < 3) {
+    return 'Strong profitability with limited competition';
+  }
+  
+  if (avgTrend > 40) {
+    return 'Good profitability with market growth';
+  }
+  
+  return 'Moderate profitability with optimization opportunities';
+}
+
+function generateProblemStatement(description: string, marketGaps: string[], sentiment: any): string {
+  const descriptionLower = description.toLowerCase();
+  const avgSentiment = Object.values(sentiment).reduce((sum: number, val: any) => sum + (val || 0), 0) / Object.keys(sentiment).length;
+  
+  if (descriptionLower.includes('ai') || descriptionLower.includes('technology')) {
+    return 'Businesses struggle to implement and scale AI solutions due to complexity, high costs, and lack of expertise. Current solutions are fragmented and difficult to integrate.';
+  }
+  
+  if (descriptionLower.includes('marketplace') || descriptionLower.includes('platform')) {
+    return 'Users face fragmented experiences across multiple platforms, with limited trust, high fees, and poor user experiences. The market lacks a comprehensive, trusted solution.';
+  }
+  
+  if (descriptionLower.includes('healthcare') || descriptionLower.includes('medical')) {
+    return 'Healthcare providers struggle with inefficiencies, high costs, and limited access to quality care. Patients face barriers to affordable, accessible healthcare services.';
+  }
+  
+  if (marketGaps.length > 0) {
+    return `Current market solutions fail to address key gaps: ${marketGaps.slice(0, 2).join(', ')}. This creates significant opportunities for innovative solutions.`;
+  }
+  
+  if (avgSentiment < -0.2) {
+    return 'Market shows negative sentiment towards current solutions, indicating significant dissatisfaction and unmet needs.';
+  }
+  
+  return `The current market lacks efficient solutions for ${description.toLowerCase()}, creating significant opportunities for innovation and improvement.`;
+}
+
+function generateSolutionStatement(description: string, trends: any, sentiment: any): string {
+  const descriptionLower = description.toLowerCase();
+  const avgTrend = Object.values(trends).reduce((sum: number, val: any) => sum + (val || 0), 0) / Object.keys(trends).length;
+  const avgSentiment = Object.values(sentiment).reduce((sum: number, val: any) => sum + (val || 0), 0) / Object.keys(sentiment).length;
+  
+  if (descriptionLower.includes('ai') || descriptionLower.includes('technology')) {
+    return 'Our AI-powered platform provides easy-to-implement, scalable solutions that reduce complexity and costs while delivering superior results through advanced automation and intelligence.';
+  }
+  
+  if (descriptionLower.includes('marketplace') || descriptionLower.includes('platform')) {
+    return 'Our comprehensive marketplace platform provides a trusted, seamless experience with verified transactions, competitive pricing, and superior user experience across all touchpoints.';
+  }
+  
+  if (descriptionLower.includes('healthcare') || descriptionLower.includes('medical')) {
+    return 'Our healthcare platform connects patients with quality providers, streamlines processes, and reduces costs through innovative technology and strategic partnerships.';
+  }
+  
+  if (avgTrend > 60 && avgSentiment > 0.2) {
+    return `Our solution leverages growing market trends and positive sentiment to deliver ${description.toLowerCase()} through innovative technology and superior execution.`;
+  }
+  
+  return `Our platform provides ${description.toLowerCase()} through an innovative, user-friendly solution that addresses market needs and delivers superior value.`;
+}
+
 // API Endpoints
 app.get('/api/health', (req, res) => {
   res.json({ status: 'healthy', message: 'Launcher MCP Server is running' });
@@ -1589,8 +2063,68 @@ app.post('/api/generate_business_model', async (req, res) => {
 
     console.log(`🏢 Generating business model for: ${company_info.description}`);
     
-    const result = await ragSystem.processRAGQuery(company_info.description, 'business');
-    res.json(result);
+    // Get comprehensive market intelligence
+    const ragResponse = await ragSystem.processRAGQuery(company_info.description, 'business');
+    
+    // Extract keywords for deeper analysis
+    const keywords = company_info.description.toLowerCase().split(/\s+/).filter((word: string) => 
+      word.length > 3 && !['the', 'and', 'for', 'with', 'that', 'this', 'from', 'they', 'have', 'been', 'were', 'said', 'each', 'which', 'their', 'time', 'will', 'about', 'there', 'could', 'other', 'after', 'first', 'well', 'also', 'new', 'want', 'because', 'any', 'these', 'give', 'day', 'most', 'us'].includes(word)
+    );
+
+    // Get real-time market data
+    const [trends, sentiment, competitors, marketSize, newsData] = await Promise.all([
+      googleTrends.fetchTrends(keywords),
+      redditData.fetchSentiment(keywords),
+      webScraper.scrapeCompetitorAnalysis(keywords),
+      webScraper.scrapeMarketSize(company_info.description),
+      webScraper.scrapeRealTimeNews(company_info.description)
+    ]);
+
+    // Generate business model based on real data
+    const businessModel = {
+      companyName: company_info.companyName || 'Your Company',
+      description: company_info.description,
+      timestamp: new Date().toISOString(),
+      dataSources: {
+        trends: Object.keys(trends).length,
+        sentiment: Object.keys(sentiment).length,
+        competitors: competitors.length,
+        news: newsData.length
+      },
+      businessModelCanvas: {
+        keyPartnerships: generateKeyPartnershipsFromData(competitors, trends, company_info.description),
+        keyActivities: generateKeyActivitiesFromData(company_info.description, trends),
+        keyResources: generateKeyResourcesFromData(company_info.description, competitors),
+        valuePropositions: generateValuePropositionsFromData(company_info.description, sentiment, trends),
+        customerRelationships: generateCustomerRelationshipsFromData(company_info.description, sentiment),
+        channels: generateChannelsFromData(company_info.description, trends),
+        customerSegments: generateCustomerSegmentsFromData(company_info.description, marketSize),
+        costStructure: generateCostStructureFromData(company_info.description, competitors),
+        revenueStreams: generateRevenueStreamsFromData(company_info.description, trends, marketSize)
+      },
+      marketAnalysis: {
+        marketSize: marketSize || 'Data not available',
+        competitionLevel: getCompetitionLevel(competitors.length),
+        marketTrends: Object.entries(trends).map(([keyword, score]) => ({
+          keyword,
+          trendScore: score,
+          interpretation: score > 70 ? 'High Interest' : score > 40 ? 'Moderate Interest' : 'Low Interest'
+        })),
+        targetMarket: analyzeTargetMarket(company_info.description, marketSize),
+        competitiveAdvantages: generateCompetitiveAdvantages(competitors, company_info.description)
+      },
+      financialProjections: {
+        marketSize: marketSize || 'Data not available',
+        growthRate: calculateGrowthRate(trends),
+        revenueProjections: generateRevenueProjections(marketSize, trends),
+        costProjections: generateCostProjections(company_info.description, competitors),
+        profitability: calculateProfitability(marketSize, trends, competitors)
+      },
+      confidence: ragResponse.confidence,
+      lastUpdated: new Date().toISOString()
+    };
+
+    res.json(businessModel);
   } catch (error) {
     console.error('Error generating business model:', error);
     res.status(500).json({ error: 'Failed to generate business model' });
@@ -1607,8 +2141,118 @@ app.post('/api/create_pitch_deck', async (req, res) => {
 
     console.log(`📊 Creating pitch deck for: ${startup_info.startupName}`);
     
-    const result = await ragSystem.processRAGQuery(startup_info.description, 'startup');
-    res.json(result);
+    // Get comprehensive market intelligence
+    const ragResponse = await ragSystem.processRAGQuery(startup_info.description, 'startup');
+    
+    // Extract keywords for deeper analysis
+    const keywords = startup_info.description.toLowerCase().split(/\s+/).filter((word: string) => 
+      word.length > 3 && !['the', 'and', 'for', 'with', 'that', 'this', 'from', 'they', 'have', 'been', 'were', 'said', 'each', 'which', 'their', 'time', 'will', 'about', 'there', 'could', 'other', 'after', 'first', 'well', 'also', 'new', 'want', 'because', 'any', 'these', 'give', 'day', 'most', 'us'].includes(word)
+    );
+
+    // Get real-time market data
+    const [trends, sentiment, competitors, marketSize, newsData] = await Promise.all([
+      googleTrends.fetchTrends(keywords),
+      redditData.fetchSentiment(keywords),
+      webScraper.scrapeCompetitorAnalysis(keywords),
+      webScraper.scrapeMarketSize(startup_info.description),
+      webScraper.scrapeRealTimeNews(startup_info.description)
+    ]);
+
+    // Calculate real feasibility score based on data
+    const feasibilityScore = calculateFeasibilityScore(trends, sentiment, competitors, marketSize);
+    
+    // Generate market gap analysis
+    const marketGaps = analyzeMarketGaps(competitors, startup_info.description);
+    
+    // Product-market fit analysis
+    const productMarketFit = analyzeProductMarketFit(sentiment, trends, marketSize);
+
+    // Generate comprehensive pitch deck based on real data
+    const pitchDeck = {
+      startupName: startup_info.startupName,
+      title: `${startup_info.startupName} - Investor Pitch Deck`,
+      timestamp: new Date().toISOString(),
+      dataSources: {
+        trends: Object.keys(trends).length,
+        sentiment: Object.keys(sentiment).length,
+        competitors: competitors.length,
+        news: newsData.length
+      },
+      slides: [
+        {
+          id: '1',
+          title: 'Problem Statement',
+          content: generateProblemStatement(startup_info.description, marketGaps, sentiment),
+          presenterNotes: 'Start with the problem - this is what investors care about most. Use real market data to support your claims.'
+        },
+        {
+          id: '2',
+          title: 'Solution',
+          content: generateSolutionStatement(startup_info.description, trends, sentiment),
+          presenterNotes: 'Present your solution clearly and concisely. Show how it addresses the identified problems.'
+        },
+        {
+          id: '3',
+          title: 'Market Opportunity',
+          content: `Market Size: ${marketSize || 'Data not available'}\nGrowth Rate: ${calculateGrowthRate(trends)}\nTarget Market: ${analyzeTargetMarket(startup_info.description, marketSize)}\nMarket Trends: ${Object.keys(trends).slice(0, 3).join(', ')}`,
+          presenterNotes: 'Show the market size and growth potential. Use real data to demonstrate the opportunity.'
+        },
+        {
+          id: '4',
+          title: 'Business Model',
+          content: `Revenue Streams: ${generateRevenueStreamsFromData(startup_info.description, trends, marketSize).slice(0, 3).join(', ')}\nCost Structure: ${generateCostStructureFromData(startup_info.description, competitors).slice(0, 3).join(', ')}\nKey Partnerships: ${generateKeyPartnershipsFromData(competitors, trends, startup_info.description).slice(0, 3).join(', ')}`,
+          presenterNotes: 'Explain how you will make money. Show that you understand the economics of your business.'
+        },
+        {
+          id: '5',
+          title: 'Competitive Advantage',
+          content: `Competition Level: ${getCompetitionLevel(competitors.length)}\nMarket Gaps: ${marketGaps.slice(0, 3).join(', ')}\nOur Advantages: ${generateCompetitiveAdvantages(competitors, startup_info.description).slice(0, 3).join(', ')}\nFeasibility Score: ${feasibilityScore}/100`,
+          presenterNotes: 'Highlight your competitive advantages and market positioning. Show why you will win.'
+        },
+        {
+          id: '6',
+          title: 'Product-Market Fit',
+          content: `Fit Score: ${productMarketFit.score}/100 (${productMarketFit.level})\nMarket Sentiment: ${productMarketFit.indicators.marketSentiment}\nTrend Momentum: ${productMarketFit.indicators.trendMomentum}\nRecommendations: ${productMarketFit.recommendations.join(', ')}`,
+          presenterNotes: 'Demonstrate that you have product-market fit or a clear path to achieve it.'
+        },
+        {
+          id: '7',
+          title: 'Financial Projections',
+          content: `Market Size: ${marketSize || 'Data not available'}\nGrowth Rate: ${calculateGrowthRate(trends)}\nRevenue Projections: ${generateRevenueProjections(marketSize, trends)}\nProfitability: ${calculateProfitability(marketSize, trends, competitors)}`,
+          presenterNotes: 'Present realistic financial projections based on market data. Show path to profitability.'
+        },
+        {
+          id: '8',
+          title: 'Team & Execution',
+          content: `Founding Team: Experienced entrepreneurs with relevant backgrounds\nExecution Plan: Clear milestones and go-to-market strategy\nHiring Plan: Strategic team expansion in key areas\nPartnerships: Strategic partnerships for growth and market access`,
+          presenterNotes: 'Highlight team strengths and relevant experience. Show that you can execute.'
+        },
+        {
+          id: '9',
+          title: 'Market Insights',
+          content: `Market Trends: ${Object.entries(trends).map(([keyword, score]) => `${keyword} (${score.toFixed(1)}%)`).slice(0, 3).join(', ')}\nOpportunities: ${generateOpportunities(trends, sentiment, marketGaps).slice(0, 3).join(', ')}\nRisks: ${generateRisks(competitors, sentiment, trends).slice(0, 3).join(', ')}`,
+          presenterNotes: 'Show deep understanding of market dynamics and trends. Address risks proactively.'
+        },
+        {
+          id: '10',
+          title: 'Funding & Next Steps',
+          content: `Funding Ask: Seeking $2M in seed funding\nUse of Funds: 40% Product Development, 30% Team Expansion, 20% Marketing, 10% Operations\nMilestones: 12-month roadmap with key deliverables\nSuccess Metrics: Clear KPIs and success indicators\nNext Steps: Immediate action items and timeline`,
+          presenterNotes: 'Clearly state funding needs and how you will use the money. Show clear next steps.'
+        }
+      ],
+      marketIntelligence: {
+        feasibilityScore: feasibilityScore,
+        productMarketFit: productMarketFit,
+        marketGaps: marketGaps,
+        opportunities: generateOpportunities(trends, sentiment, marketGaps),
+        risks: generateRisks(competitors, sentiment, trends),
+        recommendations: generateRecommendations(feasibilityScore, marketGaps, productMarketFit)
+      },
+      confidence: ragResponse.confidence,
+      lastUpdated: new Date().toISOString()
+    };
+
+    res.json(pitchDeck);
   } catch (error) {
     console.error('Error creating pitch deck:', error);
     res.status(500).json({ error: 'Failed to create pitch deck' });
