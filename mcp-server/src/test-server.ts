@@ -2,6 +2,10 @@ import express from 'express';
 import cors from 'cors';
 import axios from 'axios';
 import * as cheerio from 'cheerio';
+import { GoogleTrendsDataSource } from './data-sources/google-trends.js';
+import { RedditDataSource } from './data-sources/reddit-data.js';
+import { WebScraperDataSource } from './data-sources/web-scraper.js';
+import { RAGSystem } from './rag/rag-system.js';
 import { 
   ValidationResult, 
   BusinessModelData, 
@@ -9,7 +13,7 @@ import {
   MarketData,
   PitchDeck,
   PitchSlide
-} from './types/index';
+} from './types/index.js';
 
 const app = express();
 const PORT = 3001;
@@ -229,7 +233,7 @@ class RAGProcessor {
             return context;
           }
         } catch (error) {
-          console.warn(`Failed to fetch from ${source}:`, error.message);
+          console.warn(`Failed to fetch from ${source}:`, (error as Error).message);
           continue;
         }
       }
@@ -1217,12 +1221,51 @@ class RAGProcessor {
   }
 }
 
-// Initialize RAG processor
-const ragProcessor = new RAGProcessor();
+// Initialize data sources and RAG system
+const googleTrends = new GoogleTrendsDataSource();
+const redditData = new RedditDataSource();
+const webScraper = new WebScraperDataSource();
+const ragSystem = new RAGSystem();
 
 // API Endpoints
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'healthy', message: 'Startup Genie MCP Server is running' });
+  res.json({ status: 'healthy', message: 'Launcher MCP Server is running' });
+});
+
+// RAG-powered market intelligence endpoint
+app.post('/api/rag_intelligence', async (req, res) => {
+  try {
+    const { query, industry } = req.body;
+    
+    if (!query) {
+      return res.status(400).json({ error: 'query is required' });
+    }
+
+    console.log(`🧠 RAG Processing query: "${query}" for industry: ${industry || 'general'}`);
+
+    // Process query through RAG system
+    const ragResponse = await ragSystem.processRAGQuery(query, industry || 'technology');
+
+    const response = {
+      query,
+      industry: industry || 'technology',
+      timestamp: Date.now(),
+      ragResponse,
+      confidence: ragResponse.confidence,
+      dataSources: {
+        retrievedDataPoints: ragResponse.retrievedData.length,
+        insights: ragResponse.insights.length,
+        recommendations: ragResponse.recommendations.length
+      }
+    };
+
+    console.log(`✅ RAG Intelligence generated with ${ragResponse.confidence.toFixed(1)}% confidence`);
+    res.json(response);
+
+  } catch (error) {
+    console.error('Error in RAG intelligence:', error);
+    res.status(500).json({ error: 'Failed to generate RAG intelligence', details: (error as Error).message });
+  }
 });
 
 app.post('/api/validate_idea', async (req, res) => {
@@ -1235,7 +1278,7 @@ app.post('/api/validate_idea', async (req, res) => {
 
     console.log(`🔍 Validating idea: ${idea_description}`);
     
-    const result = await ragProcessor.processIdeaValidation(idea_description);
+    const result = await ragSystem.processRAGQuery(idea_description, 'technology');
     res.json(result);
   } catch (error) {
     console.error('Error validating idea:', error);
@@ -1253,7 +1296,7 @@ app.post('/api/generate_business_model', async (req, res) => {
 
     console.log(`🏢 Generating business model for: ${company_info.description}`);
     
-    const result = await ragProcessor.processBusinessModelGeneration(company_info);
+    const result = await ragSystem.processRAGQuery(company_info.description, 'business');
     res.json(result);
   } catch (error) {
     console.error('Error generating business model:', error);
@@ -1271,7 +1314,7 @@ app.post('/api/create_pitch_deck', async (req, res) => {
 
     console.log(`📊 Creating pitch deck for: ${startup_info.startupName}`);
     
-    const result = await ragProcessor.processPitchDeckCreation(startup_info);
+    const result = await ragSystem.processRAGQuery(startup_info.description, 'startup');
     res.json(result);
   } catch (error) {
     console.error('Error creating pitch deck:', error);
@@ -1281,7 +1324,7 @@ app.post('/api/create_pitch_deck', async (req, res) => {
 
 // Start server
 app.listen(PORT, () => {
-  console.log(`🚀 Startup Genie MCP Server running on http://localhost:${PORT}`);
+  console.log(`🚀 Launcher MCP Server running on http://localhost:${PORT}`);
   console.log(`📊 RAG-powered data processing enabled`);
   console.log(`🔍 Real-time data fetching from multiple sources`);
   console.log(`🎯 Industry-specific intelligence implemented`);
