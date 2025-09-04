@@ -2614,6 +2614,200 @@ function getKeyWeaknesses(breakdown: any): string[] {
   return weaknesses.length > 0 ? weaknesses : ['No major weaknesses identified'];
 }
 
+// Execution Difficulty Metric Feature
+function analyzeExecutionDifficulty(ideaDescription: string): any {
+  const lower = ideaDescription.toLowerCase();
+  let difficultyScore = 0;
+  let classification = 'Medium';
+  let reasoning = '';
+  let factors: string[] = [];
+  let recommendations: string[] = [];
+
+  // Hard difficulty keywords (add to score)
+  const hardKeywords = [
+    'fda', 'hipaa', 'compliance', 'regulation', 'regulatory', 'ai infrastructure', 
+    'machine learning', 'deep learning', 'neural networks', 'blockchain', 'cryptocurrency',
+    'fintech', 'banking', 'financial services', 'healthcare', 'medical device',
+    'pharmaceutical', 'biotech', 'clinical trials', 'data privacy', 'gdpr',
+    'sox', 'pci', 'iso', 'certification', 'audit', 'legal', 'patent',
+    'intellectual property', 'enterprise software', 'saas platform', 'api integration',
+    'microservices', 'distributed systems', 'scalability', 'security', 'encryption'
+  ];
+
+  // Medium difficulty keywords
+  const mediumKeywords = [
+    'b2b saas', 'marketplace', 'api integration', 'web application', 'mobile app',
+    'e-commerce', 'platform', 'software', 'database', 'backend', 'frontend',
+    'cloud', 'aws', 'azure', 'google cloud', 'integration', 'automation',
+    'workflow', 'crm', 'erp', 'analytics', 'dashboard', 'reporting'
+  ];
+
+  // Easy difficulty keywords (subtract from score)
+  const easyKeywords = [
+    'simple app', 'no-code', 'website', 'landing page', 'blog', 'portfolio',
+    'static site', 'wordpress', 'shopify', 'wix', 'squarespace', 'template',
+    'basic', 'simple', 'minimal', 'prototype', 'mvp', 'proof of concept'
+  ];
+
+  // Count keyword matches
+  let hardCount = 0;
+  let mediumCount = 0;
+  let easyCount = 0;
+
+  hardKeywords.forEach(keyword => {
+    if (lower.includes(keyword)) {
+      hardCount++;
+      difficultyScore += 3;
+      factors.push(`Hard: ${keyword}`);
+    }
+  });
+
+  mediumKeywords.forEach(keyword => {
+    if (lower.includes(keyword)) {
+      mediumCount++;
+      difficultyScore += 1;
+      factors.push(`Medium: ${keyword}`);
+    }
+  });
+
+  easyKeywords.forEach(keyword => {
+    if (lower.includes(keyword)) {
+      easyCount++;
+      difficultyScore -= 2;
+      factors.push(`Easy: ${keyword}`);
+    }
+  });
+
+  // Determine classification
+  if (difficultyScore >= 6) {
+    classification = 'Hard';
+    reasoning = 'High complexity due to regulatory requirements, advanced technology, or enterprise features';
+    recommendations = [
+      'Consider hiring specialized talent (legal, compliance, technical)',
+      'Plan for longer development cycles (12-24 months)',
+      'Budget for regulatory compliance and certifications',
+      'Build strong partnerships with industry experts',
+      'Consider phased approach with MVP first'
+    ];
+  } else if (difficultyScore >= 2) {
+    classification = 'Medium';
+    reasoning = 'Moderate complexity with standard business logic and integrations';
+    recommendations = [
+      'Plan for 6-12 month development cycle',
+      'Focus on core features first, add complexity later',
+      'Consider using existing platforms and APIs',
+      'Build a strong technical team',
+      'Plan for iterative development and testing'
+    ];
+  } else {
+    classification = 'Easy';
+    reasoning = 'Low complexity with simple features and minimal technical requirements';
+    recommendations = [
+      'Can be built quickly (1-3 months)',
+      'Consider no-code or low-code solutions',
+      'Focus on user experience and design',
+      'Perfect for rapid prototyping and validation',
+      'Great for first-time entrepreneurs'
+    ];
+  }
+
+  return {
+    classification,
+    difficultyScore: Math.max(0, difficultyScore),
+    reasoning,
+    factors: factors.slice(0, 5), // Top 5 factors
+    keywordAnalysis: {
+      hardKeywords: hardCount,
+      mediumKeywords: mediumCount,
+      easyKeywords: easyCount
+    },
+    recommendations,
+    estimatedTimeline: getEstimatedTimeline(classification),
+    resourceRequirements: getResourceRequirements(classification)
+  };
+}
+
+function getEstimatedTimeline(classification: string): string {
+  switch (classification) {
+    case 'Hard':
+      return '12-24 months for full implementation';
+    case 'Medium':
+      return '6-12 months for MVP, 12-18 months for full product';
+    case 'Easy':
+      return '1-3 months for MVP, 3-6 months for full product';
+    default:
+      return 'Timeline depends on complexity';
+  }
+}
+
+function getResourceRequirements(classification: string): string[] {
+  switch (classification) {
+    case 'Hard':
+      return [
+        'Senior technical team (5-10 developers)',
+        'Legal and compliance experts',
+        'Industry domain experts',
+        'Significant budget ($500K-$2M+)',
+        'Regulatory consultants'
+      ];
+    case 'Medium':
+      return [
+        'Technical team (3-5 developers)',
+        'Product manager',
+        'Designer',
+        'Moderate budget ($100K-$500K)',
+        'Industry advisors'
+      ];
+    case 'Easy':
+      return [
+        'Small team (1-3 people)',
+        'Basic technical skills',
+        'Low budget ($10K-$100K)',
+        'No-code tools or simple development'
+      ];
+    default:
+      return ['Resources depend on complexity'];
+  }
+}
+
+// Execution Difficulty Metric API Endpoint
+app.post('/api/execution_difficulty', async (req, res) => {
+  try {
+    const { idea_description } = req.body;
+    
+    if (!idea_description) {
+      return res.status(400).json({ 
+        error: 'Idea description is required' 
+      });
+    }
+
+    console.log(`⚡ Analyzing execution difficulty for: ${idea_description}`);
+    
+    // Analyze execution difficulty
+    const difficultyAnalysis = analyzeExecutionDifficulty(idea_description);
+    
+    const response = {
+      timestamp: new Date().toISOString(),
+      idea: idea_description,
+      executionDifficulty: difficultyAnalysis,
+      summary: {
+        classification: difficultyAnalysis.classification,
+        difficultyScore: difficultyAnalysis.difficultyScore,
+        estimatedTimeline: difficultyAnalysis.estimatedTimeline,
+        keyFactors: difficultyAnalysis.factors.slice(0, 3),
+        topRecommendation: difficultyAnalysis.recommendations[0]
+      }
+    };
+
+    console.log(`✅ Execution difficulty analysis completed: ${difficultyAnalysis.classification} (Score: ${difficultyAnalysis.difficultyScore})`);
+    res.json(response);
+    
+  } catch (error) {
+    console.error('Error analyzing execution difficulty:', error);
+    res.status(500).json({ error: 'Failed to analyze execution difficulty' });
+  }
+});
+
 // Start server
 app.listen(PORT, () => {
   console.log(`🚀 Launcher MCP Server running on http://localhost:${PORT}`);
