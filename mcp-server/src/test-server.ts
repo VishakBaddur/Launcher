@@ -1231,12 +1231,25 @@ const ragSystem = new RAGSystem();
 function calculateFeasibilityScore(trends: any, sentiment: any, competitors: any[], marketSize: string): number {
   let score = 50; // Base score
   
-  // Market size factor
+  // Market size factor - OPTIMAL SIZE MATTERS MORE THAN MAXIMUM SIZE
   if (marketSize && marketSize.includes('billion')) {
     const size = parseFloat(marketSize.replace(/[^0-9.]/g, ''));
-    if (size > 100) score += 20;
-    else if (size > 50) score += 15;
-    else if (size > 10) score += 10;
+    
+    // Sweet spot: $1B-$50B markets (large enough to matter, not too saturated)
+    if (size >= 1 && size <= 50) {
+      score += 20; // Optimal market size
+    } else if (size > 50 && size <= 100) {
+      score += 10; // Large but potentially saturated
+    } else if (size > 100) {
+      score += 5; // Very large but likely saturated with big players
+    } else if (size < 1) {
+      score += 15; // Smaller but potentially underserved
+    }
+  } else if (marketSize && marketSize.includes('million')) {
+    const size = parseFloat(marketSize.replace(/[^0-9.]/g, ''));
+    if (size >= 100) score += 15; // $100M+ is good for startups
+    else if (size >= 10) score += 10; // $10M+ is decent
+    else score += 5; // Smaller markets
   }
   
   // Competition factor (less competition = higher score)
@@ -1256,6 +1269,14 @@ function calculateFeasibilityScore(trends: any, sentiment: any, competitors: any
   if (avgSentiment > 0.5) score += 10;
   else if (avgSentiment > 0) score += 5;
   else if (avgSentiment < -0.5) score -= 15;
+  
+  // Market maturity penalty for very large markets
+  if (marketSize && marketSize.includes('billion')) {
+    const size = parseFloat(marketSize.replace(/[^0-9.]/g, ''));
+    if (size > 100 && competitors.length > 5) {
+      score -= 10; // Penalty for large, competitive markets
+    }
+  }
   
   return Math.min(Math.max(score, 0), 100);
 }
@@ -1291,6 +1312,82 @@ function analyzeMarketGaps(competitors: any[], idea: string): string[] {
   }
   
   return gaps;
+}
+
+function analyzeMarketSizeOptimality(marketSize: string, competitors: any[]): any {
+  if (!marketSize) {
+    return {
+      score: 50,
+      level: 'Unknown',
+      reasoning: 'Market size data not available',
+      recommendations: ['Conduct market research to determine actual market size']
+    };
+  }
+
+  const size = parseFloat(marketSize.replace(/[^0-9.]/g, ''));
+  const isBillion = marketSize.includes('billion');
+  const competitorCount = competitors.length;
+
+  let score = 50;
+  let level = 'Unknown';
+  let reasoning = '';
+  let recommendations: string[] = [];
+
+  if (isBillion) {
+    if (size >= 1 && size <= 50) {
+      score = 85;
+      level = 'Optimal';
+      reasoning = `$${size}B market is the sweet spot - large enough to matter but not oversaturated`;
+      recommendations = ['Focus on rapid market entry and differentiation'];
+    } else if (size > 50 && size <= 100) {
+      score = 70;
+      level = 'Good';
+      reasoning = `$${size}B market is large but may have established players`;
+      recommendations = ['Find niche positioning within the large market'];
+    } else if (size > 100) {
+      score = 60;
+      level = 'Challenging';
+      reasoning = `$${size}B market is very large but likely dominated by big players`;
+      recommendations = ['Consider market segmentation or disruptive approach'];
+      if (competitorCount > 5) {
+        score = 45;
+        level = 'High Risk';
+        reasoning += ' and highly competitive';
+        recommendations.push('Requires significant capital and differentiation');
+      }
+    } else if (size < 1) {
+      score = 75;
+      level = 'Emerging';
+      reasoning = `$${size}B market is smaller but potentially underserved`;
+      recommendations = ['Focus on market education and early adoption'];
+    }
+  } else if (marketSize.includes('million')) {
+    if (size >= 100) {
+      score = 80;
+      level = 'Good';
+      reasoning = `$${size}M market is substantial for startup entry`;
+      recommendations = ['Focus on market penetration and growth'];
+    } else if (size >= 10) {
+      score = 70;
+      level = 'Moderate';
+      reasoning = `$${size}M market is decent but may limit growth potential`;
+      recommendations = ['Consider market expansion strategies'];
+    } else {
+      score = 60;
+      level = 'Small';
+      reasoning = `$${size}M market is small and may limit scalability`;
+      recommendations = ['Focus on niche dominance or market expansion'];
+    }
+  }
+
+  return {
+    score,
+    level,
+    reasoning,
+    recommendations,
+    marketSize: marketSize,
+    competitorCount
+  };
 }
 
 function analyzeProductMarketFit(sentiment: any, trends: any, marketSize: string): any {
@@ -2001,6 +2098,9 @@ app.post('/api/validate_idea', async (req, res) => {
     // Generate market gap analysis
     const marketGaps = analyzeMarketGaps(competitors, idea_description);
     
+    // Market size optimality analysis
+    const marketSizeAnalysis = analyzeMarketSizeOptimality(marketSize, competitors);
+    
     // Product-market fit analysis
     const productMarketFit = analyzeProductMarketFit(sentiment, trends, marketSize);
     
@@ -2017,6 +2117,7 @@ app.post('/api/validate_idea', async (req, res) => {
       feasibilityScore: feasibilityScore,
       marketAnalysis: {
         marketSize: marketSize || 'Data not available',
+        marketSizeOptimality: marketSizeAnalysis,
         competitionLevel: getCompetitionLevel(competitors.length),
         marketTrends: Object.entries(trends).map(([keyword, score]) => ({
           keyword,
