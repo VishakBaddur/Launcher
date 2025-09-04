@@ -2808,6 +2808,194 @@ app.post('/api/execution_difficulty', async (req, res) => {
   }
 });
 
+// Time-to-MVP Score Feature
+function analyzeTimeToMVP(ideaDescription: string): any {
+  const lower = ideaDescription.toLowerCase();
+  let timeScore = 0;
+  let timeBucket = '3-6 months';
+  let reasoning = '';
+  let factors: string[] = [];
+  let recommendations: string[] = [];
+
+  // Long timeline keywords (>12 months) - subtract points
+  const longTimelineKeywords = [
+    'regulation', 'fda', 'hipaa', 'compliance', 'regulatory', 'ai training', 
+    'machine learning', 'deep learning', 'neural networks', 'clinical trials',
+    'pharmaceutical', 'biotech', 'medical device', 'certification', 'audit',
+    'enterprise software', 'saas platform', 'microservices', 'distributed systems',
+    'blockchain', 'cryptocurrency', 'fintech', 'banking', 'financial services'
+  ];
+
+  // Medium timeline keywords (3-6 months) - neutral
+  const mediumTimelineKeywords = [
+    'api', 'integration', 'b2b saas', 'marketplace', 'web application', 
+    'mobile app', 'e-commerce', 'platform', 'software', 'database',
+    'backend', 'frontend', 'cloud', 'aws', 'azure', 'google cloud',
+    'automation', 'workflow', 'crm', 'erp', 'analytics', 'dashboard'
+  ];
+
+  // Short timeline keywords (<3 months) - add points
+  const shortTimelineKeywords = [
+    'mvp', 'prototype', 'simple app', 'no-code', 'website', 'landing page',
+    'blog', 'portfolio', 'static site', 'wordpress', 'shopify', 'wix',
+    'squarespace', 'template', 'basic', 'simple', 'minimal', 'proof of concept'
+  ];
+
+  // Count keyword matches
+  let longCount = 0;
+  let mediumCount = 0;
+  let shortCount = 0;
+
+  longTimelineKeywords.forEach(keyword => {
+    if (lower.includes(keyword)) {
+      longCount++;
+      timeScore -= 15;
+      factors.push(`Long: ${keyword}`);
+    }
+  });
+
+  mediumTimelineKeywords.forEach(keyword => {
+    if (lower.includes(keyword)) {
+      mediumCount++;
+      timeScore += 10;
+      factors.push(`Medium: ${keyword}`);
+    }
+  });
+
+  shortTimelineKeywords.forEach(keyword => {
+    if (lower.includes(keyword)) {
+      shortCount++;
+      timeScore += 20;
+      factors.push(`Short: ${keyword}`);
+    }
+  });
+
+  // Determine time bucket
+  if (timeScore >= 15) {
+    timeBucket = '<3 months';
+    reasoning = 'Simple features and minimal complexity allow for rapid development';
+    recommendations = [
+      'Focus on core functionality first',
+      'Use no-code or low-code solutions',
+      'Perfect for rapid validation and iteration',
+      'Consider building in phases',
+      'Great for first-time entrepreneurs'
+    ];
+  } else if (timeScore >= 0) {
+    timeBucket = '3-6 months';
+    reasoning = 'Moderate complexity with standard development requirements';
+    recommendations = [
+      'Plan for iterative development',
+      'Focus on MVP features first',
+      'Consider using existing APIs and platforms',
+      'Build a small but skilled team',
+      'Plan for testing and refinement'
+    ];
+  } else {
+    timeBucket = '>12 months';
+    reasoning = 'High complexity due to regulatory requirements, advanced technology, or enterprise features';
+    recommendations = [
+      'Plan for extended development cycles',
+      'Consider phased approach with early prototypes',
+      'Budget for regulatory compliance and certifications',
+      'Hire specialized talent early',
+      'Build strong partnerships with industry experts'
+    ];
+  }
+
+  return {
+    timeBucket,
+    timeScore: Math.max(-30, Math.min(30, timeScore)),
+    reasoning,
+    factors: factors.slice(0, 5), // Top 5 factors
+    keywordAnalysis: {
+      longTimelineKeywords: longCount,
+      mediumTimelineKeywords: mediumCount,
+      shortTimelineKeywords: shortCount
+    },
+    recommendations,
+    estimatedMonths: getEstimatedMonths(timeBucket),
+    developmentPhases: getDevelopmentPhases(timeBucket)
+  };
+}
+
+function getEstimatedMonths(timeBucket: string): string {
+  switch (timeBucket) {
+    case '<3 months':
+      return '1-3 months';
+    case '3-6 months':
+      return '3-6 months';
+    case '>12 months':
+      return '12-24 months';
+    default:
+      return 'Timeline depends on complexity';
+  }
+}
+
+function getDevelopmentPhases(timeBucket: string): string[] {
+  switch (timeBucket) {
+    case '<3 months':
+      return [
+        'Week 1-2: Planning and design',
+        'Week 3-8: Core development',
+        'Week 9-12: Testing and launch'
+      ];
+    case '3-6 months':
+      return [
+        'Month 1: Planning and architecture',
+        'Month 2-4: Core development',
+        'Month 5-6: Testing and refinement'
+      ];
+    case '>12 months':
+      return [
+        'Months 1-3: Planning and compliance',
+        'Months 4-12: Core development',
+        'Months 13-18: Testing and certification',
+        'Months 19-24: Launch and optimization'
+      ];
+    default:
+      return ['Phases depend on complexity'];
+  }
+}
+
+// Time-to-MVP Score API Endpoint
+app.post('/api/time_to_mvp', async (req, res) => {
+  try {
+    const { idea_description } = req.body;
+    
+    if (!idea_description) {
+      return res.status(400).json({ 
+        error: 'Idea description is required' 
+      });
+    }
+
+    console.log(`⏱️ Analyzing time to MVP for: ${idea_description}`);
+    
+    // Analyze time to MVP
+    const mvpAnalysis = analyzeTimeToMVP(idea_description);
+    
+    const response = {
+      timestamp: new Date().toISOString(),
+      idea: idea_description,
+      timeToMVP: mvpAnalysis,
+      summary: {
+        timeBucket: mvpAnalysis.timeBucket,
+        estimatedMonths: mvpAnalysis.estimatedMonths,
+        timeScore: mvpAnalysis.timeScore,
+        keyFactors: mvpAnalysis.factors.slice(0, 3),
+        topRecommendation: mvpAnalysis.recommendations[0]
+      }
+    };
+
+    console.log(`✅ Time to MVP analysis completed: ${mvpAnalysis.timeBucket} (Score: ${mvpAnalysis.timeScore})`);
+    res.json(response);
+    
+  } catch (error) {
+    console.error('Error analyzing time to MVP:', error);
+    res.status(500).json({ error: 'Failed to analyze time to MVP' });
+  }
+});
+
 // Start server
 app.listen(PORT, () => {
   console.log(`🚀 Launcher MCP Server running on http://localhost:${PORT}`);
