@@ -2996,29 +2996,79 @@ app.post('/api/time_to_mvp', async (req, res) => {
   }
 });
 
-// Risk Analysis Feature
-function analyzeRisks(ideaDescription: string): any {
+// Risk Analysis Feature (Enhanced)
+function analyzeRisks(ideaDescription: string, founderContext?: any): any {
   const lower = ideaDescription.toLowerCase();
   const risks: any[] = [];
   const mitigations: any[] = [];
+
+  // Helper function to calculate weighted risk score
+  function calculateWeightedRiskScore(severity: string, probability: string, category: string): number {
+    const severityWeight: { [key: string]: number } = { 'High': 4, 'Medium': 2, 'Low': 1 };
+    const probabilityWeight: { [key: string]: number } = { 'High': 3, 'Medium': 2, 'Low': 1 };
+    
+    // Category weights - Regulation and Technical risks are more critical
+    const categoryWeight: { [key: string]: number } = { 
+      'Regulation': 1.5, 
+      'Technical': 1.3, 
+      'Competition': 1.0, 
+      'Adoption': 1.0, 
+      'Market': 0.8, 
+      'Technology': 0.7 
+    };
+    
+    const baseScore = severityWeight[severity] * probabilityWeight[probability];
+    return Math.round(baseScore * categoryWeight[category]);
+  }
+
+  // Helper function to adjust risk based on founder context
+  function adjustRiskForFounder(risk: any, founderContext: any): any {
+    if (!founderContext) return risk;
+
+    // If founder has relevant domain expertise, reduce probability
+    if (risk.category === 'Regulation' && founderContext.domainExpertise?.includes('expert')) {
+      risk.probability = risk.probability === 'High' ? 'Medium' : risk.probability;
+      risk.founderMitigation = 'Strong domain expertise reduces regulatory risk';
+    }
+    
+    if (risk.category === 'Technical' && founderContext.technicalExpertise?.includes('expert')) {
+      risk.probability = risk.probability === 'High' ? 'Medium' : risk.probability;
+      risk.founderMitigation = 'Strong technical expertise reduces implementation risk';
+    }
+    
+    if (risk.category === 'Competition' && founderContext.startupExperience?.includes('founded')) {
+      risk.probability = risk.probability === 'High' ? 'Medium' : risk.probability;
+      risk.founderMitigation = 'Previous startup experience helps navigate competition';
+    }
+
+    return risk;
+  }
 
   // Regulation Risks
   const regulationKeywords = ['fda', 'hipaa', 'compliance', 'regulation', 'regulatory', 'gdpr', 'sox', 'pci', 'iso', 'certification', 'audit', 'legal', 'patent'];
   const hasRegulationRisk = regulationKeywords.some(keyword => lower.includes(keyword));
   
   if (hasRegulationRisk) {
-    risks.push({
+    let risk: any = {
       category: 'Regulation',
       risk: 'Regulatory compliance and legal requirements',
       severity: 'High',
       description: 'Complex regulatory environment requiring significant legal expertise and compliance costs',
       probability: 'High'
-    });
+    };
+    
+    risk = adjustRiskForFounder(risk, founderContext);
+    risk.weightedScore = calculateWeightedRiskScore(risk.severity, risk.probability, risk.category);
+    risk.isCritical = risk.weightedScore >= 8;
+    
+    risks.push(risk);
     mitigations.push({
       category: 'Regulation',
       mitigation: 'Hire legal and compliance experts early',
       description: 'Engage specialized legal counsel and compliance consultants to navigate regulatory requirements',
-      priority: 'High'
+      priority: 'High',
+      effort: 'High',
+      timeline: 'Immediate'
     });
   }
 
@@ -3027,18 +3077,26 @@ function analyzeRisks(ideaDescription: string): any {
   const hasCompetitionRisk = competitionKeywords.some(keyword => lower.includes(keyword));
   
   if (hasCompetitionRisk) {
-    risks.push({
+    let risk: any = {
       category: 'Competition',
       risk: 'High competition from established players',
       severity: 'Medium',
       description: 'Market may be saturated with well-funded competitors and established solutions',
       probability: 'High'
-    });
+    };
+    
+    risk = adjustRiskForFounder(risk, founderContext);
+    risk.weightedScore = calculateWeightedRiskScore(risk.severity, risk.probability, risk.category);
+    risk.isCritical = risk.weightedScore >= 8;
+    
+    risks.push(risk);
     mitigations.push({
       category: 'Competition',
       mitigation: 'Focus on unique value proposition and niche market',
       description: 'Differentiate through superior user experience, specific use cases, or innovative features',
-      priority: 'High'
+      priority: 'High',
+      effort: 'Medium',
+      timeline: '3-6 months'
     });
   }
 
@@ -3047,18 +3105,26 @@ function analyzeRisks(ideaDescription: string): any {
   const hasAdoptionRisk = adoptionKeywords.some(keyword => lower.includes(keyword));
   
   if (hasAdoptionRisk) {
-    risks.push({
+    let risk: any = {
       category: 'Adoption',
       risk: 'Slow market adoption and user acquisition',
       severity: 'Medium',
       description: 'Complex or new technology may face resistance from users and slow adoption rates',
       probability: 'Medium'
-    });
+    };
+    
+    risk = adjustRiskForFounder(risk, founderContext);
+    risk.weightedScore = calculateWeightedRiskScore(risk.severity, risk.probability, risk.category);
+    risk.isCritical = risk.weightedScore >= 8;
+    
+    risks.push(risk);
     mitigations.push({
       category: 'Adoption',
       mitigation: 'Invest in user education and gradual rollout',
       description: 'Focus on user onboarding, education, and start with early adopters before scaling',
-      priority: 'Medium'
+      priority: 'Medium',
+      effort: 'Medium',
+      timeline: '6-12 months'
     });
   }
 
@@ -3067,59 +3133,87 @@ function analyzeRisks(ideaDescription: string): any {
   const hasTechnicalRisk = technicalKeywords.some(keyword => lower.includes(keyword));
   
   if (hasTechnicalRisk) {
-    risks.push({
+    let risk: any = {
       category: 'Technical',
       risk: 'Complex technical implementation and scalability challenges',
       severity: 'High',
       description: 'Advanced technology requirements may lead to development delays and technical debt',
       probability: 'Medium'
-    });
+    };
+    
+    risk = adjustRiskForFounder(risk, founderContext);
+    risk.weightedScore = calculateWeightedRiskScore(risk.severity, risk.probability, risk.category);
+    risk.isCritical = risk.weightedScore >= 8;
+    
+    risks.push(risk);
     mitigations.push({
       category: 'Technical',
       mitigation: 'Build strong technical team and use proven technologies',
       description: 'Hire experienced developers and leverage existing frameworks and cloud services',
-      priority: 'High'
+      priority: 'High',
+      effort: 'High',
+      timeline: 'Immediate'
     });
   }
 
-  // Market Risks (always present)
-  risks.push({
-    category: 'Market',
-    risk: 'Market timing and economic conditions',
-    severity: 'Medium',
-    description: 'Economic downturns or market shifts could impact funding and customer demand',
-    probability: 'Medium'
-  });
-  mitigations.push({
-    category: 'Market',
-    mitigation: 'Build sustainable business model and maintain runway',
-    description: 'Focus on revenue generation, maintain 18+ months runway, and adapt to market conditions',
-    priority: 'Medium'
-  });
+  // Market Risks (conditional - only for macroeconomic sensitive industries)
+  const macroeconomicSensitiveKeywords = ['fintech', 'banking', 'financial services', 'real estate', 'insurance', 'investment', 'trading', 'cryptocurrency', 'lending', 'payments'];
+  const isMacroeconomicSensitive = macroeconomicSensitiveKeywords.some(keyword => lower.includes(keyword));
+  
+  if (isMacroeconomicSensitive) {
+    let risk: any = {
+      category: 'Market',
+      risk: 'Market timing and economic conditions',
+      severity: 'Medium',
+      description: 'Economic downturns or market shifts could significantly impact funding and customer demand in financial services',
+      probability: 'Medium'
+    };
+    
+    risk = adjustRiskForFounder(risk, founderContext);
+    risk.weightedScore = calculateWeightedRiskScore(risk.severity, risk.probability, risk.category);
+    risk.isCritical = risk.weightedScore >= 8;
+    
+    risks.push(risk);
+    mitigations.push({
+      category: 'Market',
+      mitigation: 'Build sustainable business model and maintain runway',
+      description: 'Focus on revenue generation, maintain 18+ months runway, and adapt to market conditions',
+      priority: 'Medium',
+      effort: 'Medium',
+      timeline: 'Ongoing'
+    });
+  }
 
-  // Technology Disruption Risk (always present)
-  risks.push({
-    category: 'Technology',
-    risk: 'Technology disruption and obsolescence',
-    severity: 'Low',
-    description: 'Rapid technological changes could make current approach obsolete',
-    probability: 'Low'
-  });
-  mitigations.push({
-    category: 'Technology',
-    mitigation: 'Stay current with technology trends and build adaptable architecture',
-    description: 'Monitor industry trends, use modular architecture, and plan for technology evolution',
-    priority: 'Low'
-  });
+  // Technology Disruption Risk (conditional - only for fast-moving tech spaces)
+  const fastMovingTechKeywords = ['ai', 'artificial intelligence', 'machine learning', 'blockchain', 'cryptocurrency', 'quantum', 'vr', 'ar', 'metaverse', 'web3'];
+  const isFastMovingTech = fastMovingTechKeywords.some(keyword => lower.includes(keyword));
+  
+  if (isFastMovingTech) {
+    let risk: any = {
+      category: 'Technology',
+      risk: 'Technology disruption and obsolescence',
+      severity: 'Low',
+      description: 'Rapid technological changes in fast-moving tech space could make current approach obsolete',
+      probability: 'Medium'
+    };
+    
+    risk = adjustRiskForFounder(risk, founderContext);
+    risk.weightedScore = calculateWeightedRiskScore(risk.severity, risk.probability, risk.category);
+    risk.isCritical = risk.weightedScore >= 8;
+    
+    risks.push(risk);
+    mitigations.push({
+      category: 'Technology',
+      mitigation: 'Stay current with technology trends and build adaptable architecture',
+      description: 'Monitor industry trends, use modular architecture, and plan for technology evolution',
+      priority: 'Low',
+      effort: 'Low',
+      timeline: 'Ongoing'
+    });
+  }
 
-  // Sort risks by severity and probability
-  const sortedRisks = risks.sort((a, b) => {
-    const severityWeight: { [key: string]: number } = { 'High': 3, 'Medium': 2, 'Low': 1 };
-    const probabilityWeight: { [key: string]: number } = { 'High': 3, 'Medium': 2, 'Low': 1 };
-    const scoreA = severityWeight[a.severity] * probabilityWeight[a.probability];
-    const scoreB = severityWeight[b.severity] * probabilityWeight[b.probability];
-    return scoreB - scoreA;
-  });
+  // Sort risks by weighted score
+  const sortedRisks = risks.sort((a, b) => b.weightedScore - a.weightedScore);
 
   // Get top 3 risks
   const topRisks = sortedRisks.slice(0, 3);
@@ -3129,24 +3223,39 @@ function analyzeRisks(ideaDescription: string): any {
     mitigations.find(mit => mit.category === risk.category)
   ).filter(Boolean);
 
+  // Calculate overall risk level
+  const criticalRisks = risks.filter(r => r.isCritical).length;
+  const highScoreRisks = risks.filter(r => r.weightedScore >= 6).length;
+  
+  let overallRiskLevel = 'Low';
+  if (criticalRisks >= 1) {
+    overallRiskLevel = 'Critical';
+  } else if (highScoreRisks >= 2) {
+    overallRiskLevel = 'High';
+  } else if (highScoreRisks >= 1) {
+    overallRiskLevel = 'Medium';
+  }
+
   return {
     topRisks,
     topMitigations,
     riskSummary: {
       totalRisks: risks.length,
-      highSeverityRisks: risks.filter(r => r.severity === 'High').length,
-      highProbabilityRisks: risks.filter(r => r.probability === 'High').length,
+      criticalRisks: criticalRisks,
+      highScoreRisks: highScoreRisks,
+      overallRiskLevel: overallRiskLevel,
       riskCategories: [...new Set(risks.map(r => r.category))]
     },
     allRisks: risks,
-    allMitigations: mitigations
+    allMitigations: mitigations,
+    founderContext: founderContext ? 'Applied' : 'Not provided'
   };
 }
 
-// Risk Analysis API Endpoint
+// Risk Analysis API Endpoint (Enhanced)
 app.post('/api/risk_analysis', async (req, res) => {
   try {
-    const { idea_description } = req.body;
+    const { idea_description, founder_context } = req.body;
     
     if (!idea_description) {
       return res.status(400).json({ 
@@ -3155,23 +3264,29 @@ app.post('/api/risk_analysis', async (req, res) => {
     }
 
     console.log(`⚠️ Analyzing risks for: ${idea_description}`);
+    if (founder_context) {
+      console.log(`👤 Founder context provided: ${JSON.stringify(founder_context)}`);
+    }
     
-    // Analyze risks
-    const riskAnalysis = analyzeRisks(idea_description);
+    // Analyze risks with founder context
+    const riskAnalysis = analyzeRisks(idea_description, founder_context);
     
     const response = {
       timestamp: new Date().toISOString(),
       idea: idea_description,
+      founderContext: founder_context || null,
       riskAnalysis: riskAnalysis,
       summary: {
         topRisk: riskAnalysis.topRisks[0],
         topMitigation: riskAnalysis.topMitigations[0],
-        riskLevel: getOverallRiskLevel(riskAnalysis.riskSummary),
-        keyRiskCategories: riskAnalysis.riskSummary.riskCategories.slice(0, 3)
+        riskLevel: riskAnalysis.riskSummary.overallRiskLevel,
+        criticalRisks: riskAnalysis.riskSummary.criticalRisks,
+        keyRiskCategories: riskAnalysis.riskSummary.riskCategories.slice(0, 3),
+        founderContextApplied: riskAnalysis.founderContext
       }
     };
 
-    console.log(`✅ Risk analysis completed: ${riskAnalysis.topRisks.length} risks identified`);
+    console.log(`✅ Risk analysis completed: ${riskAnalysis.topRisks.length} risks identified, ${riskAnalysis.riskSummary.overallRiskLevel} risk level`);
     res.json(response);
     
   } catch (error) {
@@ -3180,18 +3295,6 @@ app.post('/api/risk_analysis', async (req, res) => {
   }
 });
 
-function getOverallRiskLevel(riskSummary: any): string {
-  const highSeverityCount = riskSummary.highSeverityRisks;
-  const highProbabilityCount = riskSummary.highProbabilityRisks;
-  
-  if (highSeverityCount >= 2 || highProbabilityCount >= 2) {
-    return 'High';
-  } else if (highSeverityCount >= 1 || highProbabilityCount >= 1) {
-    return 'Medium';
-  } else {
-    return 'Low';
-  }
-}
 
 // Start server
 app.listen(PORT, () => {
