@@ -1,7 +1,7 @@
-import * as _ from 'lodash';
-import { GoogleTrendsDataSource } from '../data-sources/google-trends';
-import { RedditDataSource } from '../data-sources/reddit-data';
-import { WebScraperDataSource } from '../data-sources/web-scraper';
+import _ from 'lodash';
+import { GoogleTrendsDataSource } from '../data-sources/google-trends.js';
+import { RedditDataSource } from '../data-sources/reddit-data.js';
+import { WebScraperDataSource } from '../data-sources/web-scraper.js';
 
 export interface MarketDataPoint {
   id: string;
