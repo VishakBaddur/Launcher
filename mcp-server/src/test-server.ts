@@ -1973,6 +1973,191 @@ function calculateProfitability(marketSize: string, trends: any, competitors: an
   return 'Moderate profitability with optimization opportunities';
 }
 
+// Founder Fit Check Feature
+function analyzeFounderFit(domainExpertise: string, technicalExpertise: string, startupExperience: string): any {
+  let score = 0;
+  let level = 'Weak';
+  let reasoning = '';
+  let recommendations: string[] = [];
+
+  // Domain Expertise Scoring (0-40 points)
+  const domainScore = getDomainExpertiseScore(domainExpertise);
+  score += domainScore;
+
+  // Technical Expertise Scoring (0-35 points)
+  const technicalScore = getTechnicalExpertiseScore(technicalExpertise);
+  score += technicalScore;
+
+  // Startup Experience Scoring (0-25 points)
+  const experienceScore = getStartupExperienceScore(startupExperience);
+  score += experienceScore;
+
+  // Determine level and reasoning
+  if (score >= 80) {
+    level = 'Strong';
+    reasoning = 'Founder has strong domain expertise, technical skills, and startup experience';
+    recommendations = [
+      'Proceed with confidence - strong founder-market fit',
+      'Focus on execution and scaling',
+      'Consider raising funding to accelerate growth'
+    ];
+  } else if (score >= 60) {
+    level = 'Moderate';
+    reasoning = 'Founder has good foundation but may need to strengthen certain areas';
+    recommendations = [
+      'Identify and address knowledge gaps',
+      'Consider bringing on co-founders or advisors',
+      'Focus on learning and skill development'
+    ];
+  } else {
+    level = 'Weak';
+    reasoning = 'Founder may need significant development in key areas';
+    recommendations = [
+      'Strongly consider finding co-founders with complementary skills',
+      'Invest in education and skill development',
+      'Consider joining an accelerator or incubator',
+      'Build a strong advisory board'
+    ];
+  }
+
+  return {
+    score: Math.min(score, 100),
+    level,
+    reasoning,
+    recommendations,
+    breakdown: {
+      domainExpertise: {
+        score: domainScore,
+        level: getDomainExpertiseLevel(domainExpertise),
+        description: getDomainExpertiseDescription(domainExpertise)
+      },
+      technicalExpertise: {
+        score: technicalScore,
+        level: getTechnicalExpertiseLevel(technicalExpertise),
+        description: getTechnicalExpertiseDescription(technicalExpertise)
+      },
+      startupExperience: {
+        score: experienceScore,
+        level: getStartupExperienceLevel(startupExperience),
+        description: getStartupExperienceDescription(startupExperience)
+      }
+    }
+  };
+}
+
+function getDomainExpertiseScore(expertise: string): number {
+  const lower = expertise.toLowerCase();
+  
+  if (lower.includes('expert') || lower.includes('specialist') || lower.includes('10+ years')) {
+    return 40;
+  } else if (lower.includes('experienced') || lower.includes('5+ years') || lower.includes('professional')) {
+    return 30;
+  } else if (lower.includes('some experience') || lower.includes('2+ years') || lower.includes('familiar')) {
+    return 20;
+  } else if (lower.includes('beginner') || lower.includes('learning') || lower.includes('new to')) {
+    return 10;
+  } else {
+    return 5; // Unknown or no experience
+  }
+}
+
+function getTechnicalExpertiseScore(expertise: string): number {
+  const lower = expertise.toLowerCase();
+  
+  if (lower.includes('expert') || lower.includes('senior') || lower.includes('architect') || lower.includes('lead')) {
+    return 35;
+  } else if (lower.includes('experienced') || lower.includes('intermediate') || lower.includes('developer')) {
+    return 25;
+  } else if (lower.includes('some experience') || lower.includes('junior') || lower.includes('basic')) {
+    return 15;
+  } else if (lower.includes('beginner') || lower.includes('learning') || lower.includes('no technical')) {
+    return 5;
+  } else {
+    return 0; // No technical background
+  }
+}
+
+function getStartupExperienceScore(experience: string): number {
+  const lower = experience.toLowerCase();
+  
+  if (lower.includes('founded') || lower.includes('co-founder') || lower.includes('serial entrepreneur')) {
+    return 25;
+  } else if (lower.includes('early employee') || lower.includes('startup experience') || lower.includes('worked at startup')) {
+    return 20;
+  } else if (lower.includes('some startup') || lower.includes('worked with startups') || lower.includes('startup exposure')) {
+    return 15;
+  } else if (lower.includes('corporate') || lower.includes('enterprise') || lower.includes('large company')) {
+    return 10;
+  } else {
+    return 5; // No startup experience
+  }
+}
+
+function getDomainExpertiseLevel(expertise: string): string {
+  const score = getDomainExpertiseScore(expertise);
+  if (score >= 35) return 'Expert';
+  if (score >= 25) return 'Experienced';
+  if (score >= 15) return 'Some Experience';
+  return 'Beginner';
+}
+
+function getTechnicalExpertiseLevel(expertise: string): string {
+  const score = getTechnicalExpertiseScore(expertise);
+  if (score >= 30) return 'Expert';
+  if (score >= 20) return 'Experienced';
+  if (score >= 10) return 'Some Experience';
+  return 'Beginner';
+}
+
+function getStartupExperienceLevel(experience: string): string {
+  const score = getStartupExperienceScore(experience);
+  if (score >= 20) return 'Experienced';
+  if (score >= 15) return 'Some Experience';
+  if (score >= 10) return 'Corporate Background';
+  return 'No Startup Experience';
+}
+
+function getDomainExpertiseDescription(expertise: string): string {
+  const lower = expertise.toLowerCase();
+  if (lower.includes('expert') || lower.includes('specialist')) {
+    return 'Deep domain knowledge and industry expertise';
+  } else if (lower.includes('experienced')) {
+    return 'Solid understanding of the industry and market';
+  } else if (lower.includes('some experience')) {
+    return 'Basic knowledge of the domain, room for growth';
+  } else {
+    return 'Limited domain knowledge, significant learning required';
+  }
+}
+
+function getTechnicalExpertiseDescription(expertise: string): string {
+  const lower = expertise.toLowerCase();
+  if (lower.includes('expert') || lower.includes('senior')) {
+    return 'Strong technical skills and ability to build complex systems';
+  } else if (lower.includes('experienced')) {
+    return 'Good technical foundation for product development';
+  } else if (lower.includes('some experience')) {
+    return 'Basic technical skills, may need technical co-founder';
+  } else {
+    return 'Limited technical background, technical co-founder essential';
+  }
+}
+
+function getStartupExperienceDescription(experience: string): string {
+  const lower = experience.toLowerCase();
+  if (lower.includes('founded') || lower.includes('co-founder')) {
+    return 'Proven track record of building and scaling startups';
+  } else if (lower.includes('early employee')) {
+    return 'Experience with startup dynamics and growth challenges';
+  } else if (lower.includes('some startup')) {
+    return 'Some exposure to startup environment and culture';
+  } else if (lower.includes('corporate')) {
+    return 'Corporate background, may need to adapt to startup pace';
+  } else {
+    return 'No startup experience, significant learning curve ahead';
+  }
+}
+
 function generateProblemStatement(description: string, marketGaps: string[], sentiment: any): string {
   const descriptionLower = description.toLowerCase();
   const avgSentiment = Object.values(sentiment).reduce((sum: number, val: any) => sum + (val || 0), 0) / Object.keys(sentiment).length;
@@ -2359,6 +2544,75 @@ app.post('/api/create_pitch_deck', async (req, res) => {
     res.status(500).json({ error: 'Failed to create pitch deck' });
   }
 });
+
+// Founder Fit Check API Endpoint
+app.post('/api/founder_fit_check', async (req, res) => {
+  try {
+    const { domain_expertise, technical_expertise, startup_experience } = req.body;
+    
+    if (!domain_expertise || !technical_expertise || !startup_experience) {
+      return res.status(400).json({ 
+        error: 'All founder background fields are required: domain_expertise, technical_expertise, startup_experience' 
+      });
+    }
+
+    console.log(`👤 Analyzing founder fit for: ${domain_expertise}, ${technical_expertise}, ${startup_experience}`);
+    
+    // Analyze founder fit
+    const founderFitAnalysis = analyzeFounderFit(domain_expertise, technical_expertise, startup_experience);
+    
+    const response = {
+      timestamp: new Date().toISOString(),
+      founderFit: founderFitAnalysis,
+      summary: {
+        overallScore: founderFitAnalysis.score,
+        overallLevel: founderFitAnalysis.level,
+        keyStrengths: getKeyStrengths(founderFitAnalysis.breakdown),
+        keyWeaknesses: getKeyWeaknesses(founderFitAnalysis.breakdown),
+        nextSteps: founderFitAnalysis.recommendations
+      }
+    };
+
+    console.log(`✅ Founder fit analysis completed: ${founderFitAnalysis.score}/100 (${founderFitAnalysis.level})`);
+    res.json(response);
+    
+  } catch (error) {
+    console.error('Error analyzing founder fit:', error);
+    res.status(500).json({ error: 'Failed to analyze founder fit' });
+  }
+});
+
+function getKeyStrengths(breakdown: any): string[] {
+  const strengths = [];
+  
+  if (breakdown.domainExpertise.score >= 30) {
+    strengths.push('Strong domain expertise');
+  }
+  if (breakdown.technicalExpertise.score >= 25) {
+    strengths.push('Strong technical skills');
+  }
+  if (breakdown.startupExperience.score >= 20) {
+    strengths.push('Relevant startup experience');
+  }
+  
+  return strengths.length > 0 ? strengths : ['Potential for growth'];
+}
+
+function getKeyWeaknesses(breakdown: any): string[] {
+  const weaknesses = [];
+  
+  if (breakdown.domainExpertise.score < 20) {
+    weaknesses.push('Limited domain expertise');
+  }
+  if (breakdown.technicalExpertise.score < 15) {
+    weaknesses.push('Limited technical skills');
+  }
+  if (breakdown.startupExperience.score < 15) {
+    weaknesses.push('Limited startup experience');
+  }
+  
+  return weaknesses.length > 0 ? weaknesses : ['No major weaknesses identified'];
+}
 
 // Start server
 app.listen(PORT, () => {
