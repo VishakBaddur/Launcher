@@ -2888,6 +2888,12 @@ app.post('/api/validate_idea', async (req, res) => {
     // Product-market fit analysis
     const productMarketFit = analyzeProductMarketFit(finalSentiment, finalTrends, finalMarketSize);
     
+    // Additional analysis features
+    const founderFit = analyzeFounderFit('moderate', 'moderate', 'moderate'); // Default values for now
+    const executionDifficulty = analyzeExecutionDifficulty(idea_description);
+    const timeToMVP = analyzeTimeToMVP(idea_description);
+    const riskAnalysis = analyzeRisks(idea_description);
+    
     // Create comprehensive validation report
     const validationReport = {
       idea: idea_description,
@@ -2929,6 +2935,10 @@ app.post('/api/validate_idea', async (req, res) => {
         opportunities: marketGaps.slice(0, 3),
         threats: generateThreats(finalCompetitors, finalSentiment)
       },
+      founderFit: founderFit,
+      executionDifficulty: executionDifficulty,
+      timeToMVP: timeToMVP,
+      riskAnalysis: riskAnalysis,
       confidence: ragResponse.confidence,
       lastUpdated: new Date().toISOString()
     };
