@@ -2683,8 +2683,9 @@ app.post('/api/validate_idea', async (req, res) => {
     // Get real-time market data with improved timeout handling
     let trends, sentiment, competitors, marketSize, newsData;
     
+    // Try to get data quickly, but don't wait too long
     try {
-      // Create individual promises with individual timeouts
+      // Create individual promises with very short timeouts
       const trendsPromise = googleTrends.fetchTrends(keywords).catch(err => {
         console.warn('Google Trends failed:', err.message);
         return null;
@@ -2710,9 +2711,9 @@ app.post('/api/validate_idea', async (req, res) => {
         return null;
       });
 
-      // Wait for all with a reasonable timeout
+      // Very aggressive timeout - if external APIs are slow, use RAG immediately
       const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Overall timeout')), 10000)
+        setTimeout(() => reject(new Error('Overall timeout')), 3000)
       );
 
       const results = await Promise.race([
@@ -2731,8 +2732,8 @@ app.post('/api/validate_idea', async (req, res) => {
       }
       
     } catch (error) {
-      console.warn('Data fetch failed, using minimal fallback:', (error as Error).message);
-      // Minimal fallback - let the RAG system generate contextual data
+      console.warn('Data fetch failed, using RAG fallback immediately:', (error as Error).message);
+      // Immediate fallback - use RAG system to generate contextual data
       trends = null;
       sentiment = null;
       competitors = null;
@@ -2863,9 +2864,9 @@ app.post('/api/generate_business_model', async (req, res) => {
         return null;
       });
 
-      // Wait for all with a reasonable timeout
+      // Wait for all with a more aggressive timeout
       const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Overall timeout')), 10000)
+        setTimeout(() => reject(new Error('Overall timeout')), 5000)
       );
 
       const results = await Promise.race([
