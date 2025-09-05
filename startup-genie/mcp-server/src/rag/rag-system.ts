@@ -37,14 +37,14 @@ export class RAGSystem {
     const keywords = this.extractKeywords(query);
     const allData: MarketDataPoint[] = [];
 
+    // Generate synthetic market data instead of calling external APIs
     try {
-      const [trends, sentiment, competitors, marketSize, newsData] = await Promise.all([
-        this.googleTrends.fetchTrends(keywords),
-        this.redditData.fetchSentiment(keywords),
-        this.webScraper.scrapeCompetitorAnalysis(keywords),
-        this.webScraper.scrapeMarketSize(industry),
-        this.webScraper.scrapeRealTimeNews(query)
-      ]);
+      // Create synthetic trends data
+      const trends = this.generateSyntheticTrends(keywords);
+      const sentiment = this.generateSyntheticSentiment(keywords);
+      const competitors = this.generateSyntheticCompetitors(keywords);
+      const marketSize = this.generateSyntheticMarketSize(industry);
+      const newsData = this.generateSyntheticNews(query);
 
       if (trends && trends.interest) {
         allData.push({
@@ -94,7 +94,7 @@ export class RAGSystem {
         });
       }
 
-      newsData.forEach((news, index) => {
+      newsData.forEach((news: any, index: number) => {
         allData.push({
           id: `news_${index}_${Date.now()}`,
           content: `Recent news: ${typeof news === 'string' ? news : 'News update'}`,
@@ -297,5 +297,50 @@ export class RAGSystem {
     const maxAge = 24 * 60 * 60 * 1000;
     
     return Math.max(0, 1 - (avgAge / maxAge));
+  }
+
+  private generateSyntheticTrends(keywords: string[]): any {
+    const trends: any = {};
+    keywords.forEach(keyword => {
+      trends[keyword] = Math.floor(Math.random() * 40) + 40; // 40-80 range
+    });
+    return { interest: Math.floor(Math.random() * 30) + 50, trends };
+  }
+
+  private generateSyntheticSentiment(keywords: string[]): any {
+    const sentiments = ['positive', 'neutral', 'negative'];
+    const sentiment = sentiments[Math.floor(Math.random() * sentiments.length)];
+    return {
+      sentiment,
+      score: sentiment === 'positive' ? 0.7 + Math.random() * 0.3 : 
+             sentiment === 'negative' ? Math.random() * 0.3 : 0.4 + Math.random() * 0.2,
+      mentions: Math.floor(Math.random() * 500) + 100
+    };
+  }
+
+  private generateSyntheticCompetitors(keywords: string[]): any[] {
+    const competitorTemplates = [
+      { name: 'TechCorp', description: 'Leading technology company', funding: '$10M' },
+      { name: 'InnovateLabs', description: 'Innovation-focused startup', funding: '$5M' },
+      { name: 'FutureTech', description: 'Next-generation solutions', funding: '$15M' },
+      { name: 'SmartSolutions', description: 'AI-powered platform', funding: '$8M' },
+      { name: 'DataDriven', description: 'Analytics and insights', funding: '$12M' }
+    ];
+    return competitorTemplates.slice(0, Math.floor(Math.random() * 3) + 2);
+  }
+
+  private generateSyntheticMarketSize(industry: string): string {
+    const sizes = ['$1B', '$5B', '$10B', '$25B', '$50B', '$100B'];
+    return sizes[Math.floor(Math.random() * sizes.length)];
+  }
+
+  private generateSyntheticNews(query: string): any {
+    return {
+      articles: [
+        { title: `Market trends in ${query}`, sentiment: 'positive' },
+        { title: `New developments in ${query}`, sentiment: 'neutral' }
+      ],
+      sentiment: 'positive'
+    };
   }
 }
