@@ -4,6 +4,8 @@ import type { User } from './types';
 import Home from './pages/Home';
 import Auth from './pages/Auth';
 import Dashboard from './pages/Dashboard';
+import IdeaInput from './pages/IdeaInput';
+import IdeaValidation from './pages/IdeaValidation';
 import IdeaValidator from './pages/dashboard/IdeaValidator';
 import BusinessModel from './pages/dashboard/BusinessModel';
 import PitchCreator from './pages/dashboard/PitchCreator';
@@ -52,6 +54,10 @@ function App() {
             path="/dashboard" 
             element={user ? <Dashboard user={user} onLogout={logout} /> : <Navigate to="/auth" />} 
           />
+          <Route path="/idea-input" element={<IdeaInput />} />
+          <Route path="/idea-validation" element={<IdeaValidation />} />
+          <Route path="/business-plan" element={<BusinessModel user={user || { id: '1', email: 'guest@example.com' }} onLogout={logout} />} />
+          <Route path="/pitch-deck" element={<PitchCreator user={user || { id: '1', email: 'guest@example.com' }} onLogout={logout} />} />
           <Route 
             path="/dashboard/idea-validator" 
             element={user ? <IdeaValidator user={user} onLogout={logout} /> : <Navigate to="/auth" />} 

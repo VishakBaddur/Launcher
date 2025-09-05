@@ -40,13 +40,21 @@ const Home = ({ onLogin: _onLogin }: HomeProps) => {
             </p>
             
             <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
-              <Link to="/auth">
+              <Link to="/idea-input">
                 <button className="group relative px-8 py-4 bg-gradient-to-r from-purple-500 to-blue-500 rounded-xl font-semibold text-lg text-white hover:from-purple-600 hover:to-blue-600 transition-all duration-300 transform hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/25">
                   <span className="flex items-center">
-                    Start Free Trial
+                    Start AI Analysis
                     <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform duration-300" />
                   </span>
                   <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-purple-500 to-blue-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-xl"></div>
+                </button>
+              </Link>
+              <Link to="/auth">
+                <button className="group relative px-8 py-4 bg-transparent border-2 border-gray-600 rounded-xl font-semibold text-lg text-gray-300 hover:border-purple-500 hover:text-white transition-all duration-300">
+                  <span className="flex items-center">
+                    Sign In
+                    <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform duration-300" />
+                  </span>
                 </button>
               </Link>
               
