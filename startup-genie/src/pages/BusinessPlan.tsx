@@ -121,6 +121,7 @@ const BusinessPlan: React.FC = () => {
   };
 
   const getViabilityColor = (viability: string) => {
+    if (!viability) return 'text-gray-400 bg-gray-500/20';
     switch (viability.toLowerCase()) {
       case 'high': return 'text-green-400 bg-green-500/20';
       case 'medium': return 'text-yellow-400 bg-yellow-500/20';
@@ -306,7 +307,7 @@ const BusinessPlan: React.FC = () => {
           <div className="glass-card p-8">
             <h2 className="text-2xl font-bold text-white mb-6">👥 Customer Segments</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {safeMap(businessPlanData.customerSegments, (segment, index) => (
+              {safeMap(businessPlanData.customerSegments, (segment, index) => ( 
                 <div key={index} className="p-4 bg-slate-800/30 rounded-lg">
                   <h3 className="text-lg font-semibold text-white mb-2">Segment {index + 1}</h3>
                   <p className="text-gray-300">{segment}</p>

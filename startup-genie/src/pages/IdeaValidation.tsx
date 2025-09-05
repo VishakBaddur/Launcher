@@ -134,6 +134,7 @@ const IdeaValidation: React.FC = () => {
   };
 
   const getRiskColor = (level: string) => {
+    if (!level) return 'text-gray-400 bg-gray-500/20';
     switch (level.toLowerCase()) {
       case 'low': return 'text-green-400 bg-green-500/20';
       case 'medium': return 'text-yellow-400 bg-yellow-500/20';
