@@ -92,9 +92,9 @@ const IdeaValidation: React.FC = () => {
         // Ensure all required fields exist with fallback values
         const safeResult = {
           feasibilityScore: safeAccess(result, 'feasibilityScore', fallbackData.ideaValidation.feasibilityScore),
-          marketSize: safeAccess(result, 'marketSize', fallbackData.ideaValidation.marketSize),
-          competitionLevel: safeAccess(result, 'competitionLevel', fallbackData.ideaValidation.competitionLevel),
-          trends: safeAccess(result, 'trends', fallbackData.ideaValidation.trends),
+          marketSize: safeAccess(result, 'marketAnalysis.marketSize', fallbackData.ideaValidation.marketSize),
+          competitionLevel: safeAccess(result, 'marketAnalysis.competitionLevel', fallbackData.ideaValidation.competitionLevel),
+          trends: safeAccess(result, 'marketInsights.trends', fallbackData.ideaValidation.trends),
           opportunities: safeAccess(result, 'opportunities', fallbackData.ideaValidation.opportunities),
           risks: safeAccess(result, 'risks', fallbackData.ideaValidation.risks),
           recommendations: safeAccess(result, 'recommendations', fallbackData.ideaValidation.recommendations),
