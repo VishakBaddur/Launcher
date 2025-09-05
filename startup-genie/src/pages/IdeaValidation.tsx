@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { safeMap, safeAccess, fallbackData, logFallbackUsage } from '../utils/safeData';
 
 interface ValidationData {
   feasibilityScore: number;
@@ -90,184 +91,31 @@ const IdeaValidation: React.FC = () => {
         const result = await response.json();
         // Ensure all required fields exist with fallback values
         const safeResult = {
-          feasibilityScore: result.feasibilityScore || 75,
-          marketSize: result.marketSize || '$50B',
-          competitionLevel: result.competitionLevel || 'Medium',
-          trends: result.trends || ['Market growth', 'Technology adoption'],
-          opportunities: result.opportunities || ['First-mover advantage', 'Market expansion'],
-          risks: result.risks || ['Competition', 'Market volatility'],
-          recommendations: result.recommendations || ['Focus on customer acquisition', 'Build strong partnerships'],
-          marketInsights: result.marketInsights || {
-            marketSize: result.marketSize || '$50B',
-            growthRate: '12% annually',
-            trends: result.trends || ['Market growth', 'Technology adoption'],
-            opportunities: result.opportunities || ['Market expansion'],
-            threats: result.risks || ['Competition']
-          },
-          founderFit: result.founderFit || {
-            score: 70,
-            label: 'Moderate',
-            breakdown: {
-              domain: 70,
-              technical: 70,
-              startup: 70
-            }
-          },
-          executionDifficulty: result.executionDifficulty || {
-            level: 'Medium',
-            score: 60,
-            reasoning: 'Moderate complexity with standard development requirements'
-          },
-          timeToMVP: result.timeToMVP || {
-            timeframe: '3-6 months',
-            score: 70,
-            phases: ['Prototype', 'Beta testing', 'Launch']
-          },
-          riskAnalysis: result.riskAnalysis || {
-            topRisks: [
-              {
-                category: 'Competition',
-                risk: 'Market competition',
-                severity: 'Medium',
-                probability: 'High',
-                weightedScore: 6,
-                isCritical: false,
-                mitigations: [
-                  {
-                    action: 'Build strong differentiation',
-                    priority: 'High',
-                    effort: 'Medium',
-                    timeline: '3-6 months'
-                  }
-                ]
-              }
-            ],
-            overallRiskLevel: 'Medium',
-            criticalRisks: 0
-          }
+          feasibilityScore: safeAccess(result, 'feasibilityScore', fallbackData.ideaValidation.feasibilityScore),
+          marketSize: safeAccess(result, 'marketSize', fallbackData.ideaValidation.marketSize),
+          competitionLevel: safeAccess(result, 'competitionLevel', fallbackData.ideaValidation.competitionLevel),
+          trends: safeAccess(result, 'trends', fallbackData.ideaValidation.trends),
+          opportunities: safeAccess(result, 'opportunities', fallbackData.ideaValidation.opportunities),
+          risks: safeAccess(result, 'risks', fallbackData.ideaValidation.risks),
+          recommendations: safeAccess(result, 'recommendations', fallbackData.ideaValidation.recommendations),
+          marketInsights: safeAccess(result, 'marketInsights', fallbackData.ideaValidation.marketInsights),
+          founderFit: safeAccess(result, 'founderFit', fallbackData.ideaValidation.founderFit),
+          executionDifficulty: safeAccess(result, 'executionDifficulty', fallbackData.ideaValidation.executionDifficulty),
+          timeToMVP: safeAccess(result, 'timeToMVP', fallbackData.ideaValidation.timeToMVP),
+          riskAnalysis: safeAccess(result, 'riskAnalysis', fallbackData.ideaValidation.riskAnalysis)
         };
         setValidationData(safeResult);
       } else {
         console.error('Validation failed');
+        logFallbackUsage('IdeaValidation', 'complete dataset');
         // Set fallback data if API fails
-        setValidationData({
-          feasibilityScore: 75,
-          marketSize: '$50B',
-          competitionLevel: 'Medium',
-          trends: ['Market growth', 'Technology adoption'],
-          opportunities: ['First-mover advantage', 'Market expansion'],
-          risks: ['Competition', 'Market volatility'],
-          recommendations: ['Focus on customer acquisition', 'Build strong partnerships'],
-          marketInsights: {
-            marketSize: '$50B',
-            growthRate: '12% annually',
-            trends: ['Market growth', 'Technology adoption'],
-            opportunities: ['Market expansion'],
-            threats: ['Competition']
-          },
-          founderFit: {
-            score: 70,
-            label: 'Moderate',
-            breakdown: {
-              domain: 70,
-              technical: 70,
-              startup: 70
-            }
-          },
-          executionDifficulty: {
-            level: 'Medium',
-            score: 60,
-            reasoning: 'Moderate complexity with standard development requirements'
-          },
-          timeToMVP: {
-            timeframe: '3-6 months',
-            score: 70,
-            phases: ['Prototype', 'Beta testing', 'Launch']
-          },
-          riskAnalysis: {
-            topRisks: [
-              {
-                category: 'Competition',
-                risk: 'Market competition',
-                severity: 'Medium',
-                probability: 'High',
-                weightedScore: 6,
-                isCritical: false,
-                mitigations: [
-                  {
-                    action: 'Build strong differentiation',
-                    priority: 'High',
-                    effort: 'Medium',
-                    timeline: '3-6 months'
-                  }
-                ]
-              }
-            ],
-            overallRiskLevel: 'Medium',
-            criticalRisks: 0
-          }
-        });
+        setValidationData(fallbackData.ideaValidation);
       }
     } catch (error) {
       console.error('Error validating idea:', error);
+      logFallbackUsage('IdeaValidation', 'complete dataset (network error)');
       // Set fallback data if network error
-      setValidationData({
-        feasibilityScore: 75,
-        marketSize: '$50B',
-        competitionLevel: 'Medium',
-        trends: ['Market growth', 'Technology adoption'],
-        opportunities: ['First-mover advantage', 'Market expansion'],
-        risks: ['Competition', 'Market volatility'],
-        recommendations: ['Focus on customer acquisition', 'Build strong partnerships'],
-        marketInsights: {
-          marketSize: '$50B',
-          growthRate: '12% annually',
-          trends: ['Market growth', 'Technology adoption'],
-          opportunities: ['Market expansion'],
-          threats: ['Competition']
-        },
-        founderFit: {
-          score: 70,
-          label: 'Moderate',
-          breakdown: {
-            domain: 70,
-            technical: 70,
-            startup: 70
-          }
-        },
-        executionDifficulty: {
-          level: 'Medium',
-          score: 60,
-          reasoning: 'Moderate complexity with standard development requirements'
-        },
-        timeToMVP: {
-          timeframe: '3-6 months',
-          score: 70,
-          phases: ['Prototype', 'Beta testing', 'Launch']
-        },
-        riskAnalysis: {
-          topRisks: [
-            {
-              category: 'Competition',
-              risk: 'Market competition',
-              severity: 'Medium',
-              probability: 'High',
-              weightedScore: 6,
-              isCritical: false,
-              mitigations: [
-                {
-                  action: 'Build strong differentiation',
-                  priority: 'High',
-                  effort: 'Medium',
-                  timeline: '3-6 months'
-                }
-              ]
-            }
-          ],
-          overallRiskLevel: 'Medium',
-          criticalRisks: 0
-        }
-      });
+      setValidationData(fallbackData.ideaValidation);
     } finally {
       setIsLoading(false);
     }
@@ -399,7 +247,7 @@ const IdeaValidation: React.FC = () => {
             <div className="mt-6">
               <h3 className="text-lg font-semibold text-white mb-3">Market Trends</h3>
               <div className="flex flex-wrap gap-2">
-                {(validationData.trends || []).map((trend, index) => (
+                {safeMap(validationData.trends, (trend, index) => (
                   <span key={index} className="px-3 py-1 bg-blue-500/20 text-blue-300 rounded-full text-sm">
                     {trend}
                   </span>
@@ -415,7 +263,7 @@ const IdeaValidation: React.FC = () => {
               <div>
                 <h3 className="text-lg font-semibold text-white mb-3">Market Gap Analysis</h3>
                 <div className="space-y-3">
-                  {(validationData.opportunities || []).map((opportunity, index) => (
+                  {safeMap(validationData.opportunities, (opportunity, index) => (
                     <div key={index} className="flex items-start">
                       <span className="text-green-400 mr-2">✓</span>
                       <span className="text-gray-300">{opportunity}</span>
@@ -485,7 +333,7 @@ const IdeaValidation: React.FC = () => {
               </div>
 
               <div className="space-y-4">
-                {(validationData.riskAnalysis?.topRisks || []).map((risk, index) => (
+                {safeMap(validationData.riskAnalysis?.topRisks, (risk, index) => (
                   <div key={index} className="p-4 bg-slate-800/30 rounded-lg border border-slate-600">
                     <div className="flex items-start justify-between mb-2">
                       <div>
@@ -504,7 +352,7 @@ const IdeaValidation: React.FC = () => {
                     <div className="mt-3">
                       <h5 className="text-sm font-semibold text-gray-300 mb-2">Mitigations:</h5>
                       <div className="space-y-1">
-                        {(risk.mitigations || []).map((mitigation, mIndex) => (
+                        {safeMap(risk.mitigations, (mitigation, mIndex) => (
                           <div key={mIndex} className="flex items-center text-sm text-gray-300">
                             <span className="text-blue-400 mr-2">•</span>
                             <span>{mitigation.action}</span>
@@ -525,7 +373,7 @@ const IdeaValidation: React.FC = () => {
           <div className="glass-card p-8">
             <h2 className="text-2xl font-bold text-white mb-6">💡 Recommendations</h2>
             <div className="space-y-3">
-              {(validationData.recommendations || []).map((recommendation, index) => (
+              {safeMap(validationData.recommendations, (recommendation, index) => (
                 <div key={index} className="flex items-start">
                   <span className="text-blue-400 mr-3 mt-1">→</span>
                   <span className="text-gray-300">{recommendation}</span>

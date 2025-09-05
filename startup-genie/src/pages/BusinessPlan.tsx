@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { safeMap, safeAccess, fallbackData, logFallbackUsage } from '../utils/safeData';
 
 interface BusinessPlanData {
   businessModelFitScore: number;
@@ -81,151 +82,27 @@ const BusinessPlan: React.FC = () => {
         const result = await response.json();
         // Ensure all required fields exist with fallback values
         const safeResult = {
-          businessModelFitScore: result.businessModelFitScore || 75,
-          revenueStreams: result.revenueStreams || [
-            {
-              stream: 'Subscription Fees',
-              priority: 'Primary',
-              projectedPercentage: 70,
-              description: 'Monthly/annual subscription revenue from core service',
-              unitEconomics: {
-                arpu: 100,
-                churnRate: 5,
-                ltv: 2000,
-                cac: 200
-              }
-            }
-          ],
-          costStructure: result.costStructure || ['Product Development', 'Marketing', 'Operations'],
-          customerSegments: result.customerSegments || ['Small Businesses', 'Enterprise'],
-          keyPartnerships: result.keyPartnerships || ['Technology Partners', 'Distribution Partners'],
-          unitEconomics: result.unitEconomics || {
-            contributionMargin: 60,
-            paybackPeriod: 12,
-            ltvCacRatio: 10,
-            profitabilityAssessment: 'Good',
-            recommendations: ['Optimize CAC', 'Improve retention']
-          },
-          scalabilityAnalysis: result.scalabilityAnalysis || {
-            scalabilityLevel: 'High',
-            reasoning: 'Strong scalability potential with digital product',
-            challenges: ['Customer acquisition', 'Infrastructure scaling'],
-            recommendations: ['Automate processes', 'Build partnerships']
-          },
-          partnershipViability: result.partnershipViability || {
-            overallViability: 'High',
-            partnerships: [
-              {
-                partner: 'Technology Partners',
-                viability: 'High',
-                reasoning: 'Easy to integrate with existing systems',
-                effort: 'Low',
-                timeline: '1-3 months',
-                recommendations: ['Start with pilot programs']
-              }
-            ]
-          }
+          businessModelFitScore: safeAccess(result, 'businessModelFitScore', fallbackData.businessPlan.businessModelFitScore),
+          revenueStreams: safeAccess(result, 'revenueStreams', fallbackData.businessPlan.revenueStreams),
+          costStructure: safeAccess(result, 'costStructure', fallbackData.businessPlan.costStructure),
+          customerSegments: safeAccess(result, 'customerSegments', fallbackData.businessPlan.customerSegments),
+          keyPartnerships: safeAccess(result, 'keyPartnerships', fallbackData.businessPlan.keyPartnerships),
+          unitEconomics: safeAccess(result, 'unitEconomics', fallbackData.businessPlan.unitEconomics),
+          scalabilityAnalysis: safeAccess(result, 'scalabilityAnalysis', fallbackData.businessPlan.scalabilityAnalysis),
+          partnershipViability: safeAccess(result, 'partnershipViability', fallbackData.businessPlan.partnershipViability)
         };
         setBusinessPlanData(safeResult);
       } else {
         console.error('Business plan generation failed');
+        logFallbackUsage('BusinessPlan', 'complete dataset');
         // Set fallback data if API fails
-        setBusinessPlanData({
-          businessModelFitScore: 75,
-          revenueStreams: [
-            {
-              stream: 'Subscription Fees',
-              priority: 'Primary',
-              projectedPercentage: 70,
-              description: 'Monthly/annual subscription revenue from core service',
-              unitEconomics: {
-                arpu: 100,
-                churnRate: 5,
-                ltv: 2000,
-                cac: 200
-              }
-            }
-          ],
-          costStructure: ['Product Development', 'Marketing', 'Operations'],
-          customerSegments: ['Small Businesses', 'Enterprise'],
-          keyPartnerships: ['Technology Partners', 'Distribution Partners'],
-          unitEconomics: {
-            contributionMargin: 60,
-            paybackPeriod: 12,
-            ltvCacRatio: 10,
-            profitabilityAssessment: 'Good',
-            recommendations: ['Optimize CAC', 'Improve retention']
-          },
-          scalabilityAnalysis: {
-            scalabilityLevel: 'High',
-            reasoning: 'Strong scalability potential with digital product',
-            challenges: ['Customer acquisition', 'Infrastructure scaling'],
-            recommendations: ['Automate processes', 'Build partnerships']
-          },
-          partnershipViability: {
-            overallViability: 'High',
-            partnerships: [
-              {
-                partner: 'Technology Partners',
-                viability: 'High',
-                reasoning: 'Easy to integrate with existing systems',
-                effort: 'Low',
-                timeline: '1-3 months',
-                recommendations: ['Start with pilot programs']
-              }
-            ]
-          }
-        });
+        setBusinessPlanData(fallbackData.businessPlan);
       }
     } catch (error) {
       console.error('Error generating business plan:', error);
+      logFallbackUsage('BusinessPlan', 'complete dataset (network error)');
       // Set fallback data if network error
-      setBusinessPlanData({
-        businessModelFitScore: 75,
-        revenueStreams: [
-          {
-            stream: 'Subscription Fees',
-            priority: 'Primary',
-            projectedPercentage: 70,
-            description: 'Monthly/annual subscription revenue from core service',
-            unitEconomics: {
-              arpu: 100,
-              churnRate: 5,
-              ltv: 2000,
-              cac: 200
-            }
-          }
-        ],
-        costStructure: ['Product Development', 'Marketing', 'Operations'],
-        customerSegments: ['Small Businesses', 'Enterprise'],
-        keyPartnerships: ['Technology Partners', 'Distribution Partners'],
-        unitEconomics: {
-          contributionMargin: 60,
-          paybackPeriod: 12,
-          ltvCacRatio: 10,
-          profitabilityAssessment: 'Good',
-          recommendations: ['Optimize CAC', 'Improve retention']
-        },
-        scalabilityAnalysis: {
-          scalabilityLevel: 'High',
-          reasoning: 'Strong scalability potential with digital product',
-          challenges: ['Customer acquisition', 'Infrastructure scaling'],
-          recommendations: ['Automate processes', 'Build partnerships']
-        },
-        partnershipViability: {
-          overallViability: 'High',
-          partnerships: [
-            {
-              partner: 'Technology Partners',
-              viability: 'High',
-              reasoning: 'Easy to integrate with existing systems',
-              effort: 'Low',
-              timeline: '1-3 months',
-              recommendations: ['Start with pilot programs']
-            }
-          ]
-        }
-      });
+      setBusinessPlanData(fallbackData.businessPlan);
     } finally {
       setIsLoading(false);
     }
@@ -335,7 +212,7 @@ const BusinessPlan: React.FC = () => {
           <div className="glass-card p-8">
             <h2 className="text-2xl font-bold text-white mb-6">💰 Revenue Streams</h2>
             <div className="space-y-6">
-              {(businessPlanData.revenueStreams || []).map((stream, index) => (
+              {safeMap(businessPlanData.revenueStreams, (stream, index) => (
                 <div key={index} className="p-6 bg-slate-800/30 rounded-lg border border-slate-600">
                   <div className="flex items-start justify-between mb-4">
                     <div>
@@ -414,7 +291,7 @@ const BusinessPlan: React.FC = () => {
               <div className="mt-3">
                 <h4 className="text-sm font-semibold text-gray-300 mb-2">Recommendations:</h4>
                 <ul className="space-y-1">
-                  {(businessPlanData.unitEconomics?.recommendations || []).map((rec, index) => (
+                  {safeMap(businessPlanData.unitEconomics?.recommendations, (rec, index) => (
                     <li key={index} className="flex items-start text-sm text-gray-300">
                       <span className="text-blue-400 mr-2">•</span>
                       <span>{rec}</span>
@@ -429,7 +306,7 @@ const BusinessPlan: React.FC = () => {
           <div className="glass-card p-8">
             <h2 className="text-2xl font-bold text-white mb-6">👥 Customer Segments</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {(businessPlanData.customerSegments || []).map((segment, index) => (
+              {safeMap(businessPlanData.customerSegments, (segment, index) => (
                 <div key={index} className="p-4 bg-slate-800/30 rounded-lg">
                   <h3 className="text-lg font-semibold text-white mb-2">Segment {index + 1}</h3>
                   <p className="text-gray-300">{segment}</p>
@@ -459,7 +336,7 @@ const BusinessPlan: React.FC = () => {
               <div>
                 <h4 className="text-lg font-semibold text-orange-400 mb-3">Challenges</h4>
                 <ul className="space-y-2">
-                  {(businessPlanData.scalabilityAnalysis?.challenges || []).map((challenge, index) => (
+                  {safeMap(businessPlanData.scalabilityAnalysis?.challenges, (challenge, index) => (
                     <li key={index} className="flex items-start text-sm text-gray-300">
                       <span className="text-red-400 mr-2">⚠</span>
                       <span>{challenge}</span>
@@ -470,7 +347,7 @@ const BusinessPlan: React.FC = () => {
               <div>
                 <h4 className="text-lg font-semibold text-green-400 mb-3">Recommendations</h4>
                 <ul className="space-y-2">
-                  {(businessPlanData.scalabilityAnalysis?.recommendations || []).map((rec, index) => (
+                  {safeMap(businessPlanData.scalabilityAnalysis?.recommendations, (rec, index) => (
                     <li key={index} className="flex items-start text-sm text-gray-300">
                       <span className="text-green-400 mr-2">✓</span>
                       <span>{rec}</span>
@@ -494,7 +371,7 @@ const BusinessPlan: React.FC = () => {
             </div>
 
             <div className="space-y-4">
-              {(businessPlanData.partnershipViability?.partnerships || []).map((partnership, index) => (
+              {safeMap(businessPlanData.partnershipViability?.partnerships, (partnership, index) => (
                 <div key={index} className="p-4 bg-slate-800/30 rounded-lg border border-slate-600">
                   <div className="flex items-start justify-between mb-3">
                     <h4 className="text-lg font-semibold text-white">{partnership.partner}</h4>
@@ -509,7 +386,7 @@ const BusinessPlan: React.FC = () => {
                   <div>
                     <h5 className="text-sm font-semibold text-gray-300 mb-2">Recommendations:</h5>
                     <ul className="space-y-1">
-                      {(partnership.recommendations || []).map((rec, rIndex) => (
+                      {safeMap(partnership.recommendations, (rec, rIndex) => (
                         <li key={rIndex} className="flex items-start text-sm text-gray-300">
                           <span className="text-blue-400 mr-2">•</span>
                           <span>{rec}</span>
@@ -526,7 +403,7 @@ const BusinessPlan: React.FC = () => {
           <div className="glass-card p-8">
             <h2 className="text-2xl font-bold text-white mb-6">💸 Cost Structure</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {(businessPlanData.costStructure || []).map((cost, index) => (
+              {safeMap(businessPlanData.costStructure, (cost, index) => (
                 <div key={index} className="p-4 bg-slate-800/30 rounded-lg">
                   <div className="flex items-center">
                     <span className="text-orange-400 mr-3">💰</span>

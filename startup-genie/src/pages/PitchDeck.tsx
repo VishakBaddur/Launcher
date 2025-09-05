@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { safeMap, safeAccess, fallbackData, logFallbackUsage } from '../utils/safeData';
 
 interface PitchDeckData {
   pitchReadinessScore: number;
@@ -54,82 +55,22 @@ const PitchDeck: React.FC = () => {
         const result = await response.json();
         // Ensure all required fields exist with fallback values
         const safeResult = {
-          pitchReadinessScore: result.pitchReadinessScore || 75,
-          slides: result.slides || [
-            {
-              id: '1',
-              title: 'Problem Statement',
-              content: 'The current market faces significant challenges in efficiency and cost-effectiveness. Our solution addresses these pain points directly.',
-              presenterNotes: 'Start with a compelling problem that resonates with your audience. Use data and examples to make it tangible.',
-              visualAid: 'Problem-solution diagram showing market gap'
-            },
-            {
-              id: '2',
-              title: 'Solution',
-              content: 'Our innovative platform leverages cutting-edge technology to solve the identified problems with a scalable, user-friendly approach.',
-              presenterNotes: 'Clearly articulate your unique value proposition. Focus on benefits, not just features.',
-              visualAid: 'Product mockup or architecture diagram'
-            }
-          ],
-          investorFit: result.investorFit || {
-            suggestedInvestorTypes: ['Early-stage VCs', 'Angel investors', 'Industry-specific funds'],
-            nextSteps: ['Prepare financial projections', 'Build MVP', 'Gather customer feedback']
-          }
+          pitchReadinessScore: safeAccess(result, 'pitchReadinessScore', fallbackData.pitchDeck.pitchReadinessScore),
+          slides: safeAccess(result, 'slides', fallbackData.pitchDeck.slides),
+          investorFit: safeAccess(result, 'investorFit', fallbackData.pitchDeck.investorFit)
         };
         setPitchDeckData(safeResult);
       } else {
         console.error('Pitch deck generation failed');
+        logFallbackUsage('PitchDeck', 'complete dataset');
         // Set fallback data if API fails
-        setPitchDeckData({
-          pitchReadinessScore: 75,
-          slides: [
-            {
-              id: '1',
-              title: 'Problem Statement',
-              content: 'The current market faces significant challenges in efficiency and cost-effectiveness. Our solution addresses these pain points directly.',
-              presenterNotes: 'Start with a compelling problem that resonates with your audience. Use data and examples to make it tangible.',
-              visualAid: 'Problem-solution diagram showing market gap'
-            },
-            {
-              id: '2',
-              title: 'Solution',
-              content: 'Our innovative platform leverages cutting-edge technology to solve the identified problems with a scalable, user-friendly approach.',
-              presenterNotes: 'Clearly articulate your unique value proposition. Focus on benefits, not just features.',
-              visualAid: 'Product mockup or architecture diagram'
-            }
-          ],
-          investorFit: {
-            suggestedInvestorTypes: ['Early-stage VCs', 'Angel investors', 'Industry-specific funds'],
-            nextSteps: ['Prepare financial projections', 'Build MVP', 'Gather customer feedback']
-          }
-        });
+        setPitchDeckData(fallbackData.pitchDeck);
       }
     } catch (error) {
       console.error('Error generating pitch deck:', error);
+      logFallbackUsage('PitchDeck', 'complete dataset (network error)');
       // Set fallback data if network error
-      setPitchDeckData({
-        pitchReadinessScore: 75,
-        slides: [
-          {
-            id: '1',
-            title: 'Problem Statement',
-            content: 'The current market faces significant challenges in efficiency and cost-effectiveness. Our solution addresses these pain points directly.',
-            presenterNotes: 'Start with a compelling problem that resonates with your audience. Use data and examples to make it tangible.',
-            visualAid: 'Problem-solution diagram showing market gap'
-          },
-          {
-            id: '2',
-            title: 'Solution',
-            content: 'Our innovative platform leverages cutting-edge technology to solve the identified problems with a scalable, user-friendly approach.',
-            presenterNotes: 'Clearly articulate your unique value proposition. Focus on benefits, not just features.',
-            visualAid: 'Product mockup or architecture diagram'
-          }
-        ],
-        investorFit: {
-          suggestedInvestorTypes: ['Early-stage VCs', 'Angel investors', 'Industry-specific funds'],
-          nextSteps: ['Prepare financial projections', 'Build MVP', 'Gather customer feedback']
-        }
-      });
+      setPitchDeckData(fallbackData.pitchDeck);
     } finally {
       setIsLoading(false);
     }
@@ -270,7 +211,7 @@ const PitchDeck: React.FC = () => {
 
             {/* Slide Thumbnails */}
             <div className="flex space-x-2 overflow-x-auto pb-2">
-              {(pitchDeckData.slides || []).map((slide, index) => (
+              {safeMap(pitchDeckData.slides, (slide, index) => (
                 <button
                   key={slide.id}
                   onClick={() => setCurrentSlide(index)}
@@ -333,7 +274,7 @@ const PitchDeck: React.FC = () => {
               <div>
                 <h3 className="text-lg font-semibold text-green-400 mb-3">Suggested Investor Types</h3>
                 <div className="space-y-2">
-                  {(pitchDeckData.investorFit?.suggestedInvestorTypes || []).map((type, index) => (
+                  {safeMap(pitchDeckData.investorFit?.suggestedInvestorTypes, (type, index) => (
                     <div key={index} className="flex items-center p-3 bg-slate-800/30 rounded-lg">
                       <span className="text-green-400 mr-3">🎯</span>
                       <span className="text-gray-300">{type}</span>
@@ -345,7 +286,7 @@ const PitchDeck: React.FC = () => {
               <div>
                 <h3 className="text-lg font-semibold text-blue-400 mb-3">Next Actionable Steps</h3>
                 <div className="space-y-2">
-                  {(pitchDeckData.investorFit?.nextSteps || []).map((step, index) => (
+                  {safeMap(pitchDeckData.investorFit?.nextSteps, (step, index) => (
                     <div key={index} className="flex items-start p-3 bg-slate-800/30 rounded-lg">
                       <span className="text-blue-400 mr-3 mt-1">→</span>
                       <span className="text-gray-300 text-sm">{step}</span>
