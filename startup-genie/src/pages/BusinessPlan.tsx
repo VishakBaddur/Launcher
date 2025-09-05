@@ -335,7 +335,7 @@ const BusinessPlan: React.FC = () => {
           <div className="glass-card p-8">
             <h2 className="text-2xl font-bold text-white mb-6">💰 Revenue Streams</h2>
             <div className="space-y-6">
-              {businessPlanData.revenueStreams.map((stream, index) => (
+              {(businessPlanData.revenueStreams || []).map((stream, index) => (
                 <div key={index} className="p-6 bg-slate-800/30 rounded-lg border border-slate-600">
                   <div className="flex items-start justify-between mb-4">
                     <div>
@@ -414,7 +414,7 @@ const BusinessPlan: React.FC = () => {
               <div className="mt-3">
                 <h4 className="text-sm font-semibold text-gray-300 mb-2">Recommendations:</h4>
                 <ul className="space-y-1">
-                  {businessPlanData.unitEconomics.recommendations.map((rec, index) => (
+                  {(businessPlanData.unitEconomics?.recommendations || []).map((rec, index) => (
                     <li key={index} className="flex items-start text-sm text-gray-300">
                       <span className="text-blue-400 mr-2">•</span>
                       <span>{rec}</span>
@@ -429,7 +429,7 @@ const BusinessPlan: React.FC = () => {
           <div className="glass-card p-8">
             <h2 className="text-2xl font-bold text-white mb-6">👥 Customer Segments</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {businessPlanData.customerSegments.map((segment, index) => (
+              {(businessPlanData.customerSegments || []).map((segment, index) => (
                 <div key={index} className="p-4 bg-slate-800/30 rounded-lg">
                   <h3 className="text-lg font-semibold text-white mb-2">Segment {index + 1}</h3>
                   <p className="text-gray-300">{segment}</p>
@@ -459,7 +459,7 @@ const BusinessPlan: React.FC = () => {
               <div>
                 <h4 className="text-lg font-semibold text-orange-400 mb-3">Challenges</h4>
                 <ul className="space-y-2">
-                  {businessPlanData.scalabilityAnalysis.challenges.map((challenge, index) => (
+                  {(businessPlanData.scalabilityAnalysis?.challenges || []).map((challenge, index) => (
                     <li key={index} className="flex items-start text-sm text-gray-300">
                       <span className="text-red-400 mr-2">⚠</span>
                       <span>{challenge}</span>
@@ -470,7 +470,7 @@ const BusinessPlan: React.FC = () => {
               <div>
                 <h4 className="text-lg font-semibold text-green-400 mb-3">Recommendations</h4>
                 <ul className="space-y-2">
-                  {businessPlanData.scalabilityAnalysis.recommendations.map((rec, index) => (
+                  {(businessPlanData.scalabilityAnalysis?.recommendations || []).map((rec, index) => (
                     <li key={index} className="flex items-start text-sm text-gray-300">
                       <span className="text-green-400 mr-2">✓</span>
                       <span>{rec}</span>
@@ -494,7 +494,7 @@ const BusinessPlan: React.FC = () => {
             </div>
 
             <div className="space-y-4">
-              {businessPlanData.partnershipViability.partnerships.map((partnership, index) => (
+              {(businessPlanData.partnershipViability?.partnerships || []).map((partnership, index) => (
                 <div key={index} className="p-4 bg-slate-800/30 rounded-lg border border-slate-600">
                   <div className="flex items-start justify-between mb-3">
                     <h4 className="text-lg font-semibold text-white">{partnership.partner}</h4>
@@ -509,7 +509,7 @@ const BusinessPlan: React.FC = () => {
                   <div>
                     <h5 className="text-sm font-semibold text-gray-300 mb-2">Recommendations:</h5>
                     <ul className="space-y-1">
-                      {partnership.recommendations.map((rec, rIndex) => (
+                      {(partnership.recommendations || []).map((rec, rIndex) => (
                         <li key={rIndex} className="flex items-start text-sm text-gray-300">
                           <span className="text-blue-400 mr-2">•</span>
                           <span>{rec}</span>
@@ -526,7 +526,7 @@ const BusinessPlan: React.FC = () => {
           <div className="glass-card p-8">
             <h2 className="text-2xl font-bold text-white mb-6">💸 Cost Structure</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {businessPlanData.costStructure.map((cost, index) => (
+              {(businessPlanData.costStructure || []).map((cost, index) => (
                 <div key={index} className="p-4 bg-slate-800/30 rounded-lg">
                   <div className="flex items-center">
                     <span className="text-orange-400 mr-3">💰</span>

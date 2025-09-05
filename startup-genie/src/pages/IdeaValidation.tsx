@@ -399,7 +399,7 @@ const IdeaValidation: React.FC = () => {
             <div className="mt-6">
               <h3 className="text-lg font-semibold text-white mb-3">Market Trends</h3>
               <div className="flex flex-wrap gap-2">
-                {validationData.trends.map((trend, index) => (
+                {(validationData.trends || []).map((trend, index) => (
                   <span key={index} className="px-3 py-1 bg-blue-500/20 text-blue-300 rounded-full text-sm">
                     {trend}
                   </span>
@@ -415,7 +415,7 @@ const IdeaValidation: React.FC = () => {
               <div>
                 <h3 className="text-lg font-semibold text-white mb-3">Market Gap Analysis</h3>
                 <div className="space-y-3">
-                  {validationData.opportunities.map((opportunity, index) => (
+                  {(validationData.opportunities || []).map((opportunity, index) => (
                     <div key={index} className="flex items-start">
                       <span className="text-green-400 mr-2">✓</span>
                       <span className="text-gray-300">{opportunity}</span>
@@ -485,7 +485,7 @@ const IdeaValidation: React.FC = () => {
               </div>
 
               <div className="space-y-4">
-                {validationData.riskAnalysis.topRisks.map((risk, index) => (
+                {(validationData.riskAnalysis?.topRisks || []).map((risk, index) => (
                   <div key={index} className="p-4 bg-slate-800/30 rounded-lg border border-slate-600">
                     <div className="flex items-start justify-between mb-2">
                       <div>
@@ -504,7 +504,7 @@ const IdeaValidation: React.FC = () => {
                     <div className="mt-3">
                       <h5 className="text-sm font-semibold text-gray-300 mb-2">Mitigations:</h5>
                       <div className="space-y-1">
-                        {risk.mitigations.map((mitigation, mIndex) => (
+                        {(risk.mitigations || []).map((mitigation, mIndex) => (
                           <div key={mIndex} className="flex items-center text-sm text-gray-300">
                             <span className="text-blue-400 mr-2">•</span>
                             <span>{mitigation.action}</span>
@@ -525,7 +525,7 @@ const IdeaValidation: React.FC = () => {
           <div className="glass-card p-8">
             <h2 className="text-2xl font-bold text-white mb-6">💡 Recommendations</h2>
             <div className="space-y-3">
-              {validationData.recommendations.map((recommendation, index) => (
+              {(validationData.recommendations || []).map((recommendation, index) => (
                 <div key={index} className="flex items-start">
                   <span className="text-blue-400 mr-3 mt-1">→</span>
                   <span className="text-gray-300">{recommendation}</span>

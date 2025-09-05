@@ -148,7 +148,7 @@ const PitchDeck: React.FC = () => {
   };
 
   const nextSlide = () => {
-    if (pitchDeckData && currentSlide < pitchDeckData.slides.length - 1) {
+    if (pitchDeckData && currentSlide < (pitchDeckData.slides?.length || 0) - 1) {
       setCurrentSlide(currentSlide + 1);
     }
   };
@@ -248,11 +248,11 @@ const PitchDeck: React.FC = () => {
                   ← Previous
                 </button>
                 <span className="text-gray-300">
-                  {currentSlide + 1} of {pitchDeckData.slides.length}
+                  {currentSlide + 1} of {pitchDeckData.slides?.length || 0}
                 </span>
                 <button
                   onClick={nextSlide}
-                  disabled={currentSlide === pitchDeckData.slides.length - 1}
+                  disabled={currentSlide === (pitchDeckData.slides?.length || 0) - 1}
                   className="px-4 py-2 bg-slate-700 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-600 transition-colors"
                 >
                   Next →
@@ -264,13 +264,13 @@ const PitchDeck: React.FC = () => {
             <div className="w-full bg-slate-700 rounded-full h-2 mb-6">
               <div 
                 className="bg-gradient-to-r from-purple-500 to-blue-500 h-2 rounded-full transition-all duration-300"
-                style={{ width: `${((currentSlide + 1) / pitchDeckData.slides.length) * 100}%` }}
+                style={{ width: `${((currentSlide + 1) / (pitchDeckData.slides?.length || 1)) * 100}%` }}
               ></div>
             </div>
 
             {/* Slide Thumbnails */}
             <div className="flex space-x-2 overflow-x-auto pb-2">
-              {pitchDeckData.slides.map((slide, index) => (
+              {(pitchDeckData.slides || []).map((slide, index) => (
                 <button
                   key={slide.id}
                   onClick={() => setCurrentSlide(index)}
@@ -293,16 +293,16 @@ const PitchDeck: React.FC = () => {
               <div className="lg:col-span-2">
                 <div className="mb-6">
                   <h2 className="text-3xl font-bold text-white mb-4">
-                    {pitchDeckData.slides[currentSlide].title}
+                    {pitchDeckData.slides?.[currentSlide]?.title || 'Slide Title'}
                   </h2>
                   
                   <div className="prose prose-invert max-w-none">
                     <div className="text-gray-300 text-lg leading-relaxed whitespace-pre-line">
-                      {pitchDeckData.slides[currentSlide].content}
+                      {pitchDeckData.slides?.[currentSlide]?.content || 'Slide content will appear here.'}
                     </div>
                   </div>
 
-                  {pitchDeckData.slides[currentSlide].visualAid && (
+                  {pitchDeckData.slides?.[currentSlide]?.visualAid && (
                     <div className="mt-6 p-4 bg-slate-800/30 rounded-lg">
                       <h4 className="text-lg font-semibold text-white mb-2">Visual Aid</h4>
                       <div className="text-gray-300">{pitchDeckData.slides[currentSlide].visualAid}</div>
@@ -317,7 +317,7 @@ const PitchDeck: React.FC = () => {
                   <h3 className="text-xl font-bold text-white mb-4">Presenter Notes</h3>
                   <div className="p-4 bg-slate-800/30 rounded-lg border border-slate-600">
                     <div className="text-gray-300 text-sm leading-relaxed whitespace-pre-line">
-                      {pitchDeckData.slides[currentSlide].presenterNotes}
+                      {pitchDeckData.slides?.[currentSlide]?.presenterNotes || 'Presenter notes will appear here.'}
                     </div>
                   </div>
                 </div>
@@ -333,7 +333,7 @@ const PitchDeck: React.FC = () => {
               <div>
                 <h3 className="text-lg font-semibold text-green-400 mb-3">Suggested Investor Types</h3>
                 <div className="space-y-2">
-                  {pitchDeckData.investorFit.suggestedInvestorTypes.map((type, index) => (
+                  {(pitchDeckData.investorFit?.suggestedInvestorTypes || []).map((type, index) => (
                     <div key={index} className="flex items-center p-3 bg-slate-800/30 rounded-lg">
                       <span className="text-green-400 mr-3">🎯</span>
                       <span className="text-gray-300">{type}</span>
@@ -345,7 +345,7 @@ const PitchDeck: React.FC = () => {
               <div>
                 <h3 className="text-lg font-semibold text-blue-400 mb-3">Next Actionable Steps</h3>
                 <div className="space-y-2">
-                  {pitchDeckData.investorFit.nextSteps.map((step, index) => (
+                  {(pitchDeckData.investorFit?.nextSteps || []).map((step, index) => (
                     <div key={index} className="flex items-start p-3 bg-slate-800/30 rounded-lg">
                       <span className="text-blue-400 mr-3 mt-1">→</span>
                       <span className="text-gray-300 text-sm">{step}</span>
