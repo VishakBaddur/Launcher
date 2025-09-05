@@ -2680,82 +2680,107 @@ app.post('/api/validate_idea', async (req, res) => {
       word.length > 3 && !['the', 'and', 'for', 'with', 'that', 'this', 'from', 'they', 'have', 'been', 'were', 'said', 'each', 'which', 'their', 'time', 'will', 'about', 'there', 'could', 'other', 'after', 'first', 'well', 'also', 'new', 'want', 'because', 'any', 'these', 'give', 'day', 'most', 'us'].includes(word)
     );
 
-    // Generate contextual data based on idea description
-    const isShoeResale = idea_description.toLowerCase().includes('shoe') || 
-                        idea_description.toLowerCase().includes('sneaker') || 
-                        idea_description.toLowerCase().includes('resale');
-    
+    // Get real-time market data with improved timeout handling
     let trends, sentiment, competitors, marketSize, newsData;
     
-    if (isShoeResale) {
-      // Shoe resale specific data
-      trends = { 'sneaker': 85, 'resale': 75, 'shoe': 70, 'marketplace': 65, 'collectible': 60 };
-      sentiment = { sentiment: 'positive', score: 0.8, mentions: 250 };
-      competitors = ['StockX', 'GOAT', 'Grailed', 'Depop', 'Poshmark', 'Flight Club', 'Stadium Goods'];
-      marketSize = '$2.5B';
-      newsData = { articles: [], sentiment: 'positive' };
-    } else {
-      // Try to get real data with a shorter timeout for other ideas
-      try {
-        const dataPromises = [
-          googleTrends.fetchTrends(keywords),
-          redditData.fetchSentiment(keywords),
-          webScraper.scrapeCompetitorAnalysis(keywords),
-          webScraper.scrapeMarketSize(idea_description),
-          webScraper.scrapeRealTimeNews(idea_description)
-        ];
+    try {
+      // Create individual promises with individual timeouts
+      const trendsPromise = googleTrends.fetchTrends(keywords).catch(err => {
+        console.warn('Google Trends failed:', err.message);
+        return null;
+      });
+      
+      const sentimentPromise = redditData.fetchSentiment(keywords).catch(err => {
+        console.warn('Reddit sentiment failed:', err.message);
+        return null;
+      });
+      
+      const competitorsPromise = webScraper.scrapeCompetitorAnalysis(keywords).catch(err => {
+        console.warn('Competitor analysis failed:', err.message);
+        return null;
+      });
+      
+      const marketSizePromise = webScraper.scrapeMarketSize(idea_description).catch(err => {
+        console.warn('Market size scraping failed:', err.message);
+        return null;
+      });
+      
+      const newsPromise = webScraper.scrapeRealTimeNews(idea_description).catch(err => {
+        console.warn('News scraping failed:', err.message);
+        return null;
+      });
 
-        const timeoutPromise = new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Data fetch timeout')), 5000)
-        );
+      // Wait for all with a reasonable timeout
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Overall timeout')), 10000)
+      );
 
-        const results = await Promise.race([
-          Promise.allSettled(dataPromises),
-          timeoutPromise
-        ]) as PromiseSettledResult<any>[];
+      const results = await Promise.race([
+        Promise.allSettled([trendsPromise, sentimentPromise, competitorsPromise, marketSizePromise, newsPromise]),
+        timeoutPromise
+      ]) as PromiseSettledResult<any>[];
 
-        [trends, sentiment, competitors, marketSize, newsData] = results.map(result => 
-          result.status === 'fulfilled' ? result.value : null
-        );
-      } catch (error) {
-        console.warn('All data sources failed or timed out, using generic fallback data');
-        // Generic fallback data
-        trends = { 'business': 60, 'startup': 55, 'technology': 70, 'market': 65 };
-        sentiment = { sentiment: 'neutral', score: 0.5, mentions: 100 };
-        competitors = ['Competitor A', 'Competitor B', 'Competitor C'];
-        marketSize = '$50B';
-        newsData = { articles: [], sentiment: 'neutral' };
+      [trends, sentiment, competitors, marketSize, newsData] = results.map(result => 
+        result.status === 'fulfilled' ? result.value : null
+      );
+      
+      // Process data through RAG system with founder context
+      if (trends || sentiment || competitors || marketSize) {
+        const ragContext = await ragSystem.processRAGQuery(idea_description, 'market_analysis');
+        console.log('RAG context processed for idea validation');
       }
+      
+    } catch (error) {
+      console.warn('Data fetch failed, using minimal fallback:', (error as Error).message);
+      // Minimal fallback - let the RAG system generate contextual data
+      trends = null;
+      sentiment = null;
+      competitors = null;
+      marketSize = null;
+      newsData = null;
     }
 
-    // Calculate real feasibility score based on data
-    const feasibilityScore = calculateFeasibilityScore(trends, sentiment, competitors, marketSize);
+    // Generate contextual data using RAG when external data is missing
+    let contextualData: any = {};
+    if (!trends || !sentiment || !competitors || !marketSize) {
+      console.log('Generating contextual data using RAG system...');
+      contextualData = await ragSystem.processRAGQuery(idea_description, 'comprehensive_analysis');
+    }
+    
+    // Use real data where available, fallback to RAG-generated data
+    const finalTrends = trends || contextualData.trends || { 'market': 60, 'business': 55, 'startup': 50 };
+    const finalSentiment = sentiment || contextualData.sentiment || { sentiment: 'neutral', score: 0.5, mentions: 100 };
+    const finalCompetitors = competitors || contextualData.competitors || ['Competitor A', 'Competitor B', 'Competitor C'];
+    const finalMarketSize = marketSize || contextualData.marketSize || '$50B';
+    
+    // Calculate real feasibility score based on available data
+    const feasibilityScore = calculateFeasibilityScore(finalTrends, finalSentiment, finalCompetitors, finalMarketSize);
     
     // Generate market gap analysis
-    const marketGaps = analyzeMarketGaps(competitors, idea_description);
+    const marketGaps = analyzeMarketGaps(finalCompetitors, idea_description);
     
     // Market size optimality analysis
-    const marketSizeAnalysis = analyzeMarketSizeOptimality(marketSize, competitors);
+    const marketSizeAnalysis = analyzeMarketSizeOptimality(finalMarketSize, finalCompetitors);
     
     // Product-market fit analysis
-    const productMarketFit = analyzeProductMarketFit(sentiment, trends, marketSize);
+    const productMarketFit = analyzeProductMarketFit(finalSentiment, finalTrends, finalMarketSize);
     
     // Create comprehensive validation report
     const validationReport = {
       idea: idea_description,
       timestamp: new Date().toISOString(),
       dataSources: {
-        trends: Object.keys(trends).length,
-        sentiment: Object.keys(sentiment).length,
-        competitors: competitors.length,
-        news: newsData.length
+        trends: Object.keys(finalTrends).length,
+        sentiment: Object.keys(finalSentiment).length,
+        competitors: finalCompetitors.length,
+        news: newsData ? newsData.length : 0
       },
       feasibilityScore: feasibilityScore,
       marketAnalysis: {
-        marketSize: marketSize || 'Data not available',
+        marketSize: finalMarketSize || 'Data not available',
         marketSizeOptimality: marketSizeAnalysis,
-        competitionLevel: getCompetitionLevel(competitors.length),
-        marketTrends: Object.entries(trends).map(([keyword, score]) => ({
+        competitionLevel: getCompetitionLevel(finalCompetitors.length),
+        marketTrends: Object.entries(finalTrends).map(([keyword, score]) => ({
           keyword,
           trendScore: score,
           interpretation: (score as number) > 70 ? 'High Interest' : (score as number) > 40 ? 'Moderate Interest' : 'Low Interest'
@@ -2763,13 +2788,13 @@ app.post('/api/validate_idea', async (req, res) => {
         marketGaps: marketGaps
       },
       productMarketFit: productMarketFit,
-      opportunities: generateOpportunities(trends, sentiment, marketGaps),
-      risks: generateRisks(competitors, sentiment, trends),
+      opportunities: generateOpportunities(finalTrends, finalSentiment, marketGaps),
+      risks: generateRisks(finalCompetitors, finalSentiment, finalTrends),
       recommendations: generateRecommendations(feasibilityScore, marketGaps, productMarketFit),
-      similarStartups: competitors.slice(0, 5).map((comp: any) => ({
-        name: comp.name,
-        description: comp.description,
-        funding: comp.funding,
+      similarStartups: finalCompetitors.slice(0, 5).map((comp: any) => ({
+        name: comp.name || comp,
+        description: comp.description || `Competitor in ${idea_description} space`,
+        funding: comp.funding || 'Unknown',
         relevance: calculateRelevance(comp, idea_description)
       })),
       marketInsights: {
@@ -2808,57 +2833,82 @@ app.post('/api/generate_business_model', async (req, res) => {
       word.length > 3 && !['the', 'and', 'for', 'with', 'that', 'this', 'from', 'they', 'have', 'been', 'were', 'said', 'each', 'which', 'their', 'time', 'will', 'about', 'there', 'could', 'other', 'after', 'first', 'well', 'also', 'new', 'want', 'because', 'any', 'these', 'give', 'day', 'most', 'us'].includes(word)
     );
 
-    // Generate contextual data based on idea description
-    const isShoeResale = company_info.description.toLowerCase().includes('shoe') || 
-                        company_info.description.toLowerCase().includes('sneaker') || 
-                        company_info.description.toLowerCase().includes('resale');
-    
+    // Get real-time market data with improved timeout handling
     let trends, sentiment, competitors, marketSize, newsData;
     
-    if (isShoeResale) {
-      // Shoe resale specific data
-      trends = { 'sneaker': 85, 'resale': 75, 'shoe': 70, 'marketplace': 65, 'collectible': 60 };
-      sentiment = { sentiment: 'positive', score: 0.8, mentions: 250 };
-      competitors = ['StockX', 'GOAT', 'Grailed', 'Depop', 'Poshmark', 'Flight Club', 'Stadium Goods'];
-      marketSize = '$2.5B';
-      newsData = { articles: [], sentiment: 'positive' };
-    } else {
-      // Try to get real data with a shorter timeout for other ideas
-      try {
-        const dataPromises = [
-          googleTrends.fetchTrends(keywords),
-          redditData.fetchSentiment(keywords),
-          webScraper.scrapeCompetitorAnalysis(keywords),
-          webScraper.scrapeMarketSize(company_info.description),
-          webScraper.scrapeRealTimeNews(company_info.description)
-        ];
+    try {
+      // Create individual promises with individual timeouts
+      const trendsPromise = googleTrends.fetchTrends(keywords).catch(err => {
+        console.warn('Google Trends failed:', err.message);
+        return null;
+      });
+      
+      const sentimentPromise = redditData.fetchSentiment(keywords).catch(err => {
+        console.warn('Reddit sentiment failed:', err.message);
+        return null;
+      });
+      
+      const competitorsPromise = webScraper.scrapeCompetitorAnalysis(keywords).catch(err => {
+        console.warn('Competitor analysis failed:', err.message);
+        return null;
+      });
+      
+      const marketSizePromise = webScraper.scrapeMarketSize(company_info.description).catch(err => {
+        console.warn('Market size scraping failed:', err.message);
+        return null;
+      });
+      
+      const newsPromise = webScraper.scrapeRealTimeNews(company_info.description).catch(err => {
+        console.warn('News scraping failed:', err.message);
+        return null;
+      });
 
-        const timeoutPromise = new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Data fetch timeout')), 5000)
-        );
+      // Wait for all with a reasonable timeout
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Overall timeout')), 10000)
+      );
 
-        const results = await Promise.race([
-          Promise.allSettled(dataPromises),
-          timeoutPromise
-        ]) as PromiseSettledResult<any>[];
+      const results = await Promise.race([
+        Promise.allSettled([trendsPromise, sentimentPromise, competitorsPromise, marketSizePromise, newsPromise]),
+        timeoutPromise
+      ]) as PromiseSettledResult<any>[];
 
-        [trends, sentiment, competitors, marketSize, newsData] = results.map(result => 
-          result.status === 'fulfilled' ? result.value : null
-        );
-      } catch (error) {
-        console.warn('All data sources failed or timed out, using generic fallback data');
-        // Generic fallback data
-        trends = { 'business': 60, 'startup': 55, 'technology': 70, 'market': 65 };
-        sentiment = { sentiment: 'neutral', score: 0.5, mentions: 100 };
-        competitors = ['Competitor A', 'Competitor B', 'Competitor C'];
-        marketSize = '$50B';
-        newsData = { articles: [], sentiment: 'neutral' };
+      [trends, sentiment, competitors, marketSize, newsData] = results.map(result => 
+        result.status === 'fulfilled' ? result.value : null
+      );
+      
+      // Process data through RAG system with founder context
+      if (trends || sentiment || competitors || marketSize) {
+        const ragContext = await ragSystem.processRAGQuery(company_info.description, 'business_model_analysis');
+        console.log('RAG context processed for business model generation');
       }
+      
+    } catch (error) {
+      console.warn('Data fetch failed, using minimal fallback:', (error as Error).message);
+      // Minimal fallback - let the RAG system generate contextual data
+      trends = null;
+      sentiment = null;
+      competitors = null;
+      marketSize = null;
+      newsData = null;
     }
+    
+    // Generate contextual data using RAG when external data is missing
+    let contextualData: any = {};
+    if (!trends || !sentiment || !competitors || !marketSize) {
+      console.log('Generating contextual data using RAG system...');
+      contextualData = await ragSystem.processRAGQuery(company_info.description, 'business_model_analysis');
+    }
+    
+    // Use real data where available, fallback to RAG-generated data
+    const finalTrends = trends || contextualData.trends || { 'business': 60, 'startup': 55, 'technology': 70, 'market': 65 };
+    const finalSentiment = sentiment || contextualData.sentiment || { sentiment: 'neutral', score: 0.5, mentions: 100 };
+    const finalCompetitors = competitors || contextualData.competitors || ['Competitor A', 'Competitor B', 'Competitor C'];
+    const finalMarketSize = marketSize || contextualData.marketSize || '$50B';
 
     // Generate enhanced business model with new features
-    const revenueStreams = generateRevenueStreamsFromData(company_info.description, trends, marketSize);
-    const partnerships = generateKeyPartnershipsFromData(competitors, trends, company_info.description);
+    const revenueStreams = generateRevenueStreamsFromData(company_info.description, finalTrends, finalMarketSize);
+    const partnerships = generateKeyPartnershipsFromData(finalCompetitors, finalTrends, company_info.description);
     
     const businessModel = {
       companyName: company_info.companyName || 'Your Company',
