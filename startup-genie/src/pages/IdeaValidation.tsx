@@ -59,6 +59,7 @@ interface ValidationData {
 const IdeaValidation: React.FC = () => {
   const navigate = useNavigate();
   const [validationData, setValidationData] = useState<ValidationData | null>(null);
+  const [enrichment, setEnrichment] = useState<{ key?: string; statusUrl?: string; resultUrl?: string; status?: string; confidence?: number } | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [ideaData, setIdeaData] = useState<any>(null);
 
@@ -73,10 +74,52 @@ const IdeaValidation: React.FC = () => {
     }
   }, [navigate]);
 
+  const baseUrl = 'https://launcher-backend-cxxk.onrender.com';
+
+  const pollEnrichment = async (key: string, statusUrl?: string, resultUrl?: string) => {
+    if (!statusUrl || !resultUrl) return;
+    const absStatus = statusUrl.startsWith('http') ? statusUrl : `${baseUrl}${statusUrl}`;
+    const absResult = resultUrl.startsWith('http') ? resultUrl : `${baseUrl}${resultUrl}`;
+    let attempts = 0;
+    const maxAttempts = 10;
+    const delay = (ms: number) => new Promise(r => setTimeout(r, ms));
+    while (attempts < maxAttempts) {
+      try {
+        const st = await fetch(absStatus);
+        if (st.ok) {
+          const s = await st.json();
+          setEnrichment(prev => ({ ...(prev || {}), status: s.status, confidence: s.confidence, key }));
+          if (s.status === 'completed') {
+            const rr = await fetch(absResult);
+            if (rr.ok) {
+              const rj = await rr.json();
+              // Merge enriched trends into UI
+              setValidationData(prev => {
+                if (!prev) return prev;
+                const enrichedTrends = rj?.data?.trends ? Object.keys(rj.data.trends).slice(0, 5) : prev.marketInsights.trends;
+                return {
+                  ...prev,
+                  marketInsights: {
+                    ...prev.marketInsights,
+                    trends: enrichedTrends
+                  }
+                } as ValidationData;
+              });
+              setEnrichment(prev => ({ ...(prev || {}), status: 'completed', confidence: rj.confidence, key }));
+            }
+            break;
+          }
+        }
+      } catch {}
+      attempts++;
+      await delay(1500);
+    }
+  };
+
   const validateIdea = async (data: any) => {
     setIsLoading(true);
     try {
-      const response = await fetch('https://launcher-backend-cxxk.onrender.com/api/validate_idea', {
+      const response = await fetch(`${baseUrl}/api/validate_idea`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -105,6 +148,15 @@ const IdeaValidation: React.FC = () => {
           riskAnalysis: safeAccess(result, 'riskAnalysis', fallbackData.ideaValidation.riskAnalysis)
         };
         setValidationData(safeResult);
+
+        // Start enrichment polling if available
+        const enrichmentKey = result?.enrichmentKey;
+        const statusUrl = result?.enrichment?.statusUrl;
+        const resultUrl = result?.enrichment?.resultUrl;
+        if (enrichmentKey && statusUrl && resultUrl) {
+          setEnrichment({ key: enrichmentKey, statusUrl, resultUrl, status: 'pending' });
+          pollEnrichment(enrichmentKey, statusUrl, resultUrl);
+        }
       } else {
         console.error('Validation failed');
         logFallbackUsage('IdeaValidation', 'complete dataset');
@@ -185,6 +237,15 @@ const IdeaValidation: React.FC = () => {
           </h1>
           <h2 className="text-2xl text-gray-300 mb-2">{ideaData.title}</h2>
           <p className="text-lg text-gray-400 max-w-3xl mx-auto">{ideaData.description}</p>
+          {enrichment?.status && (
+            <div className="mt-3 text-sm text-gray-300">
+              Data quality: {enrichment.status === 'completed' ? (
+                <span className="px-2 py-1 rounded bg-green-600/30 text-green-300">Enriched ({Math.round((enrichment.confidence || 0.7) * 100)}%)</span>
+              ) : (
+                <span className="px-2 py-1 rounded bg-yellow-600/30 text-yellow-300">Collecting real signals…</span>
+              )}
+            </div>
+          )}
         </div>
 
         <div className="max-w-6xl mx-auto space-y-8">

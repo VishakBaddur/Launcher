@@ -50,6 +50,7 @@ const BusinessPlan: React.FC = () => {
   const [businessPlanData, setBusinessPlanData] = useState<BusinessPlanData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [ideaData, setIdeaData] = useState<any>(null);
+  const [enrichment, setEnrichment] = useState<{ key?: string; statusUrl?: string; resultUrl?: string; status?: string; confidence?: number } | null>(null);
 
   useEffect(() => {
     // Get idea data from localStorage
@@ -62,10 +63,50 @@ const BusinessPlan: React.FC = () => {
     }
   }, [navigate]);
 
+  const baseUrl = 'https://launcher-backend-cxxk.onrender.com';
+
+  const pollEnrichment = async (key: string, statusUrl?: string, resultUrl?: string) => {
+    if (!statusUrl || !resultUrl) return;
+    const absStatus = statusUrl.startsWith('http') ? statusUrl : `${baseUrl}${statusUrl}`;
+    const absResult = resultUrl.startsWith('http') ? resultUrl : `${baseUrl}${resultUrl}`;
+    let attempts = 0;
+    const maxAttempts = 10;
+    const delay = (ms: number) => new Promise(r => setTimeout(r, ms));
+    while (attempts < maxAttempts) {
+      try {
+        const st = await fetch(absStatus);
+        if (st.ok) {
+          const s = await st.json();
+          setEnrichment(prev => ({ ...(prev || {}), status: s.status, confidence: s.confidence, key }));
+          if (s.status === 'completed') {
+            const rr = await fetch(absResult);
+            if (rr.ok) {
+              const rj = await rr.json();
+              setBusinessPlanData(prev => {
+                if (!prev) return prev;
+                // Example: if enriched trends exist, adjust businessModelFitScore slightly and annotate
+                const hasTrends = !!rj?.data?.trends;
+                const delta = hasTrends ? 3 : 0;
+                return {
+                  ...prev,
+                  businessModelFitScore: Math.min(95, (prev.businessModelFitScore || 70) + delta)
+                } as BusinessPlanData;
+              });
+              setEnrichment(prev => ({ ...(prev || {}), status: 'completed', confidence: rj.confidence, key }));
+            }
+            break;
+          }
+        }
+      } catch {}
+      attempts++;
+      await delay(1500);
+    }
+  };
+
   const generateBusinessPlan = async (data: any) => {
     setIsLoading(true);
     try {
-      const response = await fetch('https://launcher-backend-cxxk.onrender.com/api/generate_business_model', {
+      const response = await fetch(`${baseUrl}/api/generate_business_model`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -92,6 +133,14 @@ const BusinessPlan: React.FC = () => {
           partnershipViability: safeAccess(result, 'partnershipViability', fallbackData.businessPlan.partnershipViability)
         };
         setBusinessPlanData(safeResult);
+
+        const enrichmentKey = result?.enrichmentKey;
+        const statusUrl = result?.enrichment?.statusUrl;
+        const resultUrl = result?.enrichment?.resultUrl;
+        if (enrichmentKey && statusUrl && resultUrl) {
+          setEnrichment({ key: enrichmentKey, statusUrl, resultUrl, status: 'pending' });
+          pollEnrichment(enrichmentKey, statusUrl, resultUrl);
+        }
       } else {
         console.error('Business plan generation failed');
         logFallbackUsage('BusinessPlan', 'complete dataset');
@@ -171,6 +220,15 @@ const BusinessPlan: React.FC = () => {
           </h1>
           <h2 className="text-2xl text-gray-300 mb-2">{ideaData.title}</h2>
           <p className="text-lg text-gray-400 max-w-3xl mx-auto">{ideaData.description}</p>
+          {enrichment?.status && (
+            <div className="mt-3 text-sm text-gray-300">
+              Data quality: {enrichment.status === 'completed' ? (
+                <span className="px-2 py-1 rounded bg-green-600/30 text-green-300">Enriched ({Math.round((enrichment.confidence || 0.7) * 100)}%)</span>
+              ) : (
+                <span className="px-2 py-1 rounded bg-yellow-600/30 text-yellow-300">Collecting real signals…</span>
+              )}
+            </div>
+          )}
         </div>
 
         <div className="max-w-6xl mx-auto space-y-8">
