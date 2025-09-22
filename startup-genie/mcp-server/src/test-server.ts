@@ -21,6 +21,126 @@ const PORT = 3001;
 app.use(cors());
 app.use(express.json());
 
+// 🧠 In-memory enrichment store with TTL
+const ENRICHMENT_TTL_MS = 24 * 60 * 60 * 1000; // 24h
+const enrichmentStore = new Map<string, {
+  createdAt: number;
+  ttlMs: number;
+  status: 'pending' | 'running' | 'completed' | 'error';
+  progress: number;
+  data?: any;
+  confidence?: number;
+  source?: string;
+  error?: string;
+  updatedAt: number;
+}>();
+
+function generateEnrichmentKey(ideaDescription: string): string {
+  const base = ideaDescription.toLowerCase().replace(/\s+/g, '-').slice(0, 48);
+  return `enrich_${base}_${Date.now()}`;
+}
+
+async function fetchHackerNewsMentions(keywords: string[]): Promise<{ [keyword: string]: number }> {
+  const counts: { [keyword: string]: number } = {};
+  for (const keyword of keywords) {
+    try {
+      const response = await axios.get('https://hn.algolia.com/api/v1/search', {
+        params: {
+          query: keyword,
+          tags: 'story',
+          hitsPerPage: 20
+        },
+        timeout: 3000
+      });
+      counts[keyword] = Array.isArray(response.data?.hits) ? response.data.hits.length : 0;
+    } catch (err) {
+      counts[keyword] = 0;
+    }
+  }
+  return counts;
+}
+
+async function startEnrichment(ideaDescription: string, keywords: string[]): Promise<string> {
+  const key = generateEnrichmentKey(ideaDescription);
+  enrichmentStore.set(key, {
+    createdAt: Date.now(),
+    ttlMs: ENRICHMENT_TTL_MS,
+    status: 'pending',
+    progress: 0,
+    updatedAt: Date.now()
+  });
+
+  // Fire-and-forget background job
+  (async () => {
+    const reddit = new RedditDataSource();
+    const trends = new GoogleTrendsDataSource();
+    enrichmentStore.set(key, { ...(enrichmentStore.get(key) as any), status: 'running', progress: 10, updatedAt: Date.now() });
+    try {
+      const [redditSentiment, googleTrends, hnMentions] = await Promise.allSettled([
+        reddit.fetchSentiment(keywords),
+        trends.fetchTrends(keywords),
+        fetchHackerNewsMentions(keywords)
+      ]);
+
+      const data: any = {
+        trends: googleTrends.status === 'fulfilled' ? googleTrends.value : {},
+        sentiment: redditSentiment.status === 'fulfilled' ? redditSentiment.value : {},
+        hnMentions: hnMentions.status === 'fulfilled' ? hnMentions.value : {}
+      };
+
+      // Simple confidence heuristic
+      const sourcesOk = [googleTrends, redditSentiment, hnMentions].filter(r => r.status === 'fulfilled').length;
+      const confidence = sourcesOk >= 2 ? 0.9 : sourcesOk === 1 ? 0.75 : 0.5;
+
+      enrichmentStore.set(key, {
+        ...(enrichmentStore.get(key) as any),
+        status: 'completed',
+        progress: 100,
+        data,
+        confidence,
+        source: 'enriched_external_apis',
+        updatedAt: Date.now()
+      });
+    } catch (error: any) {
+      enrichmentStore.set(key, {
+        ...(enrichmentStore.get(key) as any),
+        status: 'error',
+        progress: 100,
+        error: error?.message || 'Enrichment failed',
+        updatedAt: Date.now()
+      });
+    }
+  })();
+
+  return key;
+}
+
+// Enrichment status/result endpoints
+app.get('/api/enrichment/status/:key', (req, res) => {
+  const { key } = req.params as { key: string };
+  const entry = enrichmentStore.get(key);
+  if (!entry) return res.status(404).json({ error: 'Not found' });
+  // Expire
+  if (Date.now() - entry.createdAt > entry.ttlMs) {
+    enrichmentStore.delete(key);
+    return res.status(410).json({ error: 'Expired' });
+  }
+  const { status, progress, updatedAt, confidence } = entry;
+  res.json({ status, progress, updatedAt, confidence });
+});
+
+app.get('/api/enrichment/result/:key', (req, res) => {
+  const { key } = req.params as { key: string };
+  const entry = enrichmentStore.get(key);
+  if (!entry) return res.status(404).json({ error: 'Not found' });
+  if (Date.now() - entry.createdAt > entry.ttlMs) {
+    enrichmentStore.delete(key);
+    return res.status(410).json({ error: 'Expired' });
+  }
+  if (entry.status !== 'completed') return res.status(202).json({ status: entry.status, progress: entry.progress });
+  res.json({ data: entry.data, confidence: entry.confidence, source: entry.source, updatedAt: entry.updatedAt });
+});
+
 // RAG-like data processing system
 class RAGProcessor {
   private dataCache: Map<string, any> = new Map();
@@ -2943,13 +3063,18 @@ app.post('/api/validate_idea', async (req, res) => {
       lastUpdated: new Date().toISOString()
     };
 
-    // 2️⃣ BACKGROUND ENRICHMENT LAYER - Trigger async data enrichment
+    // 2️⃣ BACKGROUND ENRICHMENT LAYER - Trigger async data enrichment (with status key)
     console.log('🔄 Background Enrichment: Triggering async data collection...');
-    triggerBackgroundEnrichment(idea_description, keywords).catch(err => 
-      console.warn('Background enrichment failed:', err.message)
-    );
+    const enrichmentKey = await startEnrichment(idea_description, keywords);
 
-    res.json(validationReport);
+    res.json({
+      ...validationReport,
+      enrichmentKey,
+      enrichment: {
+        statusUrl: `/api/enrichment/status/${enrichmentKey}`,
+        resultUrl: `/api/enrichment/result/${enrichmentKey}`
+      }
+    });
   } catch (error) {
     console.error('Error validating idea:', error);
     res.status(500).json({ error: 'Failed to validate idea' });
