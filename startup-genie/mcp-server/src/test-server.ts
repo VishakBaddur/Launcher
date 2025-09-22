@@ -3155,11 +3155,44 @@ app.post('/api/generate_business_model', async (req, res) => {
         costProjections: generateCostProjections(company_info.description, finalCompetitors),
         profitability: calculateProfitability(finalMarketSize, finalTrends, finalCompetitors)
       },
+      // NEW: 7-day validation plan and ICP/outreach block
+      validationPlan: [
+        { day: 1, goal: 'Problem clarity', tasks: ['Write problem statement', 'List top 3 hypotheses'] },
+        { day: 2, goal: 'ICP draft', tasks: ['Draft ICP profile', 'Identify 20 prospects'] },
+        { day: 3, goal: 'Outreach v1', tasks: ['Create cold outreach script', 'Send 10 messages'] },
+        { day: 4, goal: 'Signal check', tasks: ['Collect replies', 'Refine messaging'] },
+        { day: 5, goal: 'MVP scope', tasks: ['Define MVP features', 'Mock simple flow'] },
+        { day: 6, goal: 'Pricing test', tasks: ['Draft pricing tiers', 'Ask 5 users for feedback'] },
+        { day: 7, goal: 'Decision', tasks: ['Score signals', 'Decide: proceed/refine/pause'] }
+      ],
+      icpOutreach: {
+        icp: {
+          title: 'Early adopters for ' + (company_info.companyName || 'your product'),
+          segments: generateCustomerSegmentsFromData(company_info.description, finalMarketSize).slice(0, 2),
+          pains: generateValuePropositionsFromData(company_info.description, finalSentiment, finalTrends).slice(0, 3)
+        },
+        messaging: {
+          subject: 'Quick question about ' + (company_info.companyName || 'your workflow'),
+          opener: 'We are exploring ' + company_info.description + ' and would love your 10-min take.',
+          ask: 'What is the biggest friction today and how do you solve it?',
+          close: 'If relevant, we can share a lightweight demo next week.'
+        }
+      },
       confidence: ragResponse.confidence,
       lastUpdated: new Date().toISOString()
     };
 
-    res.json(businessModel);
+    // Attach enrichment key for incremental updates
+    const enrichmentKey = await startEnrichment(company_info.description, keywords);
+
+    res.json({
+      ...businessModel,
+      enrichmentKey,
+      enrichment: {
+        statusUrl: `/api/enrichment/status/${enrichmentKey}`,
+        resultUrl: `/api/enrichment/result/${enrichmentKey}`
+      }
+    });
   } catch (error) {
     console.error('Error generating business model:', error);
     res.status(500).json({ error: 'Failed to generate business model' });
