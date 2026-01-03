@@ -8,6 +8,7 @@ import IdeaInput from './pages/IdeaInput';
 import IdeaValidation from './pages/IdeaValidation';
 import BusinessPlan from './pages/BusinessPlan';
 import PitchDeck from './pages/PitchDeck';
+import AnalyticsDashboard from './pages/AnalyticsDashboard';
 import IdeaValidator from './pages/dashboard/IdeaValidator';
 import BusinessModel from './pages/dashboard/BusinessModel';
 import PitchCreator from './pages/dashboard/PitchCreator';
@@ -60,6 +61,7 @@ function App() {
           <Route path="/idea-validation" element={<IdeaValidation />} />
           <Route path="/business-plan" element={<BusinessPlan />} />
           <Route path="/pitch-deck" element={<PitchDeck />} />
+          <Route path="/analytics" element={<AnalyticsDashboard />} />
           <Route 
             path="/dashboard/idea-validator" 
             element={user ? <IdeaValidator user={user} onLogout={logout} /> : <Navigate to="/auth" />} 
