@@ -3017,18 +3017,92 @@ app.post('/api/validate_idea', async (req, res) => {
       word.length > 3 && !['the', 'and', 'for', 'with', 'that', 'this', 'from', 'they', 'have', 'been', 'were', 'said', 'each', 'which', 'their', 'time', 'will', 'about', 'there', 'could', 'other', 'after', 'first', 'well', 'also', 'new', 'want', 'because', 'any', 'these', 'give', 'day', 'most', 'us'].includes(word)
     );
 
-    // 1️⃣ IMMEDIATE RESPONSE LAYER - Fast & Reliable
-    console.log('🚀 Immediate Response Layer: Generating instant analysis...');
+    // 1️⃣ IMMEDIATE RESPONSE LAYER - Real-time Data with Fallback
+    console.log('🚀 Immediate Response Layer: Fetching real-time data...');
     
-    // Generate intelligent synthetic data based on idea keywords
-    const finalTrends = generateIntelligentTrends(keywords, idea_description);
-    const finalSentiment = generateIntelligentSentiment(keywords, idea_description);
-    const finalCompetitors = generateIntelligentCompetitors(keywords, idea_description);
-    const finalMarketSize = generateIntelligentMarketSize(keywords, idea_description);
+    // Try to fetch real data with short timeouts (5 seconds max)
+    const reddit = new RedditDataSource();
+    const trends = new GoogleTrendsDataSource();
+    const webScraper = new WebScraperDataSource();
     
-    // Mark as immediate response (will be enriched later)
-    const dataSource = 'immediate_response';
-    const confidence = 0.7; // 70% confidence for immediate synthetic data
+    // Fetch real data with Promise.race for timeout
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('Timeout')), 5000)
+    );
+    
+    let finalTrends: any = {};
+    let finalSentiment: any = {};
+    let finalCompetitors: any[] = [];
+    let finalMarketSize = '$50B';
+    let dataSource = 'synthetic_fallback';
+    let confidence = 0.7;
+    
+    try {
+      // Try to get real data within 5 seconds
+      const [trendsResult, sentimentResult, competitorsResult] = await Promise.allSettled([
+        Promise.race([trends.fetchTrends(keywords.slice(0, 3)), timeoutPromise]),
+        Promise.race([reddit.fetchSentiment(keywords.slice(0, 3)), timeoutPromise]),
+        Promise.race([webScraper.scrapeCompetitorAnalysis(keywords.slice(0, 3)), timeoutPromise])
+      ]);
+      
+      // Use real data if available
+      if (trendsResult.status === 'fulfilled' && trendsResult.value) {
+        finalTrends = trendsResult.value;
+        dataSource = 'real_time_apis';
+        confidence = 0.85;
+      } else {
+        finalTrends = generateIntelligentTrends(keywords, idea_description);
+      }
+      
+      if (sentimentResult.status === 'fulfilled' && sentimentResult.value) {
+        const sentimentData = sentimentResult.value;
+        finalSentiment = {
+          sentiment: Object.values(sentimentData).some((v: any) => v > 0.1) ? 'positive' : 
+                     Object.values(sentimentData).some((v: any) => v < -0.1) ? 'negative' : 'neutral',
+          score: Object.values(sentimentData).reduce((sum: number, v: any) => sum + v, 0) / Object.keys(sentimentData).length || 0.5,
+          mentions: Object.keys(sentimentData).length * 50
+        };
+        dataSource = 'real_time_apis';
+        confidence = 0.85;
+      } else {
+        finalSentiment = generateIntelligentSentiment(keywords, idea_description);
+      }
+      
+      if (competitorsResult.status === 'fulfilled' && competitorsResult.value && Array.isArray(competitorsResult.value)) {
+        finalCompetitors = competitorsResult.value.slice(0, 5);
+        dataSource = 'real_time_apis';
+        confidence = 0.85;
+      } else {
+        finalCompetitors = generateIntelligentCompetitors(keywords, idea_description);
+      }
+      
+      // Market size from web scraper or fallback
+      try {
+        const marketData = await Promise.race([
+          webScraper.scrapeMarketSize(keywords.join(' ')),
+          timeoutPromise
+        ]);
+        if (marketData && typeof marketData === 'string' && marketData.length > 0) {
+          finalMarketSize = marketData;
+          dataSource = 'real_time_apis';
+          confidence = 0.85;
+        } else {
+          finalMarketSize = generateIntelligentMarketSize(keywords, idea_description);
+        }
+      } catch {
+        finalMarketSize = generateIntelligentMarketSize(keywords, idea_description);
+      }
+      
+    } catch (error) {
+      console.log('⚠️ Real-time API calls failed, using intelligent fallback:', error);
+      // Fallback to intelligent synthetic data
+      finalTrends = generateIntelligentTrends(keywords, idea_description);
+      finalSentiment = generateIntelligentSentiment(keywords, idea_description);
+      finalCompetitors = generateIntelligentCompetitors(keywords, idea_description);
+      finalMarketSize = generateIntelligentMarketSize(keywords, idea_description);
+      dataSource = 'synthetic_fallback';
+      confidence = 0.7;
+    }
     
     // Calculate real feasibility score based on available data
     const startTime = Date.now();
@@ -3163,14 +3237,57 @@ app.post('/api/generate_business_model', async (req, res) => {
       word.length > 3 && !['the', 'and', 'for', 'with', 'that', 'this', 'from', 'they', 'have', 'been', 'were', 'said', 'each', 'which', 'their', 'time', 'will', 'about', 'there', 'could', 'other', 'after', 'first', 'well', 'also', 'new', 'want', 'because', 'any', 'these', 'give', 'day', 'most', 'us'].includes(word)
     );
 
-    // Generate contextual data directly for fast, reliable responses
-    console.log('Generating contextual data directly...');
+    // Generate contextual data with real-time API calls
+    console.log('Fetching real-time data for business model...');
     
-    // Use direct data generation for consistent, fast responses
-    const finalTrends = { 'business': 60, 'startup': 55, 'technology': 70, 'market': 65 };
-    const finalSentiment = { sentiment: 'neutral', score: 0.5, mentions: 100 };
-    const finalCompetitors = ['Competitor A', 'Competitor B', 'Competitor C'];
-    const finalMarketSize = '$50B';
+    const reddit = new RedditDataSource();
+    const trends = new GoogleTrendsDataSource();
+    const webScraper = new WebScraperDataSource();
+    
+    // Try to fetch real data with 5 second timeout
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('Timeout')), 5000)
+    );
+    
+    let finalTrends: any = { 'business': 60, 'startup': 55, 'technology': 70, 'market': 65 };
+    let finalSentiment: any = { sentiment: 'neutral', score: 0.5, mentions: 100 };
+    let finalCompetitors: any[] = [];
+    let finalMarketSize = '$50B';
+    
+    try {
+      const [trendsResult, sentimentResult, competitorsResult, marketResult] = await Promise.allSettled([
+        Promise.race([trends.fetchTrends(keywords.slice(0, 3)), timeoutPromise]),
+        Promise.race([reddit.fetchSentiment(keywords.slice(0, 3)), timeoutPromise]),
+        Promise.race([webScraper.scrapeCompetitorAnalysis(keywords.slice(0, 3)), timeoutPromise]),
+        Promise.race([webScraper.scrapeMarketSize(keywords.join(' ')), timeoutPromise])
+      ]);
+      
+      if (trendsResult.status === 'fulfilled' && trendsResult.value) {
+        finalTrends = trendsResult.value;
+      }
+      
+      if (sentimentResult.status === 'fulfilled' && sentimentResult.value) {
+        const sentimentData = sentimentResult.value;
+        finalSentiment = {
+          sentiment: Object.values(sentimentData).some((v: any) => v > 0.1) ? 'positive' : 
+                     Object.values(sentimentData).some((v: any) => v < -0.1) ? 'negative' : 'neutral',
+          score: Object.values(sentimentData).reduce((sum: number, v: any) => sum + v, 0) / Object.keys(sentimentData).length || 0.5,
+          mentions: Object.keys(sentimentData).length * 50
+        };
+      }
+      
+      if (competitorsResult.status === 'fulfilled' && competitorsResult.value && Array.isArray(competitorsResult.value)) {
+        finalCompetitors = competitorsResult.value.slice(0, 5).map((c: any) => c.name || c);
+      } else {
+        finalCompetitors = ['Competitor A', 'Competitor B', 'Competitor C'];
+      }
+      
+      if (marketResult.status === 'fulfilled' && marketResult.value && typeof marketResult.value === 'string') {
+        finalMarketSize = marketResult.value;
+      }
+    } catch (error) {
+      console.log('⚠️ Real-time API calls failed for business model, using fallback:', error);
+    }
 
     // Generate enhanced business model with new features
     const revenueStreams = generateRevenueStreamsFromData(company_info.description, finalTrends, finalMarketSize);
