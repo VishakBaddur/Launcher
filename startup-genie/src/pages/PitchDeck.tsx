@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { safeMap, safeAccess, fallbackData, logFallbackUsage } from '../utils/safeData';
 
 interface PitchDeckData {
@@ -25,7 +25,6 @@ const PitchDeck: React.FC = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
 
   useEffect(() => {
-    // Get idea data from localStorage
     const stored = localStorage.getItem('ideaData');
     if (stored) {
       setIdeaData(JSON.parse(stored));
@@ -54,9 +53,8 @@ const PitchDeck: React.FC = () => {
 
       if (response.ok) {
         const result = await response.json();
-        // Ensure all required fields exist with fallback values
         const safeResult = {
-          pitchReadinessScore: 75, // Calculate from available data or use default
+          pitchReadinessScore: 75,
           slides: safeAccess(result, 'slides', fallbackData.pitchDeck.slides),
           investorFit: {
             suggestedInvestorTypes: ['Early-stage VCs', 'Angel investors', 'Corporate VCs'],
@@ -67,50 +65,23 @@ const PitchDeck: React.FC = () => {
       } else {
         console.error('Pitch deck generation failed');
         logFallbackUsage('PitchDeck', 'complete dataset');
-        // Set fallback data if API fails
         setPitchDeckData(fallbackData.pitchDeck);
       }
     } catch (error) {
       console.error('Error generating pitch deck:', error);
       logFallbackUsage('PitchDeck', 'complete dataset (network error)');
-      // Set fallback data if network error
       setPitchDeckData(fallbackData.pitchDeck);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const getScoreColor = (score: number) => {
-    if (score >= 80) return 'text-green-400';
-    if (score >= 60) return 'text-yellow-400';
-    return 'text-red-400';
-  };
-
-  const getScoreLabel = (score: number) => {
-    if (score >= 80) return 'Ready';
-    if (score >= 60) return 'Good';
-    return 'Needs Work';
-  };
-
-  const nextSlide = () => {
-    if (pitchDeckData && currentSlide < (pitchDeckData.slides?.length || 0) - 1) {
-      setCurrentSlide(currentSlide + 1);
-    }
-  };
-
-  const prevSlide = () => {
-    if (currentSlide > 0) {
-      setCurrentSlide(currentSlide - 1);
-    }
-  };
-
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
+      <div className="min-h-screen bg-black flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-purple-400 mx-auto mb-4"></div>
-          <h2 className="text-2xl font-bold text-white mb-2">Creating Pitch Deck</h2>
-          <p className="text-gray-300">Generating VC-ready slides and narrative flow...</p>
+          <div className="text-white/70 mb-2">Creating pitch deck...</div>
+          <div className="text-sm text-white/50">This takes 5-10 seconds</div>
         </div>
       </div>
     );
@@ -118,111 +89,49 @@ const PitchDeck: React.FC = () => {
 
   if (!pitchDeckData || !ideaData) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
+      <div className="min-h-screen bg-black flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-white mb-4">No Idea Data Found</h2>
-          <button
-            onClick={() => navigate('/idea-input')}
-            className="btn-anime px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-semibold rounded-lg"
-          >
+          <h2 className="heading-2 mb-6">No Idea Data Found</h2>
+          <Link to="/idea-input" className="btn-primary">
             Start Over
-          </button>
+          </Link>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-      {/* Animated Background */}
-      <div className="absolute inset-0 bg-pattern opacity-20"></div>
-      
-      <div className="relative z-10 container mx-auto px-4 py-8">
+    <div className="min-h-screen bg-black text-white">
+      <header className="border-b border-white/10">
+        <div className="max-w-7xl mx-auto px-6 md:px-12 py-6">
+          <div className="flex items-center justify-between">
+            <Link to="/" className="text-xl font-light tracking-tight">Launcher</Link>
+            <Link to="/business-plan" className="text-sm text-white/70 hover:text-white transition-colors">
+              Back to Business Plan
+            </Link>
+          </div>
+        </div>
+      </header>
+
+      <main className="max-w-5xl mx-auto px-6 md:px-12 py-16 md:py-24">
         {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-4xl md:text-6xl font-bold text-white mb-4">
-            <span className="text-gradient-animate">🎯 Pitch Deck</span>
-          </h1>
-          <h2 className="text-2xl text-gray-300 mb-2">{ideaData.title}</h2>
+        <div className="mb-12">
+          <h1 className="heading-1 mb-4">Pitch Deck</h1>
+          <p className="body-text text-xl">{ideaData.title || 'Untitled Idea'}</p>
         </div>
 
-        <div className="max-w-6xl mx-auto space-y-8">
-          {/* Pitch Readiness Score */}
-          <div className="glass-card p-8">
-            <div className="text-center mb-6">
-              <h2 className="text-3xl font-bold text-white mb-2">Pitch Readiness Score</h2>
-              <div className={`text-6xl font-bold ${getScoreColor(pitchDeckData.pitchReadinessScore)}`}>
-                {pitchDeckData.pitchReadinessScore}/100
-              </div>
-              <div className={`text-xl font-semibold ${getScoreColor(pitchDeckData.pitchReadinessScore)}`}>
-                {getScoreLabel(pitchDeckData.pitchReadinessScore)}
-              </div>
-            </div>
-
-            {/* Confidence Radar */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="text-center p-4 bg-slate-800/30 rounded-lg">
-                <div className="text-2xl font-bold text-green-400">Market</div>
-                <div className="text-sm text-gray-300">Opportunity</div>
-              </div>
-              <div className="text-center p-4 bg-slate-800/30 rounded-lg">
-                <div className="text-2xl font-bold text-blue-400">Problem</div>
-                <div className="text-sm text-gray-300">Fit</div>
-              </div>
-              <div className="text-center p-4 bg-slate-800/30 rounded-lg">
-                <div className="text-2xl font-bold text-purple-400">Competition</div>
-                <div className="text-sm text-gray-300">Analysis</div>
-              </div>
-              <div className="text-center p-4 bg-slate-800/30 rounded-lg">
-                <div className="text-2xl font-bold text-orange-400">Solution</div>
-                <div className="text-sm text-gray-300">Clarity</div>
-              </div>
-            </div>
-          </div>
-
-          {/* Slide Navigation */}
-          <div className="glass-card p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-2xl font-bold text-white">Pitch Deck Slides</h2>
-              <div className="flex items-center space-x-4">
-                <button
-                  onClick={prevSlide}
-                  disabled={currentSlide === 0}
-                  className="px-4 py-2 bg-slate-700 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-600 transition-colors"
-                >
-                  ← Previous
-                </button>
-                <span className="text-gray-300">
-                  {currentSlide + 1} of {pitchDeckData.slides?.length || 0}
-                </span>
-                <button
-                  onClick={nextSlide}
-                  disabled={currentSlide === (pitchDeckData.slides?.length || 0) - 1}
-                  className="px-4 py-2 bg-slate-700 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-600 transition-colors"
-                >
-                  Next →
-                </button>
-              </div>
-            </div>
-
-            {/* Slide Progress Bar */}
-            <div className="w-full bg-slate-700 rounded-full h-2 mb-6">
-              <div 
-                className="bg-gradient-to-r from-purple-500 to-blue-500 h-2 rounded-full transition-all duration-300"
-                style={{ width: `${((currentSlide + 1) / (pitchDeckData.slides?.length || 1)) * 100}%` }}
-              ></div>
-            </div>
-
-            {/* Slide Thumbnails */}
-            <div className="flex space-x-2 overflow-x-auto pb-2">
+        {/* Slide Navigation */}
+        {pitchDeckData.slides && pitchDeckData.slides.length > 0 && (
+          <div className="mb-6">
+            <div className="flex items-center gap-2 overflow-x-auto pb-2">
               {safeMap(pitchDeckData.slides, (slide, index) => (
                 <button
-                  key={slide.id}
+                  key={slide.id || index}
                   onClick={() => setCurrentSlide(index)}
-                  className={`flex-shrink-0 p-3 rounded-lg text-sm font-medium transition-all ${
+                  className={`flex-shrink-0 px-4 py-2 text-sm font-medium border transition-colors ${
                     currentSlide === index
-                      ? 'bg-gradient-to-r from-purple-500 to-blue-500 text-white'
-                      : 'bg-slate-700 text-gray-300 hover:bg-slate-600'
+                      ? 'bg-white text-black border-white'
+                      : 'bg-black text-white/70 border-white/10 hover:border-white/20'
                   }`}
                 >
                   {index + 1}. {slide.title}
@@ -230,131 +139,93 @@ const PitchDeck: React.FC = () => {
               ))}
             </div>
           </div>
+        )}
 
-          {/* Current Slide */}
-          <div className="glass-card p-8">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              {/* Main Slide Content */}
-              <div className="lg:col-span-2">
-                <div className="mb-6">
-                  <h2 className="text-3xl font-bold text-white mb-4">
-                    {pitchDeckData.slides?.[currentSlide]?.title || 'Slide Title'}
-                  </h2>
-                  
-                  <div className="prose prose-invert max-w-none">
-                    <div className="text-gray-300 text-lg leading-relaxed whitespace-pre-line">
-                      {pitchDeckData.slides?.[currentSlide]?.content || 'Slide content will appear here.'}
-                    </div>
-                  </div>
+        {/* Current Slide */}
+        {pitchDeckData.slides && pitchDeckData.slides[currentSlide] && (
+          <div className="card p-10 mb-12">
+            <div className="mb-8">
+              <div className="text-xs text-white/50 uppercase tracking-wider mb-4">
+                Slide {currentSlide + 1} of {pitchDeckData.slides.length}
+              </div>
+              <h2 className="heading-2 mb-6">
+                {pitchDeckData.slides[currentSlide].title}
+              </h2>
+              <div className="body-text text-lg whitespace-pre-line">
+                {pitchDeckData.slides[currentSlide].content}
+              </div>
+            </div>
 
-                  {pitchDeckData.slides?.[currentSlide]?.visualAid && (
-                    <div className="mt-6 p-4 bg-slate-800/30 rounded-lg">
-                      <h4 className="text-lg font-semibold text-white mb-2">Visual Aid</h4>
-                      <div className="text-gray-300">{pitchDeckData.slides[currentSlide].visualAid}</div>
-                    </div>
-                  )}
+            {pitchDeckData.slides[currentSlide].presenterNotes && (
+              <div className="pt-8 border-t border-white/10">
+                <div className="text-sm text-white/70 uppercase tracking-wider mb-4">Presenter Notes</div>
+                <div className="text-base text-white/70 bg-black border border-white/10 p-6">
+                  {pitchDeckData.slides[currentSlide].presenterNotes}
                 </div>
               </div>
+            )}
+          </div>
+        )}
 
-              {/* Presenter Notes */}
-              <div className="lg:col-span-1">
-                <div className="sticky top-8">
-                  <h3 className="text-xl font-bold text-white mb-4">Presenter Notes</h3>
-                  <div className="p-4 bg-slate-800/30 rounded-lg border border-slate-600">
-                    <div className="text-gray-300 text-sm leading-relaxed whitespace-pre-line">
-                      {pitchDeckData.slides?.[currentSlide]?.presenterNotes || 'Presenter notes will appear here.'}
-                    </div>
-                  </div>
-                </div>
-              </div>
+        {/* Navigation Controls */}
+        {pitchDeckData.slides && pitchDeckData.slides.length > 1 && (
+          <div className="flex items-center justify-between mb-8">
+            <button
+              onClick={() => setCurrentSlide(Math.max(0, currentSlide - 1))}
+              disabled={currentSlide === 0}
+              className="btn-secondary disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Previous
+            </button>
+            <button
+              onClick={() => setCurrentSlide(Math.min((pitchDeckData.slides?.length || 0) - 1, currentSlide + 1))}
+              disabled={currentSlide === (pitchDeckData.slides?.length || 0) - 1}
+              className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Next
+            </button>
+          </div>
+        )}
+
+        {/* Investor Fit */}
+        <div className="card p-10 mb-12">
+          <h2 className="heading-2 mb-8">Investor Fit</h2>
+          <div className="mb-8">
+            <div className="text-sm text-white/70 uppercase tracking-wider mb-4">Suggested Investor Types</div>
+            <div className="flex flex-wrap gap-3">
+              {safeMap(pitchDeckData.investorFit.suggestedInvestorTypes, (type, index) => (
+                <span key={index} className="px-4 py-2 border border-white/10 text-white/70 text-sm">
+                  {type}
+                </span>
+              ))}
             </div>
           </div>
-
-          {/* Investor Fit */}
-          <div className="glass-card p-8">
-            <h2 className="text-2xl font-bold text-white mb-6">🎯 Investor Fit & Recommendations</h2>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <h3 className="text-lg font-semibold text-green-400 mb-3">Suggested Investor Types</h3>
-                <div className="space-y-2">
-                  {safeMap(pitchDeckData.investorFit?.suggestedInvestorTypes, (type, index) => (
-                    <div key={index} className="flex items-center p-3 bg-slate-800/30 rounded-lg">
-                      <span className="text-green-400 mr-3">🎯</span>
-                      <span className="text-gray-300">{type}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-              
-              <div>
-                <h3 className="text-lg font-semibold text-blue-400 mb-3">Next Actionable Steps</h3>
-                <div className="space-y-2">
-                  {safeMap(pitchDeckData.investorFit?.nextSteps, (step, index) => (
-                    <div key={index} className="flex items-start p-3 bg-slate-800/30 rounded-lg">
-                      <span className="text-blue-400 mr-3 mt-1">→</span>
-                      <span className="text-gray-300 text-sm">{step}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Export Options */}
-          <div className="glass-card p-8">
-            <h2 className="text-2xl font-bold text-white mb-6">📤 Export & Share</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <button className="p-6 bg-gradient-to-r from-red-600 to-pink-600 rounded-lg text-white font-semibold hover:from-red-700 hover:to-pink-700 transition-all duration-300">
-                <div className="text-2xl mb-2">📄</div>
-                <div className="text-lg">Export PDF</div>
-                <div className="text-sm opacity-80">Download presentation</div>
-              </button>
-              <button className="p-6 bg-gradient-to-r from-blue-600 to-cyan-600 rounded-lg text-white font-semibold hover:from-blue-700 hover:to-cyan-700 transition-all duration-300">
-                <div className="text-2xl mb-2">🔗</div>
-                <div className="text-lg">Share Link</div>
-                <div className="text-sm opacity-80">Generate shareable URL</div>
-              </button>
-              <button className="p-6 bg-gradient-to-r from-green-600 to-emerald-600 rounded-lg text-white font-semibold hover:from-green-700 hover:to-emerald-700 transition-all duration-300">
-                <div className="text-2xl mb-2">📧</div>
-                <div className="text-lg">Email Deck</div>
-                <div className="text-sm opacity-80">Send to investors</div>
-              </button>
-            </div>
-          </div>
-
-          {/* Next Steps */}
-          <div className="glass-card p-8">
-            <h2 className="text-2xl font-bold text-white mb-6">🚀 Next Steps</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <button
-                onClick={() => navigate('/business-plan')}
-                className="p-6 bg-gradient-to-r from-green-600 to-blue-600 rounded-lg text-white font-semibold hover:from-green-700 hover:to-blue-700 transition-all duration-300"
-              >
-                <div className="text-2xl mb-2">📊</div>
-                <div className="text-lg">Back to Business Plan</div>
-                <div className="text-sm opacity-80">Review financial model</div>
-              </button>
-              <button
-                onClick={() => navigate('/idea-validation')}
-                className="p-6 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg text-white font-semibold hover:from-blue-700 hover:to-purple-700 transition-all duration-300"
-              >
-                <div className="text-2xl mb-2">📈</div>
-                <div className="text-lg">Back to Validation</div>
-                <div className="text-sm opacity-80">Review market analysis</div>
-              </button>
-              <button
-                onClick={() => navigate('/idea-input')}
-                className="p-6 bg-gradient-to-r from-gray-600 to-slate-600 rounded-lg text-white font-semibold hover:from-gray-700 hover:to-slate-700 transition-all duration-300"
-              >
-                <div className="text-2xl mb-2">🔄</div>
-                <div className="text-lg">New Idea</div>
-                <div className="text-sm opacity-80">Start with a different idea</div>
-              </button>
-            </div>
+          <div>
+            <div className="text-sm text-white/70 uppercase tracking-wider mb-4">Next Steps</div>
+            <ul className="space-y-3">
+              {safeMap(pitchDeckData.investorFit.nextSteps, (step, index) => (
+                <li key={index} className="flex items-start text-base text-white/70">
+                  <span className="text-white mr-4">—</span>
+                  <span>{step}</span>
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
-      </div>
+
+        {/* Actions */}
+        <div className="flex items-center gap-4">
+          <Link to="/business-plan" className="btn-secondary">
+            Back to Business Plan
+          </Link>
+          <button
+            onClick={() => window.print()}
+            className="btn-primary"
+          >
+            Export PDF
+          </button>
+        </div>
+      </main>
     </div>
   );
 };

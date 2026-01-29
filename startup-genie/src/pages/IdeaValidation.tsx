@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { safeMap, safeAccess, fallbackData, logFallbackUsage } from '../utils/safeData';
 
 interface ValidationData {
@@ -64,7 +64,6 @@ const IdeaValidation: React.FC = () => {
   const [ideaData, setIdeaData] = useState<any>(null);
 
   useEffect(() => {
-    // Get idea data from localStorage
     const stored = localStorage.getItem('ideaData');
     if (stored) {
       setIdeaData(JSON.parse(stored));
@@ -93,7 +92,6 @@ const IdeaValidation: React.FC = () => {
             const rr = await fetch(absResult);
             if (rr.ok) {
               const rj = await rr.json();
-              // Merge enriched trends into UI
               setValidationData(prev => {
                 if (!prev) return prev;
                 const enrichedTrends = rj?.data?.trends ? Object.keys(rj.data.trends).slice(0, 5) : prev.marketInsights.trends;
@@ -132,7 +130,6 @@ const IdeaValidation: React.FC = () => {
 
       if (response.ok) {
         const result = await response.json();
-        // Ensure all required fields exist with fallback values
         const safeResult = {
           feasibilityScore: safeAccess(result, 'feasibilityScore', fallbackData.ideaValidation.feasibilityScore),
           marketSize: safeAccess(result, 'marketAnalysis.marketSize', fallbackData.ideaValidation.marketSize),
@@ -149,7 +146,6 @@ const IdeaValidation: React.FC = () => {
         };
         setValidationData(safeResult);
 
-        // Start enrichment polling if available
         const enrichmentKey = result?.enrichmentKey;
         const statusUrl = result?.enrichment?.statusUrl;
         const resultUrl = result?.enrichment?.resultUrl;
@@ -160,49 +156,23 @@ const IdeaValidation: React.FC = () => {
       } else {
         console.error('Validation failed');
         logFallbackUsage('IdeaValidation', 'complete dataset');
-        // Set fallback data if API fails
         setValidationData(fallbackData.ideaValidation);
       }
     } catch (error) {
       console.error('Error validating idea:', error);
       logFallbackUsage('IdeaValidation', 'complete dataset (network error)');
-      // Set fallback data if network error
       setValidationData(fallbackData.ideaValidation);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const getScoreColor = (score: number) => {
-    if (score >= 80) return 'text-green-400';
-    if (score >= 60) return 'text-yellow-400';
-    return 'text-red-400';
-  };
-
-  const getScoreLabel = (score: number) => {
-    if (score >= 80) return 'Strong';
-    if (score >= 60) return 'Moderate';
-    return 'Weak';
-  };
-
-  const getRiskColor = (level: string) => {
-    if (!level) return 'text-gray-400 bg-gray-500/20';
-    switch (level.toLowerCase()) {
-      case 'low': return 'text-green-400 bg-green-500/20';
-      case 'medium': return 'text-yellow-400 bg-yellow-500/20';
-      case 'high': return 'text-orange-400 bg-orange-500/20';
-      case 'critical': return 'text-red-400 bg-red-500/20';
-      default: return 'text-gray-400 bg-gray-500/20';
-    }
-  };
-
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
+      <div className="min-h-screen bg-black flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-purple-400 mx-auto mb-4"></div>
-          <h2 className="text-2xl font-bold text-white mb-2">Analyzing Your Idea</h2>
-          <p className="text-gray-300">Running comprehensive validation...</p>
+          <div className="text-white/70 mb-2">Analyzing your idea...</div>
+          <div className="text-sm text-white/50">This takes 5-10 seconds</div>
         </div>
       </div>
     );
@@ -210,272 +180,249 @@ const IdeaValidation: React.FC = () => {
 
   if (!validationData || !ideaData) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
+      <div className="min-h-screen bg-black flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-white mb-4">No Idea Data Found</h2>
-          <button
-            onClick={() => navigate('/idea-input')}
-            className="btn-anime px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-semibold rounded-lg"
-          >
+          <h2 className="heading-2 mb-6">No Idea Data Found</h2>
+          <Link to="/idea-input" className="btn-primary">
             Start Over
-          </button>
+          </Link>
         </div>
       </div>
     );
   }
 
+  const getRiskBadge = (level: string) => {
+    if (!level) return { color: 'border-white/10 text-white/50', label: 'Unknown' };
+    const l = level.toLowerCase();
+    if (l === 'low') return { color: 'border-white/20 text-white/70', label: 'Low' };
+    if (l === 'medium') return { color: 'border-white/20 text-white/70', label: 'Medium' };
+    if (l === 'high') return { color: 'border-white/30 text-white', label: 'High' };
+    if (l === 'critical') return { color: 'border-white/40 text-white', label: 'Critical' };
+    return { color: 'border-white/10 text-white/50', label: level };
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-      {/* Animated Background */}
-      <div className="absolute inset-0 bg-pattern opacity-20"></div>
-      
-      <div className="relative z-10 container mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-4xl md:text-6xl font-bold text-white mb-4">
-            <span className="text-gradient-animate">📊 Idea Validation</span>
-          </h1>
-          <h2 className="text-2xl text-gray-300 mb-2">{ideaData.title}</h2>
-          <p className="text-lg text-gray-400 max-w-3xl mx-auto">{ideaData.description}</p>
-          {enrichment?.status && (
-            <div className="mt-3 text-sm text-gray-300">
-              Data quality: {enrichment.status === 'completed' ? (
-                <span className="px-2 py-1 rounded bg-green-600/30 text-green-300">Enriched ({Math.round((enrichment.confidence || 0.7) * 100)}%)</span>
-              ) : (
-                <span className="px-2 py-1 rounded bg-yellow-600/30 text-yellow-300">Collecting real signals…</span>
+    <div className="min-h-screen bg-black text-white">
+      <header className="border-b border-white/10">
+        <div className="max-w-7xl mx-auto px-6 md:px-12 py-6">
+          <div className="flex items-center justify-between">
+            <Link to="/" className="text-xl font-light tracking-tight">Launcher</Link>
+            <div className="flex items-center gap-6">
+              {enrichment?.status === 'completed' && (
+                <span className="text-xs text-white/50 uppercase tracking-wider">
+                  Data quality: {Math.round((enrichment.confidence || 0.7) * 100)}%
+                </span>
               )}
-            </div>
-          )}
-        </div>
-
-        <div className="max-w-6xl mx-auto space-y-8">
-          {/* Overall Feasibility Score */}
-          <div className="glass-card p-8">
-            <div className="text-center mb-6">
-              <h2 className="text-3xl font-bold text-white mb-2">Overall Feasibility Score</h2>
-              <div className={`text-6xl font-bold ${getScoreColor(validationData.feasibilityScore)}`}>
-                {validationData.feasibilityScore}/100
-              </div>
-              <div className={`text-xl font-semibold ${getScoreColor(validationData.feasibilityScore)}`}>
-                {getScoreLabel(validationData.feasibilityScore)}
-              </div>
-            </div>
-
-            {/* Confidence Radar */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="text-center p-4 bg-slate-800/30 rounded-lg">
-                <div className="text-2xl font-bold text-blue-400">Market</div>
-                <div className="text-sm text-gray-300">Size & Growth</div>
-              </div>
-              <div className="text-center p-4 bg-slate-800/30 rounded-lg">
-                <div className="text-2xl font-bold text-green-400">Competition</div>
-                <div className="text-sm text-gray-300">{validationData.competitionLevel}</div>
-              </div>
-              <div className="text-center p-4 bg-slate-800/30 rounded-lg">
-                <div className="text-2xl font-bold text-purple-400">Sentiment</div>
-                <div className="text-sm text-gray-300">Trending</div>
-              </div>
-              <div className="text-center p-4 bg-slate-800/30 rounded-lg">
-                <div className="text-2xl font-bold text-orange-400">Founder Fit</div>
-                <div className="text-sm text-gray-300">
-                  {validationData.founderFit?.label || 'N/A'}
-                </div>
-              </div>
+              <Link to="/business-plan" className="text-sm text-white/70 hover:text-white transition-colors">
+                Business Plan
+              </Link>
+              <Link to="/pitch-deck" className="text-sm text-white/70 hover:text-white transition-colors">
+                Pitch Deck
+              </Link>
+              <Link to="/idea-input" className="text-sm text-white/70 hover:text-white transition-colors">
+                New Idea
+              </Link>
             </div>
           </div>
+        </div>
+      </header>
 
-          {/* Market Analysis */}
-          <div className="glass-card p-8">
-            <h2 className="text-2xl font-bold text-white mb-6">📈 Market Analysis</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="p-4 bg-slate-800/30 rounded-lg">
-                <h3 className="text-lg font-semibold text-green-400 mb-2">Market Size</h3>
-                <div className="text-2xl font-bold text-white">{validationData.marketSize}</div>
-                <div className="text-sm text-gray-300">Total Addressable Market</div>
-              </div>
-              <div className="p-4 bg-slate-800/30 rounded-lg">
-                <h3 className="text-lg font-semibold text-blue-400 mb-2">Growth Rate</h3>
-                <div className="text-2xl font-bold text-white">{validationData.marketInsights.growthRate}</div>
-                <div className="text-sm text-gray-300">Annual Growth</div>
-              </div>
-              <div className="p-4 bg-slate-800/30 rounded-lg">
-                <h3 className="text-lg font-semibold text-purple-400 mb-2">Competition</h3>
-                <div className="text-2xl font-bold text-white">{validationData.competitionLevel}</div>
-                <div className="text-sm text-gray-300">Market Competition</div>
-              </div>
+      <main className="max-w-7xl mx-auto px-6 md:px-12 py-16 md:py-24">
+        {/* Idea Header */}
+        <div className="mb-16">
+          <h1 className="heading-1 mb-4">{ideaData.title || 'Untitled Idea'}</h1>
+          <p className="body-text text-xl max-w-3xl">{ideaData.description}</p>
+        </div>
+
+        {/* Feasibility Score - Large Card */}
+        <div className="card p-10 mb-12">
+          <div className="flex items-start justify-between mb-8">
+            <div>
+              <h2 className="heading-2 mb-3">Feasibility Score</h2>
+              <p className="text-sm text-white/50 uppercase tracking-wider">Overall viability assessment</p>
             </div>
+            <div className="text-right">
+              <div className="metric">
+                {validationData.feasibilityScore}
+              </div>
+              <div className="metric-label">out of 100</div>
+            </div>
+          </div>
+          
+          {/* Score Breakdown */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 pt-8 border-t border-white/10">
+            <div>
+              <div className="text-xs text-white/50 uppercase tracking-wider mb-2">Market Size</div>
+              <div className="text-xl font-light text-white">{validationData.marketSize}</div>
+            </div>
+            <div>
+              <div className="text-xs text-white/50 uppercase tracking-wider mb-2">Competition</div>
+              <div className="text-xl font-light text-white">{validationData.competitionLevel}</div>
+            </div>
+            <div>
+              <div className="text-xs text-white/50 uppercase tracking-wider mb-2">Founder Fit</div>
+              <div className="text-xl font-light text-white">{validationData.founderFit?.label || 'N/A'}</div>
+            </div>
+            <div>
+              <div className="text-xs text-white/50 uppercase tracking-wider mb-2">Time to MVP</div>
+              <div className="text-xl font-light text-white">{validationData.timeToMVP?.timeframe || 'N/A'}</div>
+            </div>
+          </div>
+        </div>
 
-            {/* Trends */}
-            <div className="mt-6">
-              <h3 className="text-lg font-semibold text-white mb-3">Market Trends</h3>
-              <div className="flex flex-wrap gap-2">
+        {/* Market Analysis */}
+        <div className="card p-10 mb-12">
+          <h2 className="heading-2 mb-8">Market Analysis</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-10 mb-10">
+            <div>
+              <div className="text-xs text-white/50 uppercase tracking-wider mb-2">Market Size</div>
+              <div className="text-3xl font-light text-white mb-1">{validationData.marketSize}</div>
+              <div className="text-xs text-white/50">Total Addressable Market</div>
+            </div>
+            <div>
+              <div className="text-xs text-white/50 uppercase tracking-wider mb-2">Growth Rate</div>
+              <div className="text-3xl font-light text-white mb-1">{validationData.marketInsights.growthRate}</div>
+              <div className="text-xs text-white/50">Annual Growth</div>
+            </div>
+            <div>
+              <div className="text-xs text-white/50 uppercase tracking-wider mb-2">Competition Level</div>
+              <div className="text-3xl font-light text-white mb-1">{validationData.competitionLevel}</div>
+              <div className="text-xs text-white/50">Market Competition</div>
+            </div>
+          </div>
+          
+          {validationData.trends.length > 0 && (
+            <div className="pt-8 border-t border-white/10">
+              <div className="text-sm text-white/70 uppercase tracking-wider mb-4">Market Trends</div>
+              <div className="flex flex-wrap gap-3">
                 {safeMap(validationData.trends, (trend, index) => (
-                  <span key={index} className="px-3 py-1 bg-blue-500/20 text-blue-300 rounded-full text-sm">
+                  <span key={index} className="px-4 py-2 border border-white/10 text-white/70 text-sm">
                     {trend}
                   </span>
                 ))}
               </div>
             </div>
-          </div>
-
-          {/* Product-Market Fit */}
-          <div className="glass-card p-8">
-            <h2 className="text-2xl font-bold text-white mb-6">🎯 Product-Market Fit</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <h3 className="text-lg font-semibold text-white mb-3">Market Gap Analysis</h3>
-                <div className="space-y-3">
-                  {safeMap(validationData.opportunities, (opportunity, index) => (
-                    <div key={index} className="flex items-start">
-                      <span className="text-green-400 mr-2">✓</span>
-                      <span className="text-gray-300">{opportunity}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold text-white mb-3">Market Sentiment</h3>
-                <div className="p-4 bg-slate-800/30 rounded-lg">
-                  <div className="text-center">
-                    <div className="text-3xl mb-2">📈</div>
-                    <div className="text-lg font-semibold text-green-400">Positive Momentum</div>
-                    <div className="text-sm text-gray-300">Market shows strong adoption potential</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Founder Fit & Execution Context */}
-          <div className="glass-card p-8">
-            <h2 className="text-2xl font-bold text-white mb-6">👤 Founder Fit & Execution Context</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="p-4 bg-slate-800/30 rounded-lg">
-                <h3 className="text-lg font-semibold text-orange-400 mb-2">Founder Fit Score</h3>
-                <div className="text-3xl font-bold text-white">
-                  {validationData.founderFit?.score || 'N/A'}
-                </div>
-                <div className="text-sm text-gray-300">
-                  {validationData.founderFit?.label || 'Not assessed'}
-                </div>
-              </div>
-              <div className="p-4 bg-slate-800/30 rounded-lg">
-                <h3 className="text-lg font-semibold text-yellow-400 mb-2">Execution Difficulty</h3>
-                <div className="text-3xl font-bold text-white">
-                  {validationData.executionDifficulty?.level || 'N/A'}
-                </div>
-                <div className="text-sm text-gray-300">Complexity Level</div>
-              </div>
-              <div className="p-4 bg-slate-800/30 rounded-lg">
-                <h3 className="text-lg font-semibold text-blue-400 mb-2">Time to MVP</h3>
-                <div className="text-3xl font-bold text-white">
-                  {validationData.timeToMVP?.timeframe || 'N/A'}
-                </div>
-                <div className="text-sm text-gray-300">Development Timeline</div>
-              </div>
-            </div>
-          </div>
-
-          {/* Risk Analysis */}
-          {validationData.riskAnalysis && (
-            <div className="glass-card p-8">
-              <h2 className="text-2xl font-bold text-white mb-6">⚠️ Risk Analysis</h2>
-              <div className="mb-4">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-lg font-semibold text-white">Overall Risk Level</span>
-                  <span className={`px-3 py-1 rounded-full text-sm font-semibold ${getRiskColor(validationData.riskAnalysis.overallRiskLevel)}`}>
-                    {validationData.riskAnalysis.overallRiskLevel}
-                  </span>
-                </div>
-                {validationData.riskAnalysis.criticalRisks > 0 && (
-                  <div className="text-red-400 text-sm">
-                    {validationData.riskAnalysis.criticalRisks} critical risk(s) identified
-                  </div>
-                )}
-              </div>
-
-              <div className="space-y-4">
-                {safeMap(validationData.riskAnalysis?.topRisks, (risk, index) => (
-                  <div key={index} className="p-4 bg-slate-800/30 rounded-lg border border-slate-600">
-                    <div className="flex items-start justify-between mb-2">
-                      <div>
-                        <h4 className="text-lg font-semibold text-white">{risk.risk}</h4>
-                        <div className="text-sm text-gray-400">{risk.category}</div>
-                      </div>
-                      <div className="text-right">
-                        <div className={`px-2 py-1 rounded text-xs font-semibold ${getRiskColor(risk.severity)}`}>
-                          {risk.severity} / {risk.probability}
-                        </div>
-                        {risk.isCritical && (
-                          <div className="text-red-400 text-xs mt-1">CRITICAL</div>
-                        )}
-                      </div>
-                    </div>
-                    <div className="mt-3">
-                      <h5 className="text-sm font-semibold text-gray-300 mb-2">Mitigations:</h5>
-                      <div className="space-y-1">
-                        {safeMap(risk.mitigations, (mitigation, mIndex) => (
-                          <div key={mIndex} className="flex items-center text-sm text-gray-300">
-                            <span className="text-blue-400 mr-2">•</span>
-                            <span>{mitigation.action}</span>
-                            <span className={`ml-2 px-2 py-1 rounded text-xs ${getRiskColor(mitigation.priority)}`}>
-                              {mitigation.priority}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
           )}
+        </div>
 
-          {/* Recommendations */}
-          <div className="glass-card p-8">
-            <h2 className="text-2xl font-bold text-white mb-6">💡 Recommendations</h2>
-            <div className="space-y-3">
-              {safeMap(validationData.recommendations, (recommendation, index) => (
-                <div key={index} className="flex items-start">
-                  <span className="text-blue-400 mr-3 mt-1">→</span>
-                  <span className="text-gray-300">{recommendation}</span>
+        {/* Opportunities & Risks - Side by Side */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+          <div className="card p-10">
+            <h2 className="heading-2 mb-6">Opportunities</h2>
+            <ul className="space-y-4">
+              {safeMap(validationData.opportunities, (opportunity, index) => (
+                <li key={index} className="flex items-start text-base text-white/70">
+                  <span className="text-white mr-4">—</span>
+                  <span>{opportunity}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="card p-10">
+            <h2 className="heading-2 mb-6">Risks</h2>
+            <ul className="space-y-4">
+              {safeMap(validationData.risks, (risk, index) => (
+                <li key={index} className="flex items-start text-base text-white/70">
+                  <span className="text-white mr-4">—</span>
+                  <span>{risk}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+
+        {/* Founder Fit & Execution */}
+        {(validationData.founderFit || validationData.executionDifficulty || validationData.timeToMVP) && (
+          <div className="card p-10 mb-12">
+            <h2 className="heading-2 mb-8">Founder & Execution Context</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+              {validationData.founderFit && (
+                <div>
+                  <div className="text-xs text-white/50 uppercase tracking-wider mb-2">Founder Fit</div>
+                  <div className="text-xl font-light text-white mb-2">{validationData.founderFit.label}</div>
+                  <div className="text-xs text-white/50">Score: {validationData.founderFit.score}/100</div>
+                </div>
+              )}
+              {validationData.executionDifficulty && (
+                <div>
+                  <div className="text-xs text-white/50 uppercase tracking-wider mb-2">Execution Difficulty</div>
+                  <div className="text-xl font-light text-white mb-2">{validationData.executionDifficulty.level}</div>
+                  <div className="text-xs text-white/50">{validationData.executionDifficulty.reasoning}</div>
+                </div>
+              )}
+              {validationData.timeToMVP && (
+                <div>
+                  <div className="text-xs text-white/50 uppercase tracking-wider mb-2">Time to MVP</div>
+                  <div className="text-xl font-light text-white mb-2">{validationData.timeToMVP.timeframe}</div>
+                  <div className="text-xs text-white/50">{validationData.timeToMVP.phases?.join(', ') || ''}</div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Risk Analysis */}
+        {validationData.riskAnalysis && validationData.riskAnalysis.topRisks.length > 0 && (
+          <div className="card p-10 mb-12">
+            <div className="flex items-center justify-between mb-8">
+              <h2 className="heading-2">Risk Analysis</h2>
+              <span className={`px-4 py-2 border text-xs uppercase tracking-wider ${getRiskBadge(validationData.riskAnalysis.overallRiskLevel).color}`}>
+                {getRiskBadge(validationData.riskAnalysis.overallRiskLevel).label} Risk
+              </span>
+            </div>
+            <div className="space-y-6">
+              {validationData.riskAnalysis.topRisks.slice(0, 5).map((risk, index) => (
+                <div key={index} className="border-l border-white/10 pl-6">
+                  <div className="flex items-start justify-between mb-2">
+                    <div className="text-lg font-light text-white">{risk.risk}</div>
+                    <span className={`px-3 py-1 border text-xs uppercase tracking-wider ${getRiskBadge(risk.severity).color}`}>
+                      {risk.severity}
+                    </span>
+                  </div>
+                  <div className="text-sm text-white/50 mb-3">{risk.category}</div>
+                  {risk.mitigations.length > 0 && (
+                    <div className="text-xs text-white/50">
+                      Mitigation: {risk.mitigations[0].action}
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
           </div>
+        )}
 
-          {/* Next Steps */}
-          <div className="glass-card p-8">
-            <h2 className="text-2xl font-bold text-white mb-6">🚀 Next Steps</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <button
-                onClick={() => navigate('/business-plan')}
-                className="p-6 bg-gradient-to-r from-green-600 to-blue-600 rounded-lg text-white font-semibold hover:from-green-700 hover:to-blue-700 transition-all duration-300"
-              >
-                <div className="text-2xl mb-2">📊</div>
-                <div className="text-lg">Business Plan</div>
-                <div className="text-sm opacity-80">Generate revenue model & unit economics</div>
-              </button>
-              <button
-                onClick={() => navigate('/pitch-deck')}
-                className="p-6 bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg text-white font-semibold hover:from-purple-700 hover:to-pink-700 transition-all duration-300"
-              >
-                <div className="text-2xl mb-2">🎯</div>
-                <div className="text-lg">Pitch Deck</div>
-                <div className="text-sm opacity-80">Create VC-ready presentation</div>
-              </button>
-              <button
-                onClick={() => navigate('/idea-input')}
-                className="p-6 bg-gradient-to-r from-gray-600 to-slate-600 rounded-lg text-white font-semibold hover:from-gray-700 hover:to-slate-700 transition-all duration-300"
-              >
-                <div className="text-2xl mb-2">🔄</div>
-                <div className="text-lg">New Idea</div>
-                <div className="text-sm opacity-80">Start with a different idea</div>
-              </button>
-            </div>
+        {/* Recommendations */}
+        {validationData.recommendations.length > 0 && (
+          <div className="card p-10 mb-12">
+            <h2 className="heading-2 mb-6">Recommendations</h2>
+            <ul className="space-y-4">
+              {safeMap(validationData.recommendations, (rec, index) => (
+                <li key={index} className="flex items-start text-base text-white/70">
+                  <span className="text-white mr-4">—</span>
+                  <span>{rec}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {/* Actions - Prominent Section */}
+        <div className="section-divider pt-12 mt-16">
+          <div className="mb-8">
+            <h2 className="heading-2 mb-4">Next Steps</h2>
+            <p className="body-text">Continue building your startup plan with detailed business model and pitch deck.</p>
+          </div>
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
+            <Link to="/business-plan" className="btn-primary">
+              Generate Business Plan
+            </Link>
+            <Link to="/pitch-deck" className="btn-secondary">
+              Create Pitch Deck
+            </Link>
           </div>
         </div>
-      </div>
+      </main>
     </div>
   );
 };
