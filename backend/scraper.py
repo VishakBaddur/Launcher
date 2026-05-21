@@ -347,8 +347,28 @@ class BusinessScraper:
 
     def gather_business_data(self, idea: str, target_market: str = '', location: str = '', budget: str = '', business_model: str = '') -> Dict:
         """Use NewsData.io for real news, Finnhub for company/industry/financial data, and LLM for all analysis. Always return a complete, actionable response. Accepts user context for richer results."""
-        # NewsData.io for news
-        news_data = self.get_newsdata_news(idea)
+        from concurrent.futures import ThreadPoolExecutor
+        
+        news_data = []
+        finnhub_data = None
+
+        # Execute network calls in parallel to eliminate blocking I/O bottle necks
+        with ThreadPoolExecutor(max_workers=2) as executor:
+            future_news = executor.submit(self.get_newsdata_news, idea)
+            future_finnhub = executor.submit(self.get_finnhub_company_profile, idea)
+            
+            try:
+                news_data = future_news.result() or []
+            except Exception as e:
+                logger.error(f"Error fetching news data in thread pool: {e}")
+                news_data = []
+                
+            try:
+                finnhub_data = future_finnhub.result()
+            except Exception as e:
+                logger.error(f"Error fetching Finnhub profile in thread pool: {e}")
+                finnhub_data = None
+
         # Filter news for relevance
         key_terms = set(self.extract_key_terms(idea))
         relevant_news = []
@@ -356,19 +376,18 @@ class BusinessScraper:
             title = article.get('title', '').lower()
             if any(term in title for term in key_terms):
                 relevant_news.append(article)
-        # If no relevant news, use a generic message
+
         if relevant_news:
             news_headlines = [n['title'] for n in relevant_news]
             news_summary = f"Relevant news: {'; '.join(news_headlines)}"
         else:
             news_summary = "No directly relevant news found."
-        # Finnhub for company/industry/financial data
-        finnhub_data = self.get_finnhub_company_profile(idea)
+
         finnhub_summary = ""
         if finnhub_data:
-            profile = finnhub_data['profile']
-            peers = finnhub_data['peers']
-            financials = finnhub_data['financials']
+            profile = finnhub_data.get('profile')
+            peers = finnhub_data.get('peers')
+            financials = finnhub_data.get('financials')
             if profile and profile.get('name'):
                 finnhub_summary += f"Example company: {profile.get('name')} ({profile.get('ticker', '')}), Industry: {profile.get('finnhubIndustry', '')}, Market cap: {profile.get('marketCapitalization', 'N/A')}M, IPO year: {profile.get('ipo', 'N/A')}, Country: {profile.get('country', 'N/A')}, Exchange: {profile.get('exchange', 'N/A')}, Currency: {profile.get('currency', 'N/A')}, Website: {profile.get('weburl', 'N/A')}. "
                 if profile.get('logo'):
@@ -385,7 +404,7 @@ class BusinessScraper:
                 finnhub_summary += f"Industry peers: {', '.join(peers[:5])}. "
         else:
             finnhub_summary = "No real company/industry/financial data found."
-        # Compose user context
+
         user_context = []
         if target_market:
             user_context.append(f"Target market: {target_market}")
@@ -396,7 +415,7 @@ class BusinessScraper:
         if business_model:
             user_context.append(f"Business model: {business_model}")
         user_context_str = '\n'.join(user_context) if user_context else ''
-        # Direct, instruction-based LLM prompt
+
         prompt = (
             f"You are a business consultant.\n"
             f"Business idea: '{idea}'\n"
@@ -410,7 +429,7 @@ class BusinessScraper:
             f"Base your answer ONLY on the business idea and user context above. Do not reference any example.\n"
         )
         ai_summary = self.call_hf_llm(prompt)
-        # Robust fallback logic and user messaging
+
         if not news_data:
             news_data = [{
                 'title': 'No real news data available. This analysis is based on AI and general business knowledge.',
@@ -418,7 +437,7 @@ class BusinessScraper:
                 'date': '',
                 'source': 'AI'
             }]
-        # Compose response with LLM, news, and Finnhub data
+
         return {
             'market_analysis': {
                 'market_size': 'AI-generated analysis',
