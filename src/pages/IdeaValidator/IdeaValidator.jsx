@@ -262,7 +262,7 @@ const IdeaValidator = () => {
           </div>
           <div className="aspect-analysis">
             <h4>Key Aspects</h4>
-            {Object.entries(result.validation.aspects).map(([aspect, score]) => (
+            {Object.entries(result?.validation?.aspects || {}).map(([aspect, score]) => (
               <div key={aspect} className="aspect-item">
                 <span className="aspect-label">{aspect}</span>
                 <div className="aspect-bar-container">
@@ -294,7 +294,7 @@ const IdeaValidator = () => {
           <p>Based on {sentiment.summary.total} recent articles</p>
         </div>
         <div className="sentiment-articles">
-          {sentiment.articles.map((article, index) => (
+          {((sentiment && sentiment.articles) || []).map((article, index) => (
             <div key={index} className={`article-card ${article.sentiment}`}>
               <h4>{article.title}</h4>
               <p>{article.description}</p>
@@ -316,7 +316,7 @@ const IdeaValidator = () => {
       <div className="recommendations-section">
         <h3>Strategic Recommendations</h3>
         <div className="recommendations-grid">
-          {result.validation.recommendations.map((rec, index) => (
+          {((result?.validation?.recommendations) || []).map((rec, index) => (
             <div key={index} className="recommendation-card">
               <div className="recommendation-number">{index + 1}</div>
               <p>{rec}</p>
