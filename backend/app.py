@@ -204,6 +204,10 @@ try:
                 business_model=data.get('businessModel', '')
             )
             report = analyzer.generate_validation_report(idea, business_data)
+            if isinstance(report, dict):
+                for key in ['competitors', 'news', 'similarStartups']:
+                    if key not in report or report[key] is None:
+                        report[key] = []
             return jsonify(report)
         except Exception as e:
             logger.error(f"Error validating idea: {str(e)}", exc_info=True)
