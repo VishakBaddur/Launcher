@@ -284,19 +284,6 @@ Launcher is deployed using **Render** with a Dockerized backend architecture and
 
 ---
 
-# 🔮 Future Improvements
-
-- [ ] Real-time startup scoring engine
-- [ ] Investor-fit recommendation system
-- [ ] Multi-model AI orchestration
-- [ ] Collaborative founder workspaces
-- [ ] User authentication & saved projects
-- [ ] Exportable PDF pitch decks
-- [ ] Financial forecasting engine
-- [ ] Industry-specific startup templates
-
----
-
 # 🤝 Contributing
 
 Contributions are welcome.
