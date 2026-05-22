@@ -295,6 +295,45 @@ try:
             logger.error(f"Error generating business model: {str(e)}", exc_info=True)
             return jsonify({'error': str(e)}), 500
 
+    @app.route('/api/generate-pitch', methods=['POST', 'OPTIONS'])
+    @token_required
+    def generate_pitch(current_user):
+        logger.debug("Received generate-pitch request")
+        if request.method == 'OPTIONS':
+            return '', 200
+        try:
+            data = request.get_json()
+            if not data or 'idea' not in data:
+                return jsonify({'error': 'No idea provided'}), 400
+            idea = data['idea']
+            if not idea.strip():
+                return jsonify({'error': 'Empty idea provided'}), 400
+            from business_mappings import get_business_mapping
+            mapping = get_business_mapping(idea)
+            if mapping:
+                business_data = {
+                    'summary': mapping.description or '',
+                    'unique_value_proposition': getattr(mapping, 'unique_value_proposition', None),
+                    'business_model': getattr(mapping, 'business_model', None),
+                    'market_size': getattr(mapping, 'market_size', None),
+                    'market_trends': mapping.market_trends or [],
+                    'target_customers': getattr(mapping, 'target_customers', None),
+                    'competitors': [c.__dict__ for c in mapping.example_companies],
+                    'strengths': mapping.success_factors or [],
+                    'key_metrics': getattr(mapping, 'key_metrics', []),
+                    'revenue_model': getattr(mapping.business_model_canvas, 'revenue_streams', None) if mapping.business_model_canvas else None,
+                    'funding_requirements': getattr(mapping, 'funding_requirements', None),
+                    'team_structure': getattr(mapping, 'team_structure', None),
+                    'key_roles': getattr(mapping, 'key_roles', []),
+                }
+            else:
+                business_data = scraper.gather_business_data(idea)
+            pitch = analyzer.generate_pitch_deck(idea, business_data)
+            return jsonify(pitch)
+        except Exception as e:
+            logger.error(f"Error generating pitch deck: {str(e)}", exc_info=True)
+            return jsonify({'error': str(e)}), 500
+
     @app.route('/api/health', methods=['GET'])
     def health_check():
         logger.debug("Received health check request")

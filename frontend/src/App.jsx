@@ -11,6 +11,7 @@ import DashboardPage from './pages/DashboardPage';
 import IdeaValidator from './pages/IdeaValidator';
 import BusinessPlanGenerator from './pages/BusinessPlanGenerator';
 import BusinessModel from './pages/BusinessModel';
+import PitchDeckPage from './pages/PitchDeckPage';
 
 const App = () => {
   const { loading } = useAuth();
@@ -61,6 +62,16 @@ const App = () => {
             <ProtectedRoute>
               <Layout>
                 <BusinessModel />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/pitch-deck"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <PitchDeckPage />
               </Layout>
             </ProtectedRoute>
           }

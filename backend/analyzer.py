@@ -215,3 +215,68 @@ class BusinessAnalyzer:
                 'funding_requirements': business_data.get('funding_requirements')
             }, "Financial Plan")
         } 
+    def generate_pitch_deck(self, idea, business_data):
+        """Generate investor-ready pitch deck content."""
+        competitors = business_data.get('competitors', [])
+        comp_names = ', '.join([c.get('name', c) if isinstance(c, dict) else str(c) for c in competitors[:3]]) or 'No major competitors identified'
+        strengths = business_data.get('strengths', [])
+        opportunities = business_data.get('opportunities', [])
+        threats = business_data.get('threats', [])
+        return {
+            'slide_1_title': {
+                'title': idea,
+                'tagline': business_data.get('unique_value_proposition') or f'A smarter way to solve problems in the {idea} space.',
+                'presenter': 'Founder & CEO'
+            },
+            'slide_2_problem': {
+                'title': 'The Problem',
+                'pain_points': business_data.get('weaknesses', []) or ['Inefficient existing solutions', 'High cost of current alternatives', 'Poor user experience in the market'],
+                'market_gap': business_data.get('market_gap') or f'The current market lacks a focused, scalable solution for {idea}.'
+            },
+            'slide_3_solution': {
+                'title': 'Our Solution',
+                'description': business_data.get('business_model') or f'{idea} solves this by offering a streamlined, AI-powered platform.',
+                'key_features': business_data.get('key_metrics', []) or ['AI-driven automation', 'Seamless user experience', 'Scalable infrastructure']
+            },
+            'slide_4_market': {
+                'title': 'Market Opportunity',
+                'market_size': business_data.get('market_size') or 'Large and growing addressable market',
+                'growth_rate': (business_data.get('market_trends') or ['Rapid growth expected'])[0],
+                'target_segment': business_data.get('target_customers') or 'SMBs and enterprise clients globally'
+            },
+            'slide_5_traction': {
+                'title': 'Traction & Validation',
+                'milestones': business_data.get('success_factors', []) or ['MVP launched', 'Early user interviews completed', 'Pilot customers onboarded'],
+                'metrics': business_data.get('key_metrics', []) or ['Growing waitlist', 'Positive user feedback', 'Initial revenue signals']
+            },
+            'slide_6_competition': {
+                'title': 'Competitive Landscape',
+                'competitors': comp_names,
+                'differentiators': strengths or ['Unique AI approach', 'Superior UX', 'Faster time to value'],
+                'moat': opportunities[0] if opportunities else 'First-mover advantage in an underserved niche'
+            },
+            'slide_7_business_model': {
+                'title': 'Business Model',
+                'revenue_streams': business_data.get('revenue_model') or 'SaaS subscription + enterprise licensing',
+                'pricing': business_data.get('pricing_strategy') or 'Freemium with paid tiers',
+                'unit_economics': business_data.get('projected_financials') or 'Strong LTV:CAC ratio expected at scale'
+            },
+            'slide_8_team': {
+                'title': 'The Team',
+                'structure': business_data.get('team_structure') or 'Lean founding team with deep domain expertise',
+                'key_roles': business_data.get('key_roles', []) or ['CEO / Product', 'CTO / Engineering', 'Head of Growth'],
+                'advisors': 'Industry advisors and angel investors'
+            },
+            'slide_9_financials': {
+                'title': 'Financial Projections',
+                'startup_costs': business_data.get('startup_costs') or 'Seed capital for 18-month runway',
+                'projections': business_data.get('projected_financials') or 'Path to profitability in Year 2',
+                'funding_ask': business_data.get('funding_requirements') or '$500K - $1M seed round'
+            },
+            'slide_10_ask': {
+                'title': 'The Ask',
+                'funding_amount': business_data.get('funding_requirements') or '$750,000 Seed Round',
+                'use_of_funds': ['Product development (40%)', 'Sales & marketing (35%)', 'Operations & team (25%)'],
+                'vision': f'To become the leading platform in the {idea} space within 3 years.'
+            }
+        }
