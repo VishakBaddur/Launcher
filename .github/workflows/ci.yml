@@ -26,6 +26,10 @@ jobs:
           pip install -r requirements.txt
           pip install pytest
 
+      - name: Download NLTK data
+        run: |
+          python -c "import nltk; nltk.download('punkt_tab'); nltk.download('averaged_perceptron_tagger_eng')"
+
       - name: Run tests
         working-directory: backend
         env:
