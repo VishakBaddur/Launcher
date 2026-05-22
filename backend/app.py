@@ -183,7 +183,35 @@ try:
             idea = data['idea']
             if not idea.strip():
                 return jsonify({'error': 'Empty idea provided'}), 400
-            # Try to get mapping
+            # Primary: Run 4-step Zephyr LLM pipeline
+            from llm_service import generate_insights
+            context = {
+                'business_idea': idea,
+                'target_market': data.get('targetMarket', ''),
+                'location': data.get('location', ''),
+                'budget': data.get('budget', ''),
+                'business_model': data.get('businessModel', '')
+            }
+            llm_result = generate_insights(context)
+            if llm_result and llm_result.get('category') != 'Unknown':
+                report = {
+                    'summary': llm_result.get('description', ''),
+                    'market_trends': llm_result.get('market_trends', []),
+                    'challenges': llm_result.get('common_challenges', []),
+                    'success_factors': llm_result.get('success_factors', []),
+                    'example_companies': llm_result.get('example_companies', []),
+                    'swot': llm_result.get('swot', {}),
+                    'competitive_advantage': llm_result.get('competitive_advantage', ''),
+                    'positioning_statement': llm_result.get('positioning_statement', ''),
+                    'recommendations': llm_result.get('recommendations', []),
+                    'investor_hook': llm_result.get('investor_hook', ''),
+                    'competitors': [],
+                    'news': [],
+                    'similarStartups': [],
+                    'pipeline_steps_completed': llm_result.get('pipeline_steps_completed', 0)
+                }
+                return jsonify(report)
+            # Fallback: hardcoded business mappings
             from business_mappings import get_business_mapping
             mapping = get_business_mapping(idea)
             if mapping:
@@ -194,8 +222,9 @@ try:
                     'success_factors': mapping.success_factors or [],
                     'example_companies': [c.__dict__ for c in mapping.example_companies],
                     'charts': mapping.market_data or {},
+                    'competitors': [], 'news': [], 'similarStartups': []
                 })
-            # Fallback: Gather data and use analyzer
+            # Last resort: scraper
             business_data = scraper.gather_business_data(
                 idea,
                 target_market=data.get('targetMarket', ''),
@@ -226,30 +255,40 @@ try:
             idea = data['idea']
             if not idea.strip():
                 return jsonify({'error': 'Empty idea provided'}), 400
+            # Primary: Run 4-step Zephyr LLM pipeline
+            from llm_service import generate_insights
+            llm_result = generate_insights({'business_idea': idea})
+            if llm_result and llm_result.get('category') != 'Unknown':
+                plan = {
+                    'executive_summary': llm_result.get('investor_hook', ''),
+                    'company_description': llm_result.get('description', ''),
+                    'market_analysis': {
+                        'market_size': llm_result.get('market_size', ''),
+                        'growth_rate': llm_result.get('key_trends', [''])[0] if llm_result.get('key_trends') else '',
+                        'target_market': llm_result.get('target_customers', ''),
+                    },
+                    'summary': llm_result.get('description', ''),
+                    'market_trends': llm_result.get('market_trends', []),
+                    'challenges': llm_result.get('common_challenges', []),
+                    'success_factors': llm_result.get('success_factors', []),
+                    'recommendations': llm_result.get('recommendations', []),
+                    'competitive_advantage': llm_result.get('competitive_advantage', ''),
+                    'swot': llm_result.get('swot', {}),
+                    'pipeline_steps_completed': llm_result.get('pipeline_steps_completed', 0)
+                }
+                return jsonify(plan)
+            # Fallback: hardcoded business mappings
             from business_mappings import get_business_mapping
             mapping = get_business_mapping(idea)
             if mapping and mapping.business_plan_template:
                 plan = dict(mapping.business_plan_template)
-                # Attach chart data for frontend
-                plan['charts'] = {}
-                for section, value in plan.items():
-                    if isinstance(value, dict):
-                        for k, v in value.items():
-                            if k.endswith('_chart') and isinstance(v, str):
-                                chart_key = v
-                                if mapping.market_data and chart_key in mapping.market_data:
-                                    plan['charts'][chart_key] = mapping.market_data[chart_key]
-                # Attach reference plans
-                plan['reference_plans'] = mapping.reference_plans or []
-                # Attach example companies
-                plan['example_companies'] = [c.__dict__ for c in mapping.example_companies]
-                # Always include summary fields for frontend
                 plan['summary'] = mapping.description or ''
                 plan['market_trends'] = mapping.market_trends or []
                 plan['challenges'] = mapping.common_challenges or []
                 plan['success_factors'] = mapping.success_factors or []
+                plan['example_companies'] = [c.__dict__ for c in mapping.example_companies]
                 return jsonify(plan)
-            # Fallback: Gather data and use analyzer
+            # Last resort: scraper
             business_data = scraper.gather_business_data(idea)
             plan = analyzer.generate_business_plan(idea, business_data)
             return jsonify(plan)
@@ -270,24 +309,42 @@ try:
             idea = data['idea']
             if not idea.strip():
                 return jsonify({'error': 'Empty idea provided'}), 400
+            # Primary: Run 4-step Zephyr LLM pipeline
+            from llm_service import generate_insights
+            llm_result = generate_insights({'business_idea': idea})
+            if llm_result and llm_result.get('category') != 'Unknown':
+                model = {
+                    'summary': llm_result.get('description', ''),
+                    'value_proposition': llm_result.get('description', ''),
+                    'customer_segments': llm_result.get('target_customers', ''),
+                    'channels': llm_result.get('recommendations', []),
+                    'revenue_streams': 'SaaS subscription + enterprise licensing',
+                    'key_resources': llm_result.get('success_factors', []),
+                    'key_activities': llm_result.get('recommendations', []),
+                    'key_partnerships': [],
+                    'cost_structure': [],
+                    'market_trends': llm_result.get('market_trends', []),
+                    'challenges': llm_result.get('common_challenges', []),
+                    'success_factors': llm_result.get('success_factors', []),
+                    'competitive_advantage': llm_result.get('competitive_advantage', ''),
+                    'moat': llm_result.get('moat', ''),
+                    'swot': llm_result.get('swot', {}),
+                    'example_companies': llm_result.get('example_companies', []),
+                    'pipeline_steps_completed': llm_result.get('pipeline_steps_completed', 0)
+                }
+                return jsonify(model)
+            # Fallback: hardcoded business mappings
             from business_mappings import get_business_mapping
             mapping = get_business_mapping(idea)
             if mapping and mapping.business_model_canvas:
                 model = dict(mapping.business_model_canvas)
-                # Attach example companies
                 model['example_companies'] = [c.__dict__ for c in mapping.example_companies]
-                # Always include summary fields for frontend
                 model['summary'] = mapping.description or ''
                 model['market_trends'] = mapping.market_trends or []
                 model['challenges'] = mapping.common_challenges or []
                 model['success_factors'] = mapping.success_factors or []
-                # Attach charts if available
-                if hasattr(mapping, 'market_data') and mapping.market_data:
-                    model['charts'] = mapping.market_data
-                elif hasattr(mapping, 'charts') and mapping.charts:
-                    model['charts'] = mapping.charts
                 return jsonify(model)
-            # Fallback: Gather data and use analyzer
+            # Last resort: scraper
             business_data = scraper.gather_business_data(idea)
             model = analyzer.generate_business_plan(idea, business_data)
             return jsonify(model)
@@ -308,26 +365,44 @@ try:
             idea = data['idea']
             if not idea.strip():
                 return jsonify({'error': 'Empty idea provided'}), 400
-            from business_mappings import get_business_mapping
-            mapping = get_business_mapping(idea)
-            if mapping:
+            # Primary: Run 4-step Zephyr LLM pipeline
+            from llm_service import generate_insights
+            llm_result = generate_insights({'business_idea': idea})
+            if llm_result and llm_result.get('category') != 'Unknown':
                 business_data = {
-                    'summary': mapping.description or '',
-                    'unique_value_proposition': getattr(mapping, 'unique_value_proposition', None),
-                    'business_model': getattr(mapping, 'business_model', None),
-                    'market_size': getattr(mapping, 'market_size', None),
-                    'market_trends': mapping.market_trends or [],
-                    'target_customers': getattr(mapping, 'target_customers', None),
-                    'competitors': [c.__dict__ for c in mapping.example_companies],
-                    'strengths': mapping.success_factors or [],
-                    'key_metrics': getattr(mapping, 'key_metrics', []),
-                    'revenue_model': getattr(mapping.business_model_canvas, 'revenue_streams', None) if mapping.business_model_canvas else None,
-                    'funding_requirements': getattr(mapping, 'funding_requirements', None),
-                    'team_structure': getattr(mapping, 'team_structure', None),
-                    'key_roles': getattr(mapping, 'key_roles', []),
+                    'summary': llm_result.get('description', ''),
+                    'unique_value_proposition': llm_result.get('description', ''),
+                    'business_model': llm_result.get('category', ''),
+                    'market_size': llm_result.get('market_size', ''),
+                    'market_trends': llm_result.get('market_trends', []),
+                    'target_customers': llm_result.get('target_customers', ''),
+                    'competitors': [c.get('name', '') if isinstance(c, dict) else c for c in llm_result.get('example_companies', [])],
+                    'strengths': llm_result.get('success_factors', []),
+                    'key_metrics': llm_result.get('key_trends', []),
+                    'revenue_model': 'SaaS subscription + enterprise licensing',
+                    'funding_requirements': '$750,000 Seed Round',
+                    'team_structure': 'Lean founding team with deep domain expertise',
+                    'key_roles': ['CEO / Product', 'CTO / Engineering', 'Head of Growth'],
+                    'weaknesses': llm_result.get('swot', {}).get('weaknesses', []),
+                    'opportunities': llm_result.get('swot', {}).get('opportunities', []),
+                    'threats': llm_result.get('common_challenges', []),
+                    'market_gap': llm_result.get('positioning_statement', ''),
                 }
             else:
-                business_data = scraper.gather_business_data(idea)
+                # Fallback: hardcoded business mappings
+                from business_mappings import get_business_mapping
+                mapping = get_business_mapping(idea)
+                if mapping:
+                    business_data = {
+                        'summary': mapping.description or '',
+                        'unique_value_proposition': getattr(mapping, 'unique_value_proposition', None),
+                        'market_trends': mapping.market_trends or [],
+                        'target_customers': getattr(mapping, 'target_customers', None),
+                        'competitors': [c.__dict__ for c in mapping.example_companies],
+                        'strengths': mapping.success_factors or [],
+                    }
+                else:
+                    business_data = scraper.gather_business_data(idea)
             pitch = analyzer.generate_pitch_deck(idea, business_data)
             return jsonify(pitch)
         except Exception as e:
