@@ -155,7 +155,7 @@ The platform uses a **Resilient Data Contract Architecture** to guarantee fronte
 - Built a full-stack AI SaaS platform integrating React and Flask
 - Designed resilient API contracts for safe frontend rendering
 - Implemented modular AI orchestration pipelines for startup analysis
-- Engineered a 4-step LLM reasoning pipeline using Hugging Face Zephyr-7b: market categorization → SWOT analysis → competitor positioning → pitch narrative synthesis
+- Engineered a 4-step LLM reasoning pipeline using Hugging Face Zephyr-7b with RAG (ChromaDB vector store): market categorization → SWOT analysis → competitor positioning → pitch narrative synthesis; past analyses are embedded and retrieved as context for new queries
 - Engineered defensive frontend rendering for asynchronous AI data
 - Deployed production infrastructure on Render with continuous deployment
 
