@@ -9,7 +9,7 @@ gunicorn
 pytrends
 yfinance
 textblob
-jwt
+PyJWT
 SQLAlchemy<2.0
 Flask-SQLAlchemy>=2.5,<3.0
 psycopg2

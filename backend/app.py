@@ -289,7 +289,7 @@ try:
                 return jsonify(model)
             # Fallback: Gather data and use analyzer
             business_data = scraper.gather_business_data(idea)
-            model = analyzer.generate_business_model_canvas(idea, business_data)
+            model = analyzer.generate_business_plan(idea, business_data)
             return jsonify(model)
         except Exception as e:
             logger.error(f"Error generating business model: {str(e)}", exc_info=True)
