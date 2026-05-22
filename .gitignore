@@ -1,6 +1,34 @@
-.env
+# Python
 __pycache__/
 *.pyc
 *.pyo
+*.pyd
+.Python
+
+# Virtual environments
+venv/
+env/
+.env/
+
+# Tests
 .pytest_cache/
+
+# Database files
 *.db
+*.sqlite3
+instance/
+
+# macOS
+.DS_Store
+
+# Node
+node_modules/
+
+# Build outputs
+dist/
+build/
+*.egg-info/
+
+# Environment variables
+.env
+.env.local
