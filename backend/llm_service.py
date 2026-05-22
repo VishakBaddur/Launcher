@@ -5,6 +5,13 @@ import requests
 from typing import Dict, Any
 
 HUGGINGFACE_API_KEY = os.getenv('HUGGINGFACE_API_KEY') or os.getenv('HF_TOKEN')
+
+# RAG service for retrieving similar past analyses
+try:
+    from rag_service import get_rag_service
+    RAG_ENABLED = True
+except Exception:
+    RAG_ENABLED = False
 API_URL = "https://api-inference.huggingface.co/models/HuggingFaceH4/zephyr-7b-beta"
 
 def _call_zephyr(prompt: str, max_tokens: int = 400) -> str:
@@ -60,8 +67,17 @@ def _extract_list(text: str, fallback: list) -> list:
 # ─────────────────────────────────────────────
 def step1_categorize(idea: str, context: Dict) -> Dict:
     """Step 1: Identify market category, size, and target customers."""
+    # Retrieve similar past analyses for RAG context
+    rag_context = ""
+    if RAG_ENABLED:
+        try:
+            rag_context = get_rag_service().build_rag_context(idea)
+        except Exception:
+            rag_context = ""
+
     prompt = f"""<|system|>You are a market research analyst. Respond only with a JSON object.</s>
 <|user|>
+{rag_context}
 Analyze this startup idea and return a JSON object.
 Idea: "{idea}"
 Target Market: {context.get('target_market', 'general')}
@@ -241,7 +257,7 @@ def generate_insights(context: Dict[str, Any]) -> Dict[str, Any]:
 
     print("[Pipeline] Complete.")
 
-    return {
+    result = {
         "category": step1.get("category"),
         "description": step4.get("value_proposition"),
         "market_size": step1.get("market_size"),
@@ -267,3 +283,13 @@ def generate_insights(context: Dict[str, Any]) -> Dict[str, Any]:
         "investor_hook": step4.get("investor_hook"),
         "pipeline_steps_completed": 4
     }
+
+    # Store completed analysis in RAG vector DB for future retrieval
+    if RAG_ENABLED:
+        try:
+            get_rag_service().store_analysis(idea, result)
+            print("[RAG] Stored analysis for: " + idea)
+        except Exception as e:
+            print("[RAG] Storage failed: " + str(e))
+
+    return result

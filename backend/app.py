@@ -409,6 +409,15 @@ try:
             logger.error(f"Error generating pitch deck: {str(e)}", exc_info=True)
             return jsonify({'error': str(e)}), 500
 
+    @app.route('/api/rag-stats', methods=['GET'])
+    def rag_stats():
+        try:
+            from rag_service import get_rag_service
+            stats = get_rag_service().get_stats()
+            return jsonify(stats)
+        except Exception as e:
+            return jsonify({"error": str(e), "total_analyses": 0}), 200
+
     @app.route('/api/health', methods=['GET'])
     def health_check():
         logger.debug("Received health check request")
