@@ -8,36 +8,32 @@ Launcher is an end-to-end AI-powered SaaS platform that accelerates the startup 
 - 📊 Business model generation
 - 🎤 Investor-ready pitch deck creation
 
-The platform combines a modern React frontend, a Python/Flask backend API, and an AI-driven intelligence layer capable of transforming raw startup concepts into structured business insights and strategic planning artifacts.
-
 [![React](https://img.shields.io/badge/Frontend-React-blue.svg)](https://react.dev/)
 [![Python](https://img.shields.io/badge/Backend-Python-yellow.svg)](https://www.python.org/)
 [![Flask](https://img.shields.io/badge/API-Flask-black.svg)](https://flask.palletsprojects.com/)
-[![Docker](https://img.shields.io/badge/Deployment-Docker-blue.svg)](https://www.docker.com/)
 [![Render](https://img.shields.io/badge/Hosted%20On-Render-purple.svg)](https://render.com/)
 
 ---
+
 ## 🌐 Live Demo
 
-🚀 Try Launcher here:  
+🚀 Try Launcher here:
 https://launcher-frontend.onrender.com
 
 ---
 
 # 🎯 Project Overview
 
-Launcher acts as an AI-powered startup cofounder capable of assisting entrepreneurs through the early stages of company formation.
+Launcher acts as an AI-powered startup cofounder assisting entrepreneurs through the early stages of company formation.
 
-The system analyzes startup ideas submitted by users and generates:
+The system analyzes startup ideas and generates:
 
 - 📈 Market validation reports
 - 🧠 Competitor intelligence
 - 📰 Market sentiment analysis
 - 📊 Lean business model structures
-- 🎤 AI-generated pitch deck content
+- 🎤 AI-generated pitch deck content (10 investor-ready slides)
 - ⚡ Real-time dashboard visualizations
-
-The architecture is designed around a **Resilient Data Contract** model, ensuring reliable communication between the AI-powered backend and the React frontend even when handling incomplete or dynamic datasets.
 
 ---
 
@@ -65,7 +61,6 @@ The architecture is designed around a **Resilient Data Contract** model, ensurin
            |
   +--------+--------+----------------+
   |                 |                |
-  |                 |                |
 +v------+    +------v------+   +-----v------+
 | Market|    | Competitor  |   | Sentiment  |
 | Data  |    | Extraction  |   | Analysis   |
@@ -81,7 +76,7 @@ The architecture is designed around a **Resilient Data Contract** model, ensurin
                       |
           +-----------v-----------+
           | Pitch Deck Generator  |
-          | Investor Slide Logic  |
+          | 10-Slide Investor Deck|
           +-----------+-----------+
                       |
           +-----------v-----------+
@@ -97,142 +92,22 @@ The architecture is designed around a **Resilient Data Contract** model, ensurin
 
 ---
 
-# ⚙️ How It Works
-
-## 1️⃣ Startup Idea Submission
-
-Users submit startup concepts through the React dashboard interface.
-
-Example ideas:
-- AI healthcare assistant
-- SaaS analytics platform
-- EdTech marketplace
-- FinTech budgeting assistant
-
----
-
-## 2️⃣ AI Validation Pipeline
-
-The Flask backend triggers the AI orchestration layer, which performs:
-
-- Market research aggregation
-- Competitor extraction
-- Industry trend analysis
-- Sentiment evaluation
-- Opportunity scoring
-- Business viability analysis
-
----
-
-## 3️⃣ Business Model Generation
-
-Validated startup concepts are converted into structured business planning artifacts such as:
-
-- Lean Canvas frameworks
-- Value propositions
-- Revenue model suggestions
-- Customer segmentation
-- Market positioning insights
-
----
-
-## 4️⃣ Pitch Deck Generation
-
-The platform synthesizes analyzed data into investor-focused pitch deck content including:
-
-- Problem statements
-- Solution overviews
-- Market opportunity analysis
-- Competitive positioning
-- Business strategy summaries
-
----
-
-## 5️⃣ Frontend Visualization
-
-The React dashboard renders:
-
-- 📊 Interactive charts
-- 📈 Market trend visualizations
-- 🧠 AI-generated insights
-- 📰 Sentiment summaries
-- 🏢 Competitor analysis
-- 🎤 Pitch deck previews
-
-using resilient null-safe rendering logic.
-
----
-
 # 🛠️ Core Features
 
 ## ✅ Automated Startup Validation
-
 Analyze startup viability using AI-driven market and trend analysis.
 
----
-
 ## ✅ Competitive Landscape Discovery
-
-Extracts:
-- direct competitors
-- adjacent startups
-- comparable business models
-- market positioning signals
-
-from real-world market datasets.
-
----
+Extracts direct competitors, adjacent startups, and market positioning signals.
 
 ## ✅ Market Sentiment Analysis
-
-Processes external articles and business trends to estimate:
-- market readiness
-- audience demand
-- growth momentum
-- startup viability
-
----
+Processes external trends to estimate market readiness, audience demand, and growth momentum.
 
 ## ✅ AI Business Model Generation
-
-Automatically converts startup concepts into structured business frameworks and strategic planning artifacts.
-
----
+Converts startup concepts into structured Lean Canvas business frameworks.
 
 ## ✅ Pitch Deck Generation
-
-Generates investor-ready pitch deck content using validated market intelligence and AI-generated business insights.
-
----
-
-# 🛡️ Robustness & Stability
-
-The platform is designed around a **Resilient Data Contract Architecture** to guarantee frontend stability even under incomplete or asynchronous AI responses.
-
-## Backend Sanitization
-
-The API enforces strict schema defaults:
-
-```json
-{
-  "competitors": [],
-  "news": [],
-  "market_trends": []
-}
-```
-
-This prevents malformed or missing AI responses from propagating into the frontend.
-
----
-
-## Frontend Null-Safety
-
-The React frontend uses:
-- Optional Chaining (`?.`)
-- Null Coalescing (`|| []`)
-- Defensive conditional rendering
-
-to eliminate UI crashes during asynchronous data hydration.
+Generates a 10-slide investor-ready pitch deck including Problem, Solution, Market Opportunity, Traction, Competition, Business Model, Team, Financials, and The Ask.
 
 ---
 
@@ -240,9 +115,12 @@ to eliminate UI crashes during asynchronous data hydration.
 
 | Endpoint | Method | Description |
 |---|---|---|
-| `/api/validate_idea` | `POST` | Executes AI startup validation workflow |
-| `/api/generate-business-model` | `POST` | Generates structured business model artifacts |
-| `/api/generate-pitch` | `POST` | Produces investor pitch deck content |
+| `/api/validate-idea` | `POST` | Executes AI startup validation workflow |
+| `/api/generate-plan` | `POST` | Generates structured business plan |
+| `/api/generate-business-model` | `POST` | Generates Lean Canvas business model |
+| `/api/generate-pitch` | `POST` | Produces 10-slide investor pitch deck |
+| `/api/analyze-market` | `POST` | Runs market analysis on a startup idea |
+| `/api/health` | `GET` | Health check |
 
 ---
 
@@ -250,25 +128,25 @@ to eliminate UI crashes during asynchronous data hydration.
 
 | Layer | Technology |
 |---|---|
-| Frontend | React, JavaScript, CSS3 |
-| Backend | Python, Flask |
-| AI/Data Layer | Custom Scrapers, LLM Integration |
-| Infrastructure | Docker, Render |
+| Frontend | React, JavaScript, Tailwind CSS |
+| Backend | Python, Flask, Gunicorn |
+| AI/Data Layer | Hugging Face Zephyr-7b, BeautifulSoup, Selenium, TextBlob, pytrends |
+| Database | SQLAlchemy, PostgreSQL |
+| Infrastructure | Render |
 | API Format | REST + JSON |
 
 ---
 
-# 🚀 Deployment
+# 🛡️ Robustness & Stability
 
-Launcher is deployed using **Render** with a Dockerized backend architecture and automated CI/CD workflows.
+The platform uses a **Resilient Data Contract Architecture** to guarantee frontend stability under incomplete or async AI responses.
 
-## Deployment Highlights
+**Backend** enforces strict schema defaults:
+```json
+{ "competitors": [], "news": [], "market_trends": [] }
+```
 
-- ✅ Dockerized backend runtime
-- ✅ Automated CI/CD pipeline
-- ✅ Production-ready container deployment
-- ✅ Static frontend optimization
-- ✅ Continuous deployment on every push to `main`
+**Frontend** uses optional chaining (`?.`) and null coalescing (`|| []`) to eliminate UI crashes.
 
 ---
 
@@ -277,39 +155,21 @@ Launcher is deployed using **Render** with a Dockerized backend architecture and
 - Built a full-stack AI SaaS platform integrating React and Flask
 - Designed resilient API contracts for safe frontend rendering
 - Implemented modular AI orchestration pipelines for startup analysis
-- Integrated LLM-powered research workflows into structured REST APIs
+- Integrated Hugging Face LLM (Zephyr-7b-beta) for AI-powered research workflows
 - Engineered defensive frontend rendering for asynchronous AI data
-- Containerized services using Docker for deployment consistency
-- Deployed production infrastructure using Render CI/CD pipelines
+- Deployed production infrastructure on Render with continuous deployment
 
 ---
 
 # 🤝 Contributing
 
-Contributions are welcome.
-
-## Development Workflow
-
 ```bash
-# Fork the repository
-
-# Create a feature branch
 git checkout -b feature/AmazingFeature
-
-# Commit changes
 git commit -m "Add AmazingFeature"
-
-# Push branch
 git push origin feature/AmazingFeature
 ```
 
 Then open a Pull Request.
-
----
-
-# ⭐ Support
-
-If you find this project useful, consider giving it a ⭐ on GitHub.
 
 ---
 
