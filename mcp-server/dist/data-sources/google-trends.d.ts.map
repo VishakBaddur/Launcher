@@ -1,1 +1,0 @@
-{"version":3,"file":"google-trends.d.ts","sourceRoot":"","sources":["../../src/data-sources/google-trends.ts"],"names":[],"mappings":"AAEA,qBAAa,sBAAsB;IACjC,OAAO,CAAC,OAAO,CAA+D;IAExE,WAAW,CAAC,QAAQ,EAAE,MAAM,EAAE,GAAG,OAAO,CAAC;QAAE,CAAC,OAAO,EAAE,MAAM,GAAG,MAAM,CAAA;KAAE,CAAC;IA4CvE,iBAAiB,IAAI,OAAO,CAAC,MAAM,EAAE,CAAC;CAoB7C"}
