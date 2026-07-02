@@ -108,6 +108,7 @@ const LandingPage = () => {
           © {new Date().getFullYear()} Launcher
         </span>
         
+        <a
           href="https://github.com/VishakBaddur/Launcher"
           target="_blank"
           rel="noopener noreferrer"
