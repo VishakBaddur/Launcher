@@ -23,28 +23,112 @@ export default function RegisterPage() {
       await register(form.name, form.email, form.password);
       navigate('/dashboard');
     } catch (err) {
-      setError(err.response?.data?.error || 'Registration failed');
+      setError(err.message || 'Registration failed');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-300">
-      <div className="bg-white shadow-xl rounded-xl p-8 w-full max-w-md flex flex-col items-center">
-        <h2 className="text-2xl font-bold text-black mb-6">Register</h2>
-        <form className="w-full flex flex-col gap-4" onSubmit={handleSubmit}>
-          <input name="name" type="text" placeholder="Full name" value={form.name} onChange={handleChange} className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-black bg-gray-50" required />
-          <input name="email" type="email" placeholder="Email address" value={form.email} onChange={handleChange} className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-black bg-gray-50" required />
-          <input name="password" type="password" placeholder="Password" value={form.password} onChange={handleChange} className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-black bg-gray-50" required />
-          <input name="confirmPassword" type="password" placeholder="Confirm password" value={form.confirmPassword} onChange={handleChange} className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-black bg-gray-50" required />
-          {error && <div className="text-red-500 text-sm">{error}</div>}
-          <button type="submit" className="bg-black text-white py-2 rounded-lg font-semibold hover:bg-gray-800 transition" disabled={loading}>{loading ? 'Registering...' : 'Create account'}</button>
-        </form>
-        <div className="mt-4 text-gray-600 text-sm">
-          Already have an account? <Link to="/login" className="text-black underline">Login</Link>
+    <div style={{
+      minHeight: '100vh',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: '24px',
+      background: 'var(--bg)',
+    }}>
+      <div style={{ width: '100%', maxWidth: 360 }}>
+
+        <div style={{ marginBottom: 40, textAlign: 'center' }}>
+          <Link to="/" style={{
+            textDecoration: 'none',
+            color: 'var(--text-primary)',
+            fontSize: '1rem',
+            fontWeight: 600,
+            letterSpacing: '-0.02em',
+          }}>
+            Launcher
+          </Link>
         </div>
+
+        <div style={{ marginBottom: 32 }}>
+          <h1 style={{
+            fontSize: '1.375rem',
+            fontWeight: 500,
+            letterSpacing: '-0.02em',
+            marginBottom: 6,
+            color: 'var(--text-primary)',
+          }}>
+            Create an account
+          </h1>
+          <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
+            Start analyzing your startup ideas
+          </p>
+        </div>
+
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          {[
+            { name: 'name', label: 'Full name', type: 'text', placeholder: 'Jane Smith' },
+            { name: 'email', label: 'Email', type: 'email', placeholder: 'you@example.com' },
+            { name: 'password', label: 'Password', type: 'password', placeholder: '••••••••' },
+            { name: 'confirmPassword', label: 'Confirm password', type: 'password', placeholder: '••••••••' },
+          ].map(field => (
+            <div key={field.name}>
+              <label style={{
+                display: 'block',
+                fontSize: '0.8125rem',
+                fontWeight: 500,
+                color: 'var(--text-secondary)',
+                marginBottom: 6,
+                letterSpacing: '-0.01em',
+              }}>
+                {field.label}
+              </label>
+              <input
+                name={field.name}
+                type={field.type}
+                value={form[field.name]}
+                onChange={handleChange}
+                className="input"
+                placeholder={field.placeholder}
+                required
+                autoFocus={field.name === 'name'}
+              />
+            </div>
+          ))}
+
+          {error && (
+            <p className="error-text" style={{ marginTop: 4 }}>{error}</p>
+          )}
+
+          <button
+            type="submit"
+            className="btn btn-primary"
+            disabled={loading}
+            style={{ marginTop: 8, width: '100%', padding: '11px', fontSize: '0.9375rem' }}
+          >
+            {loading ? <span className="spinner" /> : 'Create account'}
+          </button>
+        </form>
+
+        <p style={{
+          marginTop: 24,
+          textAlign: 'center',
+          fontSize: '0.8125rem',
+          color: 'var(--text-tertiary)',
+        }}>
+          Already have an account?{' '}
+          <Link to="/login" style={{
+            color: 'var(--text-primary)',
+            textDecoration: 'none',
+            fontWeight: 500,
+          }}>
+            Sign in
+          </Link>
+        </p>
       </div>
     </div>
   );
-} 
+}

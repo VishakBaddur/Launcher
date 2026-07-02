@@ -1,150 +1,201 @@
-import React, { useState } from 'react';
-import axios from '../utils/axios';
+import React from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import axios from '../utils/axios';
+import AnalysisPage from '../components/AnalysisPage';
 
-const SlideCard = ({ number, title, children }) => (
-  <div className="bg-white rounded-xl shadow-md p-6 mb-4 border-l-4 border-black">
-    <div className="flex items-center mb-3">
-      <span className="bg-black text-white text-xs font-bold rounded-full w-7 h-7 flex items-center justify-center mr-3">
-        {number}
+const Slide = ({ number, title, children }) => (
+  <div style={{
+    paddingTop: 28,
+    paddingBottom: 28,
+    borderTop: '1px solid var(--border)',
+  }}>
+    <div style={{ display: 'flex', alignItems: 'baseline', gap: 16, marginBottom: 16 }}>
+      <span style={{
+        fontSize: '0.7rem',
+        fontWeight: 500,
+        letterSpacing: '0.1em',
+        textTransform: 'uppercase',
+        color: 'var(--text-tertiary)',
+        flexShrink: 0,
+        width: 20,
+      }}>
+        {String(number).padStart(2, '0')}
       </span>
-      <h3 className="text-lg font-bold text-gray-800">{title}</h3>
+      <span style={{
+        fontSize: '0.9375rem',
+        fontWeight: 500,
+        color: 'var(--text-primary)',
+        letterSpacing: '-0.01em',
+      }}>
+        {title}
+      </span>
     </div>
-    <div className="text-gray-600 text-sm space-y-2">{children}</div>
+    <div style={{ paddingLeft: 36 }}>
+      {children}
+    </div>
   </div>
 );
 
-const BulletList = ({ items }) => (
-  <ul className="list-disc list-inside space-y-1">
-    {(Array.isArray(items) ? items : [items]).map((item, i) => (
-      <li key={i}>{item}</li>
-    ))}
-  </ul>
+const SlideText = ({ children }) => (
+  <p style={{
+    fontSize: '0.9375rem',
+    color: 'var(--text-secondary)',
+    lineHeight: 1.6,
+    letterSpacing: '-0.01em',
+    marginBottom: 8,
+  }}>
+    {children}
+  </p>
 );
 
-const PitchDeckPage = () => {
-  const [idea, setIdea] = useState('');
-  const [pitch, setPitch] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const { user } = useAuth();
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
-    setPitch(null);
-    try {
-      const response = await axios.post(
-        '/api/generate-pitch',
-        { idea },
-        { headers: { Authorization: user?.token ? `Bearer ${user.token}` : '' } }
-      );
-      setPitch(response.data);
-    } catch (err) {
-      setError('Failed to generate pitch deck. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
+const SlideList = ({ items }) => {
+  if (!items?.length) return null;
+  const arr = Array.isArray(items) ? items : [items];
   return (
-    <div className="container mx-auto p-6 max-w-3xl">
-      <h1 className="text-3xl font-bold mb-2">Pitch Deck Generator</h1>
-      <p className="text-gray-500 mb-6">Generate an investor-ready 10-slide pitch deck for your startup idea.</p>
-
-      <form onSubmit={handleSubmit} className="mb-6 flex gap-2">
-        <input
-          type="text"
-          placeholder="Enter your startup idea (e.g. AI healthcare assistant)..."
-          value={idea}
-          onChange={(e) => setIdea(e.target.value)}
-          className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-black bg-gray-50 flex-1"
-          required
-        />
-        <button
-          type="submit"
-          className="bg-black text-white py-2 px-6 rounded-lg font-semibold hover:bg-gray-800 transition disabled:opacity-50"
-          disabled={loading}
-        >
-          {loading ? 'Generating...' : 'Generate'}
-        </button>
-      </form>
-
-      {error && <div className="text-red-500 mb-4 p-3 bg-red-50 rounded-lg">{error}</div>}
-      {loading && (
-        <div className="flex flex-col items-center justify-center h-48 text-gray-400">
-          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-black mb-3"></div>
-          Building your pitch deck...
-        </div>
-      )}
-
-      {pitch && (
-        <div>
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold">Your 10-Slide Pitch Deck</h2>
-            <span className="text-xs text-gray-400 bg-gray-100 px-3 py-1 rounded-full">Investor Ready</span>
-          </div>
-
-          <SlideCard number={1} title={pitch.slide_1_title?.title || idea}>
-            <p className="italic">"{pitch.slide_1_title?.tagline}"</p>
-            <p className="text-gray-400">{pitch.slide_1_title?.presenter}</p>
-          </SlideCard>
-
-          <SlideCard number={2} title="The Problem">
-            <p className="font-medium mb-1">{pitch.slide_2_problem?.market_gap}</p>
-            <BulletList items={pitch.slide_2_problem?.pain_points || []} />
-          </SlideCard>
-
-          <SlideCard number={3} title="Our Solution">
-            <p className="font-medium mb-1">{pitch.slide_3_solution?.description}</p>
-            <BulletList items={pitch.slide_3_solution?.key_features || []} />
-          </SlideCard>
-
-          <SlideCard number={4} title="Market Opportunity">
-            <p><span className="font-semibold">Market Size:</span> {pitch.slide_4_market?.market_size}</p>
-            <p><span className="font-semibold">Growth:</span> {pitch.slide_4_market?.growth_rate}</p>
-            <p><span className="font-semibold">Target:</span> {pitch.slide_4_market?.target_segment}</p>
-          </SlideCard>
-
-          <SlideCard number={5} title="Traction & Validation">
-            <BulletList items={pitch.slide_5_traction?.milestones || []} />
-          </SlideCard>
-
-          <SlideCard number={6} title="Competitive Landscape">
-            <p><span className="font-semibold">Competitors:</span> {pitch.slide_6_competition?.competitors}</p>
-            <p className="font-semibold mt-1">Our Differentiators:</p>
-            <BulletList items={pitch.slide_6_competition?.differentiators || []} />
-            <p className="mt-1"><span className="font-semibold">Moat:</span> {pitch.slide_6_competition?.moat}</p>
-          </SlideCard>
-
-          <SlideCard number={7} title="Business Model">
-            <p><span className="font-semibold">Revenue:</span> {pitch.slide_7_business_model?.revenue_streams}</p>
-            <p><span className="font-semibold">Pricing:</span> {pitch.slide_7_business_model?.pricing}</p>
-            <p><span className="font-semibold">Unit Economics:</span> {pitch.slide_7_business_model?.unit_economics}</p>
-          </SlideCard>
-
-          <SlideCard number={8} title="The Team">
-            <p>{pitch.slide_8_team?.structure}</p>
-            <BulletList items={pitch.slide_8_team?.key_roles || []} />
-            <p className="text-gray-400 mt-1">Advisors: {pitch.slide_8_team?.advisors}</p>
-          </SlideCard>
-
-          <SlideCard number={9} title="Financial Projections">
-            <p><span className="font-semibold">Costs:</span> {pitch.slide_9_financials?.startup_costs}</p>
-            <p><span className="font-semibold">Projections:</span> {pitch.slide_9_financials?.projections}</p>
-            <p><span className="font-semibold">Ask:</span> {pitch.slide_9_financials?.funding_ask}</p>
-          </SlideCard>
-
-          <SlideCard number={10} title="The Ask">
-            <p className="text-2xl font-bold text-black mb-2">{pitch.slide_10_ask?.funding_amount}</p>
-            <BulletList items={pitch.slide_10_ask?.use_of_funds || []} />
-            <p className="mt-2 italic text-gray-500">{pitch.slide_10_ask?.vision}</p>
-          </SlideCard>
-        </div>
-      )}
-    </div>
+    <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 6 }}>
+      {arr.map((item, i) => (
+        <li key={i} style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+          <span style={{
+            width: 4, height: 4, borderRadius: '50%',
+            background: 'var(--text-tertiary)', flexShrink: 0, marginTop: 8,
+          }} />
+          <span style={{ fontSize: '0.9375rem', color: 'var(--text-secondary)', lineHeight: 1.6, letterSpacing: '-0.01em' }}>
+            {item}
+          </span>
+        </li>
+      ))}
+    </ul>
   );
 };
 
-export default PitchDeckPage;
+function PitchResult({ pitch }) {
+  if (!pitch) return null;
+  return (
+    <div className="fade-in" style={{ marginTop: 32 }}>
+      <div style={{
+        padding: '20px 24px',
+        background: 'var(--surface)',
+        border: '1px solid var(--border)',
+        borderRadius: 'var(--radius)',
+        marginBottom: 8,
+      }}>
+        <p style={{
+          fontSize: '1.125rem',
+          fontWeight: 500,
+          color: 'var(--text-primary)',
+          letterSpacing: '-0.02em',
+          lineHeight: 1.4,
+          marginBottom: 4,
+        }}>
+          {pitch.slide_1_title?.title}
+        </p>
+        <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', fontStyle: 'italic', letterSpacing: '-0.01em' }}>
+          "{pitch.slide_1_title?.tagline}"
+        </p>
+      </div>
+
+      <div>
+        <Slide number={2} title="The Problem">
+          <SlideText>{pitch.slide_2_problem?.market_gap}</SlideText>
+          <SlideList items={pitch.slide_2_problem?.pain_points} />
+        </Slide>
+
+        <Slide number={3} title="Our Solution">
+          <SlideText>{pitch.slide_3_solution?.description}</SlideText>
+          <SlideList items={pitch.slide_3_solution?.key_features} />
+        </Slide>
+
+        <Slide number={4} title="Market Opportunity">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            {pitch.slide_4_market?.market_size && (
+              <SlideText><strong style={{ color: 'var(--text-primary)', fontWeight: 500 }}>Market size</strong> — {pitch.slide_4_market.market_size}</SlideText>
+            )}
+            {pitch.slide_4_market?.growth_rate && (
+              <SlideText><strong style={{ color: 'var(--text-primary)', fontWeight: 500 }}>Growth</strong> — {pitch.slide_4_market.growth_rate}</SlideText>
+            )}
+            {pitch.slide_4_market?.target_segment && (
+              <SlideText><strong style={{ color: 'var(--text-primary)', fontWeight: 500 }}>Target</strong> — {pitch.slide_4_market.target_segment}</SlideText>
+            )}
+          </div>
+        </Slide>
+
+        <Slide number={5} title="Traction">
+          <SlideList items={pitch.slide_5_traction?.milestones} />
+        </Slide>
+
+        <Slide number={6} title="Competitive Landscape">
+          {pitch.slide_6_competition?.competitors && (
+            <SlideText><strong style={{ color: 'var(--text-primary)', fontWeight: 500 }}>Competitors</strong> — {pitch.slide_6_competition.competitors}</SlideText>
+          )}
+          <SlideList items={pitch.slide_6_competition?.differentiators} />
+          {pitch.slide_6_competition?.moat && (
+            <SlideText style={{ marginTop: 8 }}><strong style={{ color: 'var(--text-primary)', fontWeight: 500 }}>Moat</strong> — {pitch.slide_6_competition.moat}</SlideText>
+          )}
+        </Slide>
+
+        <Slide number={7} title="Business Model">
+          <SlideText><strong style={{ color: 'var(--text-primary)', fontWeight: 500 }}>Revenue</strong> — {pitch.slide_7_business_model?.revenue_streams}</SlideText>
+          <SlideText><strong style={{ color: 'var(--text-primary)', fontWeight: 500 }}>Pricing</strong> — {pitch.slide_7_business_model?.pricing}</SlideText>
+          <SlideText><strong style={{ color: 'var(--text-primary)', fontWeight: 500 }}>Unit economics</strong> — {pitch.slide_7_business_model?.unit_economics}</SlideText>
+        </Slide>
+
+        <Slide number={8} title="Team">
+          <SlideText>{pitch.slide_8_team?.structure}</SlideText>
+          <SlideList items={pitch.slide_8_team?.key_roles} />
+        </Slide>
+
+        <Slide number={9} title="Financial Projections">
+          <SlideText><strong style={{ color: 'var(--text-primary)', fontWeight: 500 }}>Runway</strong> — {pitch.slide_9_financials?.startup_costs}</SlideText>
+          <SlideText><strong style={{ color: 'var(--text-primary)', fontWeight: 500 }}>Path</strong> — {pitch.slide_9_financials?.projections}</SlideText>
+        </Slide>
+
+        <Slide number={10} title="The Ask">
+          <p style={{
+            fontSize: '1.5rem',
+            fontWeight: 500,
+            letterSpacing: '-0.03em',
+            color: 'var(--text-primary)',
+            marginBottom: 16,
+          }}>
+            {pitch.slide_10_ask?.funding_amount}
+          </p>
+          <SlideList items={pitch.slide_10_ask?.use_of_funds} />
+          {pitch.slide_10_ask?.vision && (
+            <p style={{
+              marginTop: 16,
+              fontSize: '0.875rem',
+              color: 'var(--text-tertiary)',
+              fontStyle: 'italic',
+              letterSpacing: '-0.01em',
+              lineHeight: 1.6,
+            }}>
+              {pitch.slide_10_ask.vision}
+            </p>
+          )}
+        </Slide>
+      </div>
+    </div>
+  );
+}
+
+export default function PitchDeckPage() {
+  const { user } = useAuth();
+
+  const handleSubmit = async (idea) => {
+    const response = await axios.post('/api/generate-pitch', { idea }, {
+      headers: { Authorization: user?.token ? `Bearer ${user.token}` : '' }
+    });
+    return response.data;
+  };
+
+  return (
+    <AnalysisPage
+      title="Generate a pitch deck"
+      subtitle="Pitch Deck"
+      placeholder="Describe your startup idea..."
+      buttonLabel="Generate"
+      onSubmit={handleSubmit}
+      renderResult={(data) => <PitchResult pitch={data} />}
+    />
+  );
+}
