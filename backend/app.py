@@ -48,7 +48,7 @@ try:
 
     def create_db():
         with app.app_context():
-            db.create_all(checkfirst=True)
+            db.create_all()
 
     create_db()
 
