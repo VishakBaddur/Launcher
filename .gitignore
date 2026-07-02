@@ -38,7 +38,7 @@ startup-genie/
 mcp-server/
 
 # Root-level leftovers
-src/
+/src/
 index.html
 package.json
 package-lock.json
