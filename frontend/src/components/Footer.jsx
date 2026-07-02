@@ -8,7 +8,7 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="col-span-1 md:col-span-2">
             <Link to="/" className="text-2xl font-bold text-indigo-600">
-              StartupGenie
+              Launcher
             </Link>
             <p className="mt-4 text-gray-500 text-sm">
               Your AI-powered business idea validation and planning platform.
@@ -67,7 +67,7 @@ const Footer = () => {
         </div>
         <div className="mt-8 border-t border-gray-200 pt-8">
           <p className="text-base text-gray-400 text-center">
-            &copy; {new Date().getFullYear()} StartupGenie. All rights reserved.
+            &copy; {new Date().getFullYear()} Launcher. All rights reserved.
           </p>
         </div>
       </div>

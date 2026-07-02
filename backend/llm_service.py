@@ -62,9 +62,9 @@ def _extract_list(text: str, fallback: list) -> list:
     lines = [l.strip().lstrip('-•*').strip() for l in text.split('\n') if l.strip().startswith(('-', '•', '*'))]
     return lines if lines else fallback
 
-# ─────────────────────────────────────────────
+# ---
 # STEP 1: Market Categorization
-# ─────────────────────────────────────────────
+# ---
 def step1_categorize(idea: str, context: Dict) -> Dict:
     """Step 1: Identify market category, size, and target customers."""
     # Retrieve similar past analyses for RAG context
@@ -108,9 +108,9 @@ Return ONLY this JSON:
             result[k] = fallback[k]
     return result
 
-# ─────────────────────────────────────────────
+# ---
 # STEP 2: SWOT Analysis
-# ─────────────────────────────────────────────
+# ---
 def step2_swot(idea: str, step1: Dict) -> Dict:
     """Step 2: Generate SWOT based on Step 1 market context."""
     prompt = f"""<|system|>You are a strategic business consultant. Respond only with a JSON object.</s>
@@ -146,9 +146,9 @@ Return ONLY this JSON:
             result[k] = fallback[k]
     return result
 
-# ─────────────────────────────────────────────
+# ---
 # STEP 3: Competitor & Positioning Analysis
-# ─────────────────────────────────────────────
+# ---
 def step3_competitors(idea: str, step1: Dict, step2: Dict) -> Dict:
     """Step 3: Identify competitors and positioning strategy."""
     prompt = f"""<|system|>You are a competitive intelligence analyst. Respond only with a JSON object.</s>
@@ -182,9 +182,9 @@ Return ONLY this JSON:
             result[k] = fallback[k]
     return result
 
-# ─────────────────────────────────────────────
+# ---
 # STEP 4: Pitch Narrative & Recommendations
-# ─────────────────────────────────────────────
+# ---
 def step4_pitch_narrative(idea: str, step1: Dict, step2: Dict, step3: Dict) -> Dict:
     """Step 4: Synthesize all steps into investor narrative and recommendations."""
     prompt = f"""<|system|>You are an expert startup advisor writing investor pitch content. Respond only with a JSON object.</s>
@@ -225,9 +225,9 @@ Return ONLY this JSON:
             result[k] = fallback[k]
     return result
 
-# ─────────────────────────────────────────────
+# ---
 # MAIN PIPELINE ORCHESTRATOR
-# ─────────────────────────────────────────────
+# ---
 def generate_insights(context: Dict[str, Any]) -> Dict[str, Any]:
     """
     4-step LLM reasoning pipeline:

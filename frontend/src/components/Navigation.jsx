@@ -19,7 +19,7 @@ const Navigation = () => {
           <div className="flex">
             <div className="flex-shrink-0 flex items-center">
               <Link to="/" className="text-2xl font-bold text-indigo-600">
-                StartupGenie
+                Launcher
               </Link>
             </div>
             {user && (

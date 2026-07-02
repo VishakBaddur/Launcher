@@ -4,7 +4,7 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-300 px-2 sm:px-4">
       <div className="w-full max-w-5xl flex flex-col items-center gap-8">
-        <h1 className="text-3xl sm:text-4xl font-bold text-black">Welcome to StartupGenie</h1>
+        <h1 className="text-3xl sm:text-4xl font-bold text-black">Welcome to Launcher</h1>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 w-full">
           <Link to="/validate-idea" className="bg-white shadow-lg rounded-xl p-8 flex flex-col items-center hover:bg-gray-100 transition">
             <span className="text-2xl mb-2">📈</span>

@@ -7,7 +7,7 @@ export default function LandingPage() {
       {/* Hero Section */}
       <section className="flex-1 flex flex-col justify-center items-center py-16 px-4">
         <div className="bg-white/90 shadow-2xl rounded-2xl p-10 max-w-2xl w-full flex flex-col items-center mb-12">
-          <h1 className="text-5xl font-extrabold text-black mb-4 tracking-tight">StartupGenie</h1>
+          <h1 className="text-5xl font-extrabold text-black mb-4 tracking-tight">Launcher</h1>
           <p className="text-xl text-gray-700 mb-8 text-center max-w-lg">
             AI-powered business idea validation and business plan generation. Get actionable insights, real-world references, and a beautiful plan in minutes.
           </p>
@@ -79,15 +79,15 @@ export default function LandingPage() {
 
       {/* About Section */}
       <section className="w-full max-w-3xl mx-auto py-8 px-4">
-        <h2 className="text-2xl font-bold text-black mb-4 text-center">Why StartupGenie?</h2>
+        <h2 className="text-2xl font-bold text-black mb-4 text-center">Why Launcher?</h2>
         <p className="text-gray-700 text-center text-lg">
-          StartupGenie is on a mission to empower entrepreneurs with actionable, data-driven insights and beautiful business plans. Whether you're validating your first idea or preparing to pitch investors, we help you move forward with confidence.
+          Launcher is on a mission to empower entrepreneurs with actionable, data-driven insights and beautiful business plans. Whether you're validating your first idea or preparing to pitch investors, we help you move forward with confidence.
         </p>
       </section>
 
       {/* Footer */}
       <footer className="w-full py-6 bg-black text-white text-center mt-auto">
-        &copy; {new Date().getFullYear()} StartupGenie. All rights reserved.
+        &copy; {new Date().getFullYear()} Launcher. All rights reserved.
       </footer>
     </div>
   );

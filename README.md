@@ -1,178 +1,95 @@
-# 🚀 Launcher - AI-Powered Startup CoFounder
+# Launcher
 
-Launcher is an end-to-end AI-powered SaaS platform that accelerates the startup lifecycle by automating:
+An AI-powered startup analysis platform. Input a business idea and get back market validation, a lean business model, competitor positioning, and a 10-slide investor pitch deck generated through a 4-step LLM reasoning pipeline backed by a RAG system.
 
-- 📈 Business idea validation
-- 🧠 Market research & sentiment analysis
-- 🏢 Competitor discovery
-- 📊 Business model generation
-- 🎤 Investor-ready pitch deck creation
-
-[![React](https://img.shields.io/badge/Frontend-React-blue.svg)](https://react.dev/)
-[![Python](https://img.shields.io/badge/Backend-Python-yellow.svg)](https://www.python.org/)
-[![Flask](https://img.shields.io/badge/API-Flask-black.svg)](https://flask.palletsprojects.com/)
-[![Render](https://img.shields.io/badge/Hosted%20On-Render-purple.svg)](https://render.com/)
+Live: https://launcher-frontend.onrender.com
 
 ---
 
-## 🌐 Live Demo
+## What it does
 
-🚀 Try Launcher here:
-https://launcher-frontend.onrender.com
+Launcher runs a structured analysis pipeline on any startup idea:
 
----
+1. Market categorization - identifies industry, market size, and target customers
+2. SWOT analysis - conditioned on step 1 output
+3. Competitor and positioning analysis - conditioned on steps 1 and 2
+4. Pitch narrative synthesis - investor hook, recommendations, value proposition
 
-# 🎯 Project Overview
-
-Launcher acts as an AI-powered startup cofounder assisting entrepreneurs through the early stages of company formation.
-
-The system analyzes startup ideas and generates:
-
-- 📈 Market validation reports
-- 🧠 Competitor intelligence
-- 📰 Market sentiment analysis
-- 📊 Lean business model structures
-- 🎤 AI-generated pitch deck content (10 investor-ready slides)
-- ⚡ Real-time dashboard visualizations
+Each step feeds into the next. Past analyses are stored as vector embeddings in ChromaDB and retrieved via cosine similarity to provide context for new queries.
 
 ---
 
-# 🏗️ System Architecture
-
-```text
-+----------------------+
-|      User Browser    |
-|   (React Frontend)   |
-+----------+-----------+
-           |
-           | HTTPS Requests
-           |
-+----------v-----------+
-|    Flask API Server  |
-|  (Business Logic)    |
-+----------+-----------+
-           |
-           | AI Orchestration Layer
-           |
-+----------v-----------+
-|    Validation Engine |
-|  Market & Sentiment  |
-+----------+-----------+
-           |
-  +--------+--------+----------------+
-  |                 |                |
-+v------+    +------v------+   +-----v------+
-| Market|    | Competitor  |   | Sentiment  |
-| Data  |    | Extraction  |   | Analysis   |
-|Scraper|    |  Services   |   |  Engine    |
-+---+---+    +------+------+   +------+------+
-    |                 |                 |
-    +-----------------+-----------------+
-                      |
-          +-----------v-----------+
-          | Business Model Engine |
-          |  Lean Canvas Builder  |
-          +-----------+-----------+
-                      |
-          +-----------v-----------+
-          | Pitch Deck Generator  |
-          | 10-Slide Investor Deck|
-          +-----------+-----------+
-                      |
-          +-----------v-----------+
-          | Structured JSON APIs  |
-          | Charts & Insights     |
-          +-----------+-----------+
-                      |
-          +-----------v-----------+
-          | React Dashboard UI    |
-          | Reports & Visuals     |
-          +-----------------------+
-```
-
----
-
-# 🛠️ Core Features
-
-## ✅ Automated Startup Validation
-Analyze startup viability using AI-driven market and trend analysis.
-
-## ✅ Competitive Landscape Discovery
-Extracts direct competitors, adjacent startups, and market positioning signals.
-
-## ✅ Market Sentiment Analysis
-Processes external trends to estimate market readiness, audience demand, and growth momentum.
-
-## ✅ AI Business Model Generation
-Converts startup concepts into structured Lean Canvas business frameworks.
-
-## ✅ Pitch Deck Generation
-Generates a 10-slide investor-ready pitch deck including Problem, Solution, Market Opportunity, Traction, Competition, Business Model, Team, Financials, and The Ask.
-
----
-
-# 🚀 API Endpoints
-
-| Endpoint | Method | Description |
-|---|---|---|
-| `/api/validate-idea` | `POST` | Executes AI startup validation workflow |
-| `/api/generate-plan` | `POST` | Generates structured business plan |
-| `/api/generate-business-model` | `POST` | Generates Lean Canvas business model |
-| `/api/generate-pitch` | `POST` | Produces 10-slide investor pitch deck |
-| `/api/analyze-market` | `POST` | Runs market analysis on a startup idea |
-| `/api/health` | `GET` | Health check |
-
----
-
-# 🧰 Tech Stack
+## Tech stack
 
 | Layer | Technology |
 |---|---|
-| Frontend | React, JavaScript, Tailwind CSS |
+| Frontend | React, Tailwind CSS |
 | Backend | Python, Flask, Gunicorn |
-| AI/Data Layer | Hugging Face Zephyr-7b, BeautifulSoup, Selenium, TextBlob, pytrends |
-| Database | SQLAlchemy, PostgreSQL |
-| Infrastructure | Render |
-| API Format | REST + JSON |
+| LLM | Hugging Face Zephyr-7B (via Inference API) |
+| RAG | ChromaDB (persistent vector store, cosine similarity) |
+| Auth | JWT (PyJWT) |
+| Database | SQLAlchemy, PostgreSQL (SQLite for tests) |
+| CI/CD | GitHub Actions |
+| Deployment | Render |
 
 ---
 
-# 🛡️ Robustness & Stability
+## API endpoints
 
-The platform uses a **Resilient Data Contract Architecture** to guarantee frontend stability under incomplete or async AI responses.
-
-**Backend** enforces strict schema defaults:
-```json
-{ "competitors": [], "news": [], "market_trends": [] }
-```
-
-**Frontend** uses optional chaining (`?.`) and null coalescing (`|| []`) to eliminate UI crashes.
-
----
-
-# 📚 Engineering Highlights
-
-- Built a full-stack AI SaaS platform integrating React and Flask
-- Designed resilient API contracts for safe frontend rendering
-- Implemented modular AI orchestration pipelines for startup analysis
-- Engineered a 4-step LLM reasoning pipeline using Hugging Face Zephyr-7b with RAG (ChromaDB vector store): market categorization → SWOT analysis → competitor positioning → pitch narrative synthesis; past analyses are embedded and retrieved as context for new queries
-- Engineered defensive frontend rendering for asynchronous AI data
-- Deployed production infrastructure on Render with continuous deployment
+| Endpoint | Method | Auth | Description |
+|---|---|---|---|
+| /api/validate-idea | POST | yes | Full 4-step pipeline - market validation |
+| /api/generate-plan | POST | yes | Business plan generation |
+| /api/generate-business-model | POST | yes | Lean Canvas generation |
+| /api/generate-pitch | POST | yes | 10-slide investor pitch deck |
+| /api/analyze-market | POST | no | Market analysis via Google Trends + Census |
+| /api/rag-stats | GET | no | ChromaDB vector store stats |
+| /api/health | GET | no | Health check |
 
 ---
 
-# 🤝 Contributing
+## Architecture
 
-```bash
-git checkout -b feature/AmazingFeature
-git commit -m "Add AmazingFeature"
-git push origin feature/AmazingFeature
-```
+Every analysis endpoint uses a 3-tier fallback:
 
-Then open a Pull Request.
+    Zephyr LLM pipeline -> hardcoded business mappings -> web scraper
+
+If the LLM pipeline returns a valid category, that result is used. If the HF API is down or returns garbage, it falls back to curated mappings (55KB of structured business data). The scraper is last resort.
+
+RAG context is injected into Step 1 of the pipeline. Completed analyses are embedded and stored in ChromaDB so future similar queries benefit from past results.
 
 ---
 
-# 🔗 Connect With Me
+## Running locally
 
-- GitHub: [@VishakBaddur](https://github.com/VishakBaddur)
+Backend:
+
+    cd backend
+    python -m venv venv
+    source venv/bin/activate
+    pip install -r requirements.txt
+    python app.py
+
+Frontend:
+
+    cd frontend
+    npm install
+    npm run dev
+
+Set HF_TOKEN and SECRET_KEY as environment variables before starting the backend.
+
+---
+
+## Tests
+
+    cd backend
+    source venv/bin/activate
+    pytest tests/test_api.py -v
+
+10 tests covering auth, protected routes, and all major endpoints. 8 pass in CI (2 require a live HF token and are expected to skip in the GitHub Actions environment).
+
+---
+
+## Author
+
+Vishak Baddur - https://github.com/VishakBaddur

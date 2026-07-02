@@ -258,7 +258,7 @@ Despite the opportunities, the market is characterized by intense competition, t
         }
       },
       'e-commerce platform': {
-        detailed_analysis: `The e-commerce platform sector has revolutionized the way consumers shop, offering unparalleled convenience, variety, and accessibility. The global shift toward digital commerce has been accelerated by advancements in payment technology, logistics, and mobile device adoption. Consumers now expect seamless online shopping experiences, fast delivery, and personalized recommendations. The COVID-19 pandemic further boosted e-commerce adoption, as lockdowns and safety concerns drove more people to shop online. This trend is expected to persist, with both established retailers and new entrants investing in omnichannel strategies and digital storefronts. Social commerce and influencer-driven marketing are also shaping consumer behavior, making it easier for brands to reach targeted audiences. Competition in the e-commerce space is fierce, with major players like Amazon, eBay, and Walmart dominating market share. However, niche platforms and direct-to-consumer brands are finding success by focusing on unique value propositions, curated selections, and superior customer service. Regulatory considerations, such as data privacy and cross-border trade, are increasingly important as platforms expand globally. To succeed, new entrants must leverage technology, build strong supplier relationships, and offer differentiated experiences that foster customer loyalty and trust.`,
+        detailed_analysis: `The e-commerce platform sector has revolutionized the way consumers shop, offering unparalleled convenience, variety, and accessibility. The global shift toward digital commerce has been accelerated by advancements in payment technology, logistics, and mobile device adoption. Consumers now expect seamless online shopping experiences, fast delivery, and personalized recommendations. The COVID-19 pandemic further boosted e-commerce adoption, as lockdowns and safety concerns drove more people to shop online. This trend is expected to persist, with both established retailers and new entrants investing in omnichannel strategies and digital storefronts. Social commerce and influencer-driven marketing are also shaping consumer behavior, making it easier for brands to reach targeted audiences. Competition in the e-commerce space is fierce, with major players like Amazon, eBay, and Walmart dominating market share. However, niche platforms and direct-to-consumer brands are finding success by focusing on unique value propositions, curated selections, and superior customer service. Regulatory considerations, such as data privacy and cross-border trade, are increasingly important as platforms expand globally. To succeed, new entrants must use technology, build strong supplier relationships, and offer differentiated experiences that foster customer loyalty and trust.`,
         market_opportunities: [
           'Expanding global internet penetration and smartphone usage are driving e-commerce growth.',
           'Increasing consumer preference for convenience and home delivery.',
@@ -826,7 +826,7 @@ Despite the opportunities, the market is characterized by intense competition, t
         market_opportunities: [
           'Growing demand for limited edition and exclusive sneakers.',
           'Increasing consumer interest in sustainable and pre-owned fashion.',
-          'Opportunities to leverage technology for authentication and seamless transactions.'
+          'Opportunities to use technology for authentication and seamless transactions.'
         ],
         challenges: [
           'Ensuring authenticity and preventing counterfeit products.',
@@ -873,7 +873,7 @@ Despite the opportunities, the market is characterized by intense competition, t
         market_opportunities: [
           'Growing demand for limited edition and exclusive sneakers.',
           'Increasing consumer interest in sustainable and pre-owned fashion.',
-          'Opportunities to leverage technology for authentication and seamless transactions.'
+          'Opportunities to use technology for authentication and seamless transactions.'
         ],
         challenges: [
           'Ensuring authenticity and preventing counterfeit products.',
@@ -929,7 +929,7 @@ Despite the opportunities, the market is characterized by intense competition, t
         ],
         recommendations: [
           'Invest in product innovation, such as smart features and sustainable materials.',
-          'Build a strong brand identity and leverage influencer marketing.',
+          'Build a strong brand identity and use influencer marketing.',
           'Offer customization options and excellent customer service to build loyalty.'
         ],
         market_trends: [
@@ -962,7 +962,7 @@ Despite the opportunities, the market is characterized by intense competition, t
         }
       },
       'subscription box': {
-        detailed_analysis: `The subscription box market has grown rapidly, offering consumers curated experiences across fashion, food, pets, and more. Companies like Stitch Fix and BarkBox have leveraged personalization, data analytics, and community engagement to build loyal customer bases. The market is driven by the desire for convenience, discovery, and surprise. Key challenges include customer retention, inventory management, and shipping costs. Success depends on strong curation, personalization technology, and quality control. Brands that focus on niche markets, sustainable packaging, and unique product offerings are well-positioned to thrive as consumers seek value and excitement in their subscriptions.`,
+        detailed_analysis: `The subscription box market has grown rapidly, offering consumers curated experiences across fashion, food, pets, and more. Companies like Stitch Fix and BarkBox have used personalization, data analytics, and community engagement to build loyal customer bases. The market is driven by the desire for convenience, discovery, and surprise. Key challenges include customer retention, inventory management, and shipping costs. Success depends on strong curation, personalization technology, and quality control. Brands that focus on niche markets, sustainable packaging, and unique product offerings are well-positioned to thrive as consumers seek value and excitement in their subscriptions.`,
         market_opportunities: [
           'Personalization and customization for unique customer experiences.',
           'Focus on niche markets and communities.',

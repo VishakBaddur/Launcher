@@ -33,7 +33,7 @@ logger = logging.getLogger(__name__)
 
 try:
     app = Flask(__name__)
-    app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'your-secret-key')  # Change this in production
+    app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'your-secret-key')
     app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///app.db')
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
@@ -77,7 +77,7 @@ try:
         return decorated
 
     def add_cors_headers(response):
-        response.headers['Access-Control-Allow-Origin'] = 'http://localhost:5173'
+        response.headers['Access-Control-Allow-Origin'] = os.environ.get('ALLOWED_ORIGIN', 'https://launcher-frontend.onrender.com')
         response.headers['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS'
         response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
         response.headers['Access-Control-Allow-Credentials'] = 'true'
@@ -88,7 +88,7 @@ try:
         logger.debug(f"Received {request.method} request to {request.path}")
         if request.method == "OPTIONS":
             response = app.make_default_options_response()
-            response.headers['Access-Control-Allow-Origin'] = 'http://localhost:5173'
+            response.headers['Access-Control-Allow-Origin'] = os.environ.get('ALLOWED_ORIGIN', 'https://launcher-frontend.onrender.com')
             response.headers['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS'
             response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
             response.headers['Access-Control-Allow-Credentials'] = 'true'

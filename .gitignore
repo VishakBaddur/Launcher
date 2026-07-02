@@ -32,3 +32,19 @@ build/
 # Environment variables
 .env
 .env.local
+
+# Unrelated projects
+startup-genie/
+mcp-server/
+
+# Root-level leftovers
+src/
+index.html
+package.json
+package-lock.json
+vite.config.js
+
+# Documents
+*.docx
+RESUME_ENTRY.md
+RESUME_VERIFICATION.md
