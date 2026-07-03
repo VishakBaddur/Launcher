@@ -108,13 +108,13 @@ function PitchResult({ pitch }) {
         <Slide number={4} title="Market Opportunity">
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
             {pitch.slide_4_market?.market_size && (
-              <SlideText><strong style={{ color: 'var(--text-primary)', fontWeight: 500 }}>Market size</strong> — {pitch.slide_4_market.market_size}</SlideText>
+              <SlideText><strong style={{ color: 'var(--text-primary)', fontWeight: 500 }}>Market size</strong> - {pitch.slide_4_market.market_size}</SlideText>
             )}
             {pitch.slide_4_market?.growth_rate && (
-              <SlideText><strong style={{ color: 'var(--text-primary)', fontWeight: 500 }}>Growth</strong> — {pitch.slide_4_market.growth_rate}</SlideText>
+              <SlideText><strong style={{ color: 'var(--text-primary)', fontWeight: 500 }}>Growth</strong> - {pitch.slide_4_market.growth_rate}</SlideText>
             )}
             {pitch.slide_4_market?.target_segment && (
-              <SlideText><strong style={{ color: 'var(--text-primary)', fontWeight: 500 }}>Target</strong> — {pitch.slide_4_market.target_segment}</SlideText>
+              <SlideText><strong style={{ color: 'var(--text-primary)', fontWeight: 500 }}>Target</strong> - {pitch.slide_4_market.target_segment}</SlideText>
             )}
           </div>
         </Slide>
@@ -125,18 +125,18 @@ function PitchResult({ pitch }) {
 
         <Slide number={6} title="Competitive Landscape">
           {pitch.slide_6_competition?.competitors && (
-            <SlideText><strong style={{ color: 'var(--text-primary)', fontWeight: 500 }}>Competitors</strong> — {pitch.slide_6_competition.competitors}</SlideText>
+            <SlideText><strong style={{ color: 'var(--text-primary)', fontWeight: 500 }}>Competitors</strong> - {pitch.slide_6_competition.competitors}</SlideText>
           )}
           <SlideList items={pitch.slide_6_competition?.differentiators} />
           {pitch.slide_6_competition?.moat && (
-            <SlideText style={{ marginTop: 8 }}><strong style={{ color: 'var(--text-primary)', fontWeight: 500 }}>Moat</strong> — {pitch.slide_6_competition.moat}</SlideText>
+            <SlideText style={{ marginTop: 8 }}><strong style={{ color: 'var(--text-primary)', fontWeight: 500 }}>Moat</strong> - {pitch.slide_6_competition.moat}</SlideText>
           )}
         </Slide>
 
         <Slide number={7} title="Business Model">
-          <SlideText><strong style={{ color: 'var(--text-primary)', fontWeight: 500 }}>Revenue</strong> — {pitch.slide_7_business_model?.revenue_streams}</SlideText>
-          <SlideText><strong style={{ color: 'var(--text-primary)', fontWeight: 500 }}>Pricing</strong> — {pitch.slide_7_business_model?.pricing}</SlideText>
-          <SlideText><strong style={{ color: 'var(--text-primary)', fontWeight: 500 }}>Unit economics</strong> — {pitch.slide_7_business_model?.unit_economics}</SlideText>
+          <SlideText><strong style={{ color: 'var(--text-primary)', fontWeight: 500 }}>Revenue</strong> - {pitch.slide_7_business_model?.revenue_streams}</SlideText>
+          <SlideText><strong style={{ color: 'var(--text-primary)', fontWeight: 500 }}>Pricing</strong> - {pitch.slide_7_business_model?.pricing}</SlideText>
+          <SlideText><strong style={{ color: 'var(--text-primary)', fontWeight: 500 }}>Unit economics</strong> - {pitch.slide_7_business_model?.unit_economics}</SlideText>
         </Slide>
 
         <Slide number={8} title="Team">
@@ -145,8 +145,8 @@ function PitchResult({ pitch }) {
         </Slide>
 
         <Slide number={9} title="Financial Projections">
-          <SlideText><strong style={{ color: 'var(--text-primary)', fontWeight: 500 }}>Runway</strong> — {pitch.slide_9_financials?.startup_costs}</SlideText>
-          <SlideText><strong style={{ color: 'var(--text-primary)', fontWeight: 500 }}>Path</strong> — {pitch.slide_9_financials?.projections}</SlideText>
+          <SlideText><strong style={{ color: 'var(--text-primary)', fontWeight: 500 }}>Runway</strong> - {pitch.slide_9_financials?.startup_costs}</SlideText>
+          <SlideText><strong style={{ color: 'var(--text-primary)', fontWeight: 500 }}>Path</strong> - {pitch.slide_9_financials?.projections}</SlideText>
         </Slide>
 
         <Slide number={10} title="The Ask">

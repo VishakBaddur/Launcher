@@ -53,7 +53,7 @@ export default function DashboardPage() {
             color: 'var(--text-secondary)',
             letterSpacing: '-0.01em',
           }}>
-            Run the 4-step pipeline on any startup idea — or jump to a specific stage.
+            Run the 4-step pipeline on any startup idea - or jump to a specific stage.
           </p>
         </div>
 
