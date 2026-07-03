@@ -182,7 +182,7 @@ export default function LandingPage() {
                 padding: '64px 48px 80px',
               }}
             >
-              <div style={{ maxWidth: 680 }}>
+              <div style={{ maxWidth: 680, width: '100%', margin: '0 auto' }}>
                 <p style={{
                   fontSize: '0.7rem',
                   fontWeight: 500,
