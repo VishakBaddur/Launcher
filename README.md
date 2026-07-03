@@ -25,7 +25,7 @@ Each step feeds into the next. Past analyses are stored as vector embeddings in 
 |---|---|
 | Frontend | React, Tailwind CSS |
 | Backend | Python, Flask, Gunicorn |
-| LLM | Hugging Face Zephyr-7B (via Inference API) |
+| LLM | Llama 3.3 70B (via Groq) |
 | RAG | ChromaDB (persistent vector store, cosine similarity) |
 | Auth | JWT (PyJWT) |
 | Database | SQLAlchemy, PostgreSQL (SQLite for tests) |
@@ -52,7 +52,7 @@ Each step feeds into the next. Past analyses are stored as vector embeddings in 
 
 Every analysis endpoint uses a 3-tier fallback:
 
-    Zephyr LLM pipeline -> hardcoded business mappings -> web scraper
+    Groq LLM pipeline -> hardcoded business mappings -> web scraper
 
 If the LLM pipeline returns a valid category, that result is used. If the HF API is down or returns garbage, it falls back to curated mappings (55KB of structured business data). The scraper is last resort.
 
@@ -76,7 +76,7 @@ Frontend:
     npm install
     npm run dev
 
-Set HF_TOKEN and SECRET_KEY as environment variables before starting the backend.
+Set GROQ_API_KEY and SECRET_KEY as environment variables before starting the backend.
 
 ---
 
@@ -86,7 +86,7 @@ Set HF_TOKEN and SECRET_KEY as environment variables before starting the backend
     source venv/bin/activate
     pytest tests/test_api.py -v
 
-10 tests covering auth, protected routes, and all major endpoints. 8 pass in CI (2 require a live HF token and are expected to skip in the GitHub Actions environment).
+10 tests covering auth, protected routes, and all major endpoints. 8 pass in CI (2 require a live Groq API key and are expected to skip in the GitHub Actions environment).
 
 ---
 
