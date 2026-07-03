@@ -211,7 +211,7 @@ export default function LandingPage() {
                   fontSize: '1rem',
                   color: 'var(--text-secondary)',
                   lineHeight: 1.7,
-                  maxWidth: 480,
+                  maxWidth: 480, margin: '0 auto',
                   marginBottom: slide.cta ? 40 : 0,
                   letterSpacing: '-0.01em',
                   textAlign: 'center',
