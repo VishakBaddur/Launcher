@@ -10,33 +10,33 @@ const slides = [
   {
     label: 'AI-Powered Startup Intelligence',
     heading: 'From idea to\ninvestor-ready.',
-    sub: 'A 4-step LLM reasoning pipeline backed by ChromaDB RAG — built for founders who need signal, not noise.',
+    sub: "You have a startup idea. You need to know if it's brilliant or delusional. Launcher runs a 4-step AI pipeline and tells you — in minutes, not months.",
     cta: true,
   },
   {
     label: '01 — Market Categorization',
-    heading: 'Understand\nyour market.',
-    sub: 'Industry classification, market size estimation, target customer profiling, and timing analysis — all conditioned on your specific idea.',
+    heading: 'Who actually\nwants this?',
+    sub: "We figure out your industry, market size, and target customer before you waste six months building for the wrong person. Turns out 'everyone' is not a target market.",
   },
   {
     label: '02 — SWOT Analysis',
-    heading: 'Know your\nstrengths.',
-    sub: 'A structured strengths, weaknesses, opportunities, and threats analysis conditioned on the market categorization from step one.',
+    heading: 'Your honest\nmirror.',
+    sub: "Strengths, weaknesses, opportunities, threats — laid out without the cheerleading. Most founders know their strengths. They pay us for the part they're avoiding.",
   },
   {
     label: '03 — Competitor Positioning',
-    heading: 'Find your\nmoat.',
-    sub: 'Competitive landscape mapping, differentiation analysis, and positioning statement — conditioned on steps one and two.',
+    heading: "You're not\nalone.",
+    sub: "Someone else is already doing something similar. We find them, map where they sit, and help you figure out why customers should pick you anyway. This is where moats are built.",
   },
   {
     label: '04 — Pitch Narrative',
-    heading: 'Tell your\nstory.',
-    sub: 'Investor hook, value proposition, and a 10-slide pitch deck synthesized from the full pipeline output.',
+    heading: 'Make investors\nlean in.',
+    sub: "A 10-slide pitch deck synthesized from your full analysis. Opening hook, problem, solution, market, traction, team, and the ask — structured the way investors actually read decks.",
   },
   {
     label: 'Ready',
-    heading: 'Analyze your\nfirst idea.',
-    sub: 'Each analysis is embedded into a ChromaDB vector store. Future queries on similar ideas benefit from past results via cosine similarity.',
+    heading: 'Your idea\nis waiting.',
+    sub: "Every analysis gets smarter. Past results are embedded as vectors — so the more ideas flow through Launcher, the sharper the output gets. Start now, get better answers forever.",
     cta: true,
     final: true,
   },
@@ -176,9 +176,13 @@ export default function LandingPage() {
               style={{
                 opacity: i === 0 ? 1 : 0,
                 paddingTop: 64,
+                justifyContent: 'center',
+                alignItems: 'center',
+                textAlign: 'center',
+                padding: '64px 48px 80px',
               }}
             >
-              <div style={{ maxWidth: 820 }}>
+              <div style={{ maxWidth: 680 }}>
                 <p style={{
                   fontSize: '0.7rem',
                   fontWeight: 500,
@@ -210,12 +214,13 @@ export default function LandingPage() {
                   maxWidth: 480,
                   marginBottom: slide.cta ? 40 : 0,
                   letterSpacing: '-0.01em',
+                  textAlign: 'center',
                 }}>
                   {slide.sub}
                 </p>
 
                 {slide.cta && (
-                  <div style={{ display: 'flex', gap: 32, alignItems: 'center' }}>
+                  <div style={{ display: 'flex', gap: 32, alignItems: 'center', justifyContent: 'center' }}>
                     <Link to="/register" className="lp-cta">
                       {slide.final ? 'Start free' : 'Analyze your idea'}
                       <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
@@ -231,21 +236,6 @@ export default function LandingPage() {
                 )}
               </div>
 
-              {/* Slide number */}
-              <div style={{
-                position: 'absolute',
-                top: 80,
-                right: 64,
-                fontFamily: 'Playfair Display, Georgia, serif',
-                fontSize: 'clamp(6rem, 15vw, 12rem)',
-                fontWeight: 400,
-                color: 'var(--border)',
-                lineHeight: 1,
-                userSelect: 'none',
-                letterSpacing: '-0.04em',
-              }}>
-                {String(i + 1).padStart(2, '0')}
-              </div>
             </div>
           ))}
         </div>
