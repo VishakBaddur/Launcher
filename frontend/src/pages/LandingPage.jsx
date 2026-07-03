@@ -172,7 +172,7 @@ export default function LandingPage() {
             <div
               key={i}
               ref={el => slideRefs.current[i] = el}
-              className={`lp-slide${i === 0 ? ' is-active' : ''}`}
+              className={`lp-slide${(i === 0 || i === slides.length - 1) ? ' is-active' : ''}`}
               style={{
                 opacity: i === 0 ? 1 : 0,
                 paddingTop: 64,
