@@ -38,14 +38,36 @@ def _call_llm(prompt: str, max_tokens: int = 1000) -> str:
         return ""
 
 def _extract_json(text: str, fallback: Dict) -> Dict:
+    if not text:
+        return fallback
     try:
-        json_match = re.search(r"```json\s*(\{.*?\})\s*```", text, re.DOTALL)
-        if not json_match:
-            json_match = re.search(r"(\{.*\})", text, re.DOTALL)
+        # Try direct parse first
+        return json.loads(text.strip())
+    except Exception:
+        pass
+    try:
+        # Try markdown code block
+        json_match = re.search(r"```(?:json)?\s*(\{.*?\})\s*```", text, re.DOTALL)
         if json_match:
             return json.loads(json_match.group(1))
     except Exception:
         pass
+    try:
+        # Try finding any JSON object
+        json_match = re.search(r"\{[^{}]*(?:\{[^{}]*\}[^{}]*)?\}", text, re.DOTALL)
+        if json_match:
+            return json.loads(json_match.group(0))
+    except Exception:
+        pass
+    try:
+        # Most permissive - find outermost braces
+        start = text.find('{')
+        end = text.rfind('}')
+        if start != -1 and end != -1 and end > start:
+            return json.loads(text[start:end+1])
+    except Exception:
+        pass
+    print(f"[JSON extract] Failed on: {repr(text[:300])}")
     return fallback
 
 def _extract_list(text: str, fallback: list) -> list:
