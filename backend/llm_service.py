@@ -4,42 +4,40 @@ import json
 import requests
 from typing import Dict, Any
 
-HUGGINGFACE_API_KEY = os.getenv('HUGGINGFACE_API_KEY') or os.getenv('HF_TOKEN')
+GROQ_API_KEY = os.getenv('GROQ_API_KEY')
+GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions"
+GROQ_MODEL = "llama-3.1-70b-versatile"
 
-# RAG service for retrieving similar past analyses
 try:
     from rag_service import get_rag_service
     RAG_ENABLED = True
 except Exception:
     RAG_ENABLED = False
-API_URL = "https://api-inference.huggingface.co/models/HuggingFaceH4/zephyr-7b-beta"
 
-def _call_zephyr(prompt: str, max_tokens: int = 400) -> str:
-    """Single Zephyr API call with error handling."""
-    if not HUGGINGFACE_API_KEY:
+def _call_llm(prompt: str, max_tokens: int = 1000) -> str:
+    if not GROQ_API_KEY:
+        print("[Groq] No API key found")
         return ""
     try:
         headers = {
-            "Authorization": f"Bearer {HUGGINGFACE_API_KEY}",
+            "Authorization": f"Bearer {GROQ_API_KEY}",
             "Content-Type": "application/json"
         }
-        response = requests.post(
-            API_URL,
-            headers=headers,
-            json={"inputs": prompt, "parameters": {"temperature": 0.3, "max_new_tokens": max_tokens}},
-            timeout=20
-        )
+        payload = {
+            "model": GROQ_MODEL,
+            "messages": [{"role": "user", "content": prompt}],
+            "max_tokens": max_tokens,
+            "temperature": 0.4,
+        }
+        response = requests.post(GROQ_API_URL, headers=headers, json=payload, timeout=30)
         response.raise_for_status()
         result = response.json()
-        if isinstance(result, list):
-            return result[0].get('generated_text', '')
-        return result.get('generated_text', '')
+        return result["choices"][0]["message"]["content"]
     except Exception as e:
-        print(f"[Zephyr] API call failed: {str(e)}")
+        print(f"[Groq] API call failed: {str(e)}")
         return ""
 
 def _extract_json(text: str, fallback: Dict) -> Dict:
-    """Extract JSON from LLM response with fallback."""
     try:
         json_match = re.search(r"```json\s*(\{.*?\})\s*```", text, re.DOTALL)
         if not json_match:
@@ -51,245 +49,155 @@ def _extract_json(text: str, fallback: Dict) -> Dict:
     return fallback
 
 def _extract_list(text: str, fallback: list) -> list:
-    """Extract a JSON array from LLM response with fallback."""
     try:
         match = re.search(r"\[.*?\]", text, re.DOTALL)
         if match:
             return json.loads(match.group(0))
     except Exception:
         pass
-    # Try to extract bullet points as list
-    lines = [l.strip().lstrip('-•*').strip() for l in text.split('\n') if l.strip().startswith(('-', '•', '*'))]
-    return lines if lines else fallback
+    return fallback
 
-# ---
-# STEP 1: Market Categorization
-# ---
-def step1_categorize(idea: str, context: Dict) -> Dict:
-    """Step 1: Identify market category, size, and target customers."""
-    # Retrieve similar past analyses for RAG context
+def analyze_idea(idea: str) -> Dict[str, Any]:
     rag_context = ""
     if RAG_ENABLED:
         try:
-            rag_context = get_rag_service().build_rag_context(idea)
+            rag = get_rag_service()
+            similar = rag.retrieve_similar(idea, n_results=2)
+            if similar:
+                rag_context = f"\nRelevant past analyses for context:\n{json.dumps(similar, indent=2)}\n"
         except Exception:
-            rag_context = ""
+            pass
 
-    prompt = f"""<|system|>You are a market research analyst. Respond only with a JSON object.</s>
-<|user|>
+    # Step 1: Market categorization
+    step1_prompt = f"""You are a startup analyst. Analyze this business idea and return ONLY a JSON object.
+
+Business idea: {idea}
 {rag_context}
-Analyze this startup idea and return a JSON object.
-Idea: "{idea}"
-Target Market: {context.get('target_market', 'general')}
-Location: {context.get('location', 'global')}
 
-Return ONLY this JSON:
+Return this exact JSON structure:
 {{
-  "category": "industry category",
-  "market_size": "estimated market size",
-  "target_customers": "primary customer segment",
-  "market_stage": "emerging/growing/mature",
-  "key_trends": ["trend1", "trend2", "trend3"]
-}}
-</s>
-<|assistant|>"""
+  "category": "specific industry category",
+  "market_size": "estimated market size with numbers",
+  "target_customers": "specific target customer description",
+  "market_trends": ["trend1", "trend2", "trend3"],
+  "timing": "assessment of market timing"
+}}"""
 
-    fallback = {
+    step1_text = _call_llm(step1_prompt, 500)
+    step1 = _extract_json(step1_text, {
         "category": "Technology",
-        "market_size": "Multi-billion dollar addressable market",
-        "target_customers": "SMBs and enterprise clients",
-        "market_stage": "growing",
-        "key_trends": ["AI adoption", "Digital transformation", "Remote work"]
-    }
-    raw = _call_zephyr(prompt, max_tokens=300)
-    result = _extract_json(raw, fallback)
-    for k in fallback:
-        if k not in result:
-            result[k] = fallback[k]
-    return result
+        "market_size": "Unknown",
+        "target_customers": "General consumers",
+        "market_trends": ["Digital transformation"],
+        "timing": "Current market conditions are favorable"
+    })
 
-# ---
-# STEP 2: SWOT Analysis
-# ---
-def step2_swot(idea: str, step1: Dict) -> Dict:
-    """Step 2: Generate SWOT based on Step 1 market context."""
-    prompt = f"""<|system|>You are a strategic business consultant. Respond only with a JSON object.</s>
-<|user|>
-Based on this market analysis, generate a SWOT analysis.
-Idea: "{idea}"
-Category: {step1.get('category')}
-Market Size: {step1.get('market_size')}
-Target Customers: {step1.get('target_customers')}
-Market Stage: {step1.get('market_stage')}
-Key Trends: {', '.join(step1.get('key_trends', []))}
+    # Step 2: SWOT
+    step2_prompt = f"""You are a startup analyst. Based on this business idea and market context, return ONLY a JSON object.
 
-Return ONLY this JSON:
+Business idea: {idea}
+Market category: {step1.get('category')}
+Market size: {step1.get('market_size')}
+Target customers: {step1.get('target_customers')}
+
+Return this exact JSON structure:
 {{
-  "strengths": ["strength1", "strength2", "strength3"],
-  "weaknesses": ["weakness1", "weakness2"],
-  "opportunities": ["opportunity1", "opportunity2", "opportunity3"],
-  "threats": ["threat1", "threat2"]
-}}
-</s>
-<|assistant|>"""
+  "strengths": ["specific strength 1", "specific strength 2", "specific strength 3"],
+  "weaknesses": ["specific weakness 1", "specific weakness 2"],
+  "opportunities": ["specific opportunity 1", "specific opportunity 2", "specific opportunity 3"],
+  "threats": ["specific threat 1", "specific threat 2"]
+}}"""
 
-    fallback = {
-        "strengths": ["First-mover advantage", "AI-powered automation", "Scalable architecture"],
-        "weaknesses": ["Early stage with limited traction", "Requires user education"],
-        "opportunities": ["Growing market demand", "Underserved customer segments", "Partnership potential"],
-        "threats": ["Established competitors", "Market saturation risk"]
-    }
-    raw = _call_zephyr(prompt, max_tokens=350)
-    result = _extract_json(raw, fallback)
-    for k in fallback:
-        if k not in result or not result[k]:
-            result[k] = fallback[k]
-    return result
+    step2_text = _call_llm(step2_prompt, 500)
+    step2 = _extract_json(step2_text, {
+        "strengths": ["Novel approach"],
+        "weaknesses": ["Unproven market"],
+        "opportunities": ["Growing demand"],
+        "threats": ["Competition"]
+    })
 
-# ---
-# STEP 3: Competitor & Positioning Analysis
-# ---
-def step3_competitors(idea: str, step1: Dict, step2: Dict) -> Dict:
-    """Step 3: Identify competitors and positioning strategy."""
-    prompt = f"""<|system|>You are a competitive intelligence analyst. Respond only with a JSON object.</s>
-<|user|>
-Identify competitors and positioning for this startup.
-Idea: "{idea}"
-Category: {step1.get('category')}
-Strengths: {', '.join(step2.get('strengths', [])[:2])}
-Opportunities: {', '.join(step2.get('opportunities', [])[:2])}
+    # Step 3: Competitor positioning
+    step3_prompt = f"""You are a startup analyst. Based on this business idea, return ONLY a JSON object.
 
-Return ONLY this JSON:
+Business idea: {idea}
+Market: {step1.get('category')} - {step1.get('market_size')}
+Strengths: {step2.get('strengths')}
+
+Return this exact JSON structure:
 {{
-  "direct_competitors": ["competitor1", "competitor2", "competitor3"],
-  "competitive_advantage": "one sentence differentiator",
-  "positioning_statement": "one sentence positioning",
-  "moat": "sustainable competitive moat"
-}}
-</s>
-<|assistant|>"""
+  "competitors": ["real competitor 1", "real competitor 2", "real competitor 3"],
+  "competitive_advantage": "specific competitive advantage for this idea",
+  "positioning_statement": "one sentence positioning statement",
+  "moat": "specific defensible moat"
+}}"""
 
-    fallback = {
-        "direct_competitors": ["Established SaaS players", "Vertical-specific tools", "DIY solutions"],
-        "competitive_advantage": "AI-first approach with superior automation and user experience",
-        "positioning_statement": f"{idea} is the only platform built specifically for this underserved market segment",
-        "moat": "Proprietary data network effects and switching costs"
-    }
-    raw = _call_zephyr(prompt, max_tokens=300)
-    result = _extract_json(raw, fallback)
-    for k in fallback:
-        if k not in result or not result[k]:
-            result[k] = fallback[k]
-    return result
+    step3_text = _call_llm(step3_prompt, 500)
+    step3 = _extract_json(step3_text, {
+        "competitors": ["Established players"],
+        "competitive_advantage": "Novel approach",
+        "positioning_statement": "A better solution for this market",
+        "moat": "First mover advantage"
+    })
 
-# ---
-# STEP 4: Pitch Narrative & Recommendations
-# ---
-def step4_pitch_narrative(idea: str, step1: Dict, step2: Dict, step3: Dict) -> Dict:
-    """Step 4: Synthesize all steps into investor narrative and recommendations."""
-    prompt = f"""<|system|>You are an expert startup advisor writing investor pitch content. Respond only with a JSON object.</s>
-<|user|>
-Synthesize this analysis into investor-ready pitch content.
-Idea: "{idea}"
-Market: {step1.get('market_size')} {step1.get('category')} market
-Key Opportunity: {step2.get('opportunities', [''])[0]}
-Competitive Advantage: {step3.get('competitive_advantage')}
-Main Threat: {step2.get('threats', [''])[0]}
+    # Step 4: Pitch narrative
+    step4_prompt = f"""You are a startup pitch expert. Based on this complete analysis, return ONLY a JSON object.
 
-Return ONLY this JSON:
+Business idea: {idea}
+Market: {step1.get('category')}, {step1.get('market_size')}
+Target customers: {step1.get('target_customers')}
+Key strengths: {step2.get('strengths')}
+Competitors: {step3.get('competitors')}
+Competitive advantage: {step3.get('competitive_advantage')}
+
+Return this exact JSON structure:
 {{
-  "problem_statement": "compelling one-sentence problem",
-  "solution_statement": "compelling one-sentence solution",
-  "value_proposition": "unique value proposition",
-  "recommendations": ["actionable rec 1", "actionable rec 2", "actionable rec 3"],
-  "investor_hook": "one powerful sentence for investors"
-}}
-</s>
-<|assistant|>"""
+  "investor_hook": "one compelling sentence that makes investors lean forward",
+  "summary": "two sentence executive summary",
+  "recommendations": ["specific actionable recommendation 1", "specific actionable recommendation 2", "specific actionable recommendation 3"],
+  "success_factors": ["key success factor 1", "key success factor 2", "key success factor 3"],
+  "example_companies": [{{"name": "relevant company", "description": "why relevant"}}]
+}}"""
 
-    fallback = {
-        "problem_statement": f"The current market lacks an efficient, scalable solution for {idea}.",
-        "solution_statement": f"{idea} solves this with an AI-powered platform that automates the entire workflow.",
-        "value_proposition": "10x faster, 50% cheaper, and smarter than existing alternatives",
-        "recommendations": [
-            "Focus on a narrow ICP before expanding",
-            "Build in public to generate early traction",
-            "Prioritize one high-value enterprise partnership"
-        ],
-        "investor_hook": f"{idea} is capturing a {step1.get('market_size', 'massive')} opportunity with a defensible AI moat."
-    }
-    raw = _call_zephyr(prompt, max_tokens=400)
-    result = _extract_json(raw, fallback)
-    for k in fallback:
-        if k not in result or not result[k]:
-            result[k] = fallback[k]
-    return result
-
-# ---
-# MAIN PIPELINE ORCHESTRATOR
-# ---
-def generate_insights(context: Dict[str, Any]) -> Dict[str, Any]:
-    """
-    4-step LLM reasoning pipeline:
-    Step 1: Market categorization
-    Step 2: SWOT analysis (uses Step 1)
-    Step 3: Competitor & positioning (uses Steps 1-2)
-    Step 4: Pitch narrative & recommendations (uses Steps 1-3)
-    """
-    idea = context.get('business_idea', '')
-    print(f"[Pipeline] Starting 4-step analysis for: {idea}")
-
-    # Step 1
-    print("[Pipeline] Step 1: Market categorization...")
-    step1 = step1_categorize(idea, context)
-
-    # Step 2
-    print("[Pipeline] Step 2: SWOT analysis...")
-    step2 = step2_swot(idea, step1)
-
-    # Step 3
-    print("[Pipeline] Step 3: Competitor analysis...")
-    step3 = step3_competitors(idea, step1, step2)
-
-    # Step 4
-    print("[Pipeline] Step 4: Pitch narrative synthesis...")
-    step4 = step4_pitch_narrative(idea, step1, step2, step3)
-
-    print("[Pipeline] Complete.")
+    step4_text = _call_llm(step4_prompt, 600)
+    step4 = _extract_json(step4_text, {
+        "investor_hook": f"{idea} addresses a significant market gap.",
+        "summary": f"{idea} is an emerging opportunity.",
+        "recommendations": ["Validate with customers", "Build MVP", "Find early adopters"],
+        "success_factors": ["Strong execution", "Market timing", "Team"],
+        "example_companies": []
+    })
 
     result = {
-        "category": step1.get("category"),
-        "description": step4.get("value_proposition"),
-        "market_size": step1.get("market_size"),
-        "target_customers": step1.get("target_customers"),
-        "market_stage": step1.get("market_stage"),
-        "key_trends": step1.get("key_trends", []),
-        "swot": {
-            "strengths": step2.get("strengths", []),
-            "weaknesses": step2.get("weaknesses", []),
-            "opportunities": step2.get("opportunities", []),
-            "threats": step2.get("threats", [])
-        },
-        "example_companies": [{"name": c, "description": "Direct competitor"} for c in step3.get("direct_competitors", [])],
-        "competitive_advantage": step3.get("competitive_advantage"),
-        "positioning_statement": step3.get("positioning_statement"),
-        "moat": step3.get("moat"),
-        "problem_statement": step4.get("problem_statement"),
-        "solution_statement": step4.get("solution_statement"),
-        "market_trends": step1.get("key_trends", []),
-        "common_challenges": step2.get("threats", []),
-        "success_factors": step2.get("strengths", []),
+        "summary": step4.get("summary", ""),
+        "investor_hook": step4.get("investor_hook", ""),
+        "market_trends": step1.get("market_trends", []),
+        "swot": step2,
+        "competitors": step3.get("competitors", []),
+        "competitive_advantage": step3.get("competitive_advantage", ""),
+        "positioning_statement": step3.get("positioning_statement", ""),
+        "challenges": step2.get("threats", []),
+        "success_factors": step4.get("success_factors", []),
         "recommendations": step4.get("recommendations", []),
-        "investor_hook": step4.get("investor_hook"),
-        "pipeline_steps_completed": 4
+        "example_companies": [{"name": c["name"], "description": c["description"]} if isinstance(c, dict) else {"name": c, "description": ""} for c in step4.get("example_companies", [])],
+        "similarStartups": [],
+        "news": [],
+        "pipeline_steps_completed": 4,
+        "market_size": step1.get("market_size", ""),
+        "target_customers": step1.get("target_customers", ""),
+        "timing": step1.get("timing", ""),
     }
 
-    # Store completed analysis in RAG vector DB for future retrieval
     if RAG_ENABLED:
         try:
-            get_rag_service().store_analysis(idea, result)
-            print("[RAG] Stored analysis for: " + idea)
-        except Exception as e:
-            print("[RAG] Storage failed: " + str(e))
+            rag = get_rag_service()
+            rag.store_analysis(idea, result)
+        except Exception:
+            pass
 
     return result
+
+
+def generate_insights(data: dict) -> Dict[str, Any]:
+    idea = data.get('business_idea', data.get('idea', ''))
+    return analyze_idea(idea)
+

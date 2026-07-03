@@ -197,9 +197,9 @@ try:
                 'business_model': data.get('businessModel', '')
             }
             llm_result = generate_insights(context)
-            if llm_result and llm_result.get('category') != 'Unknown':
+            if llm_result and llm_result.get('summary'):
                 report = {
-                    'summary': llm_result.get('description', ''),
+                    'summary': llm_result.get('summary', ''),
                     'market_trends': llm_result.get('market_trends', []),
                     'challenges': llm_result.get('common_challenges', []),
                     'success_factors': llm_result.get('success_factors', []),
@@ -262,10 +262,10 @@ try:
             # Primary: Run 4-step Zephyr LLM pipeline
             from llm_service import generate_insights
             llm_result = generate_insights({'business_idea': idea})
-            if llm_result and llm_result.get('category') != 'Unknown':
+            if llm_result and llm_result.get('summary'):
                 plan = {
                     'executive_summary': llm_result.get('investor_hook', ''),
-                    'company_description': llm_result.get('description', ''),
+                    'company_description': llm_result.get('summary', ''),
                     'market_analysis': {
                         'market_size': llm_result.get('market_size', ''),
                         'growth_rate': llm_result.get('key_trends', [''])[0] if llm_result.get('key_trends') else '',
@@ -316,9 +316,9 @@ try:
             # Primary: Run 4-step Zephyr LLM pipeline
             from llm_service import generate_insights
             llm_result = generate_insights({'business_idea': idea})
-            if llm_result and llm_result.get('category') != 'Unknown':
+            if llm_result and llm_result.get('summary'):
                 model = {
-                    'summary': llm_result.get('description', ''),
+                    'summary': llm_result.get('summary', ''),
                     'value_proposition': llm_result.get('description', ''),
                     'customer_segments': llm_result.get('target_customers', ''),
                     'channels': llm_result.get('recommendations', []),
@@ -372,11 +372,11 @@ try:
             # Primary: Run 4-step Zephyr LLM pipeline
             from llm_service import generate_insights
             llm_result = generate_insights({'business_idea': idea})
-            if llm_result and llm_result.get('category') != 'Unknown':
+            if llm_result and llm_result.get('summary'):
                 business_data = {
-                    'summary': llm_result.get('description', ''),
-                    'unique_value_proposition': llm_result.get('description', ''),
-                    'business_model': llm_result.get('category', ''),
+                    'summary': llm_result.get('summary', ''),
+                    'unique_value_proposition': llm_result.get('summary', ''),
+                    'business_model': llm_result.get('positioning_statement', ''),
                     'market_size': llm_result.get('market_size', ''),
                     'market_trends': llm_result.get('market_trends', []),
                     'target_customers': llm_result.get('target_customers', ''),
