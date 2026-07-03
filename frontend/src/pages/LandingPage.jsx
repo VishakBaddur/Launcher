@@ -55,55 +55,29 @@ export default function LandingPage() {
 
     const ctx = gsap.context(() => {
       const totalSlides = slides.length;
+      const scrollDistance = (totalSlides - 1) * window.innerHeight;
+      const fadeDuration = 0.25;
 
-      // Pin the panel while scrolling through totalSlides * 100vh
-      ScrollTrigger.create({
-        trigger: containerRef.current,
-        start: 'top top',
-        end: `+=${(totalSlides - 1) * 100}vh`,
-        pin: panelRef.current,
-        pinSpacing: false,
-        scrub: true,
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: containerRef.current,
+          start: 'top top',
+          end: () => `+=${scrollDistance}`,
+          pin: panelRef.current,
+          scrub: 1,
+        },
       });
 
-      // Animate each slide in/out
       slides.forEach((_, i) => {
         const el = slideRefs.current[i];
         if (!el) return;
-
-        const startPct = i / totalSlides;
-        const endPct = (i + 1) / totalSlides;
-        const midPct = (startPct + endPct) / 2;
-
-        const tl = gsap.timeline({
-          scrollTrigger: {
-            trigger: containerRef.current,
-            start: 'top top',
-            end: `+=${(totalSlides - 1) * 100}vh`,
-            scrub: 0.5,
-          },
-        });
-
         if (i === 0) {
-          // First slide: visible at start, fade out at midPct
-          tl.to(el, { opacity: 0, y: -24, ease: 'power2.in' }, midPct);
+          tl.to(el, { opacity: 0, y: -20, duration: fadeDuration, ease: 'power2.in' }, i + 1 - fadeDuration);
         } else if (i === slides.length - 1) {
-          // Last slide: fade in at prev midPct, stay visible
-          const prevMid = ((i - 1) / totalSlides + i / totalSlides) / 2;
-          tl.fromTo(el,
-            { opacity: 0, y: 24 },
-            { opacity: 1, y: 0, ease: 'power2.out' },
-            prevMid
-          );
+          tl.fromTo(el, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: fadeDuration, ease: 'power2.out' }, i - fadeDuration);
         } else {
-          // Middle slides: fade in then fade out
-          const prevMid = ((i - 1) / totalSlides + i / totalSlides) / 2;
-          tl.fromTo(el,
-            { opacity: 0, y: 24 },
-            { opacity: 1, y: 0, ease: 'power2.out' },
-            prevMid
-          )
-          .to(el, { opacity: 0, y: -24, ease: 'power2.in' }, midPct);
+          tl.fromTo(el, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: fadeDuration, ease: 'power2.out' }, i - fadeDuration)
+            .to(el, { opacity: 0, y: -20, duration: fadeDuration, ease: 'power2.in' }, i + 1 - fadeDuration);
         }
       });
     });
