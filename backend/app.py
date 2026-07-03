@@ -495,3 +495,14 @@ try:
 except Exception as e:
     logger.error(f"Failed to initialize Flask app: {str(e)}", exc_info=True)
     sys.exit(1)
+
+@app.route('/api/debug-env', methods=['GET'])
+def debug_env():
+    import os
+    hf = os.getenv('HF_TOKEN', '')
+    hf2 = os.getenv('HUGGINGFACE_API_KEY', '')
+    return jsonify({
+        'HF_TOKEN_set': bool(hf),
+        'HF_TOKEN_prefix': hf[:8] if hf else '',
+        'HUGGINGFACE_API_KEY_set': bool(hf2),
+    })
