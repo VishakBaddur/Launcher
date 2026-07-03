@@ -6,109 +6,147 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 gsap.registerPlugin(ScrollTrigger);
 
+const slides = [
+  {
+    label: 'AI-Powered Startup Intelligence',
+    heading: 'From idea to\ninvestor-ready.',
+    sub: 'A 4-step LLM reasoning pipeline backed by ChromaDB RAG — built for founders who need signal, not noise.',
+    cta: true,
+  },
+  {
+    label: '01 — Market Categorization',
+    heading: 'Understand\nyour market.',
+    sub: 'Industry classification, market size estimation, target customer profiling, and timing analysis — all conditioned on your specific idea.',
+  },
+  {
+    label: '02 — SWOT Analysis',
+    heading: 'Know your\nstrengths.',
+    sub: 'A structured strengths, weaknesses, opportunities, and threats analysis conditioned on the market categorization from step one.',
+  },
+  {
+    label: '03 — Competitor Positioning',
+    heading: 'Find your\nmoat.',
+    sub: 'Competitive landscape mapping, differentiation analysis, and positioning statement — conditioned on steps one and two.',
+  },
+  {
+    label: '04 — Pitch Narrative',
+    heading: 'Tell your\nstory.',
+    sub: 'Investor hook, value proposition, and a 10-slide pitch deck synthesized from the full pipeline output.',
+  },
+  {
+    label: 'Ready',
+    heading: 'Analyze your\nfirst idea.',
+    sub: 'Each analysis is embedded into a ChromaDB vector store. Future queries on similar ideas benefit from past results via cosine similarity.',
+    cta: true,
+    final: true,
+  },
+];
+
 export default function LandingPage() {
-  const heroRef = useRef(null);
-  const heroTextRef = useRef(null);
-  const featuresRef = useRef(null);
-  const stepsRef = useRef(null);
-  const ctaRef = useRef(null);
+  const containerRef = useRef(null);
+  const panelRef = useRef(null);
+  const slideRefs = useRef([]);
 
   useEffect(() => {
-    const lenis = new Lenis({ lerp: 0.08, smoothWheel: true });
+    const lenis = new Lenis({ lerp: 0.075, smoothWheel: true });
     lenis.on('scroll', ScrollTrigger.update);
     gsap.ticker.add((time) => lenis.raf(time * 1000));
     gsap.ticker.lagSmoothing(0);
 
-    // Hero text reveal
-    const heroLines = heroTextRef.current?.querySelectorAll('.reveal-line');
-    if (heroLines) {
-      gsap.fromTo(heroLines,
-        { y: 60, opacity: 0 },
-        { y: 0, opacity: 1, duration: 1.1, stagger: 0.12, ease: 'power3.out', delay: 0.2 }
-      );
-    }
+    const ctx = gsap.context(() => {
+      const totalSlides = slides.length;
 
-    // Feature cards stagger
-    const cards = featuresRef.current?.querySelectorAll('.feature-card');
-    if (cards) {
-      gsap.fromTo(cards,
-        { y: 40, opacity: 0 },
-        {
-          y: 0, opacity: 1, duration: 0.8, stagger: 0.1, ease: 'power2.out',
-          scrollTrigger: { trigger: featuresRef.current, start: 'top 75%' }
-        }
-      );
-    }
+      // Pin the panel while scrolling through totalSlides * 100vh
+      ScrollTrigger.create({
+        trigger: containerRef.current,
+        start: 'top top',
+        end: `+=${(totalSlides - 1) * 100}vh`,
+        pin: panelRef.current,
+        pinSpacing: false,
+        scrub: true,
+      });
 
-    // Steps
-    const steps = stepsRef.current?.querySelectorAll('.step-item');
-    if (steps) {
-      gsap.fromTo(steps,
-        { x: -24, opacity: 0 },
-        {
-          x: 0, opacity: 1, duration: 0.7, stagger: 0.12, ease: 'power2.out',
-          scrollTrigger: { trigger: stepsRef.current, start: 'top 75%' }
-        }
-      );
-    }
+      // Animate each slide in/out
+      slides.forEach((_, i) => {
+        const el = slideRefs.current[i];
+        if (!el) return;
 
-    // CTA
-    if (ctaRef.current) {
-      gsap.fromTo(ctaRef.current,
-        { y: 32, opacity: 0 },
-        {
-          y: 0, opacity: 1, duration: 0.9, ease: 'power2.out',
-          scrollTrigger: { trigger: ctaRef.current, start: 'top 80%' }
+        const startPct = i / totalSlides;
+        const endPct = (i + 1) / totalSlides;
+        const midPct = (startPct + endPct) / 2;
+
+        const tl = gsap.timeline({
+          scrollTrigger: {
+            trigger: containerRef.current,
+            start: 'top top',
+            end: `+=${(totalSlides - 1) * 100}vh`,
+            scrub: 0.5,
+          },
+        });
+
+        if (i === 0) {
+          // First slide: visible at start, fade out at midPct
+          tl.to(el, { opacity: 0, y: -24, ease: 'power2.in' }, midPct);
+        } else if (i === slides.length - 1) {
+          // Last slide: fade in at prev midPct, stay visible
+          const prevMid = ((i - 1) / totalSlides + i / totalSlides) / 2;
+          tl.fromTo(el,
+            { opacity: 0, y: 24 },
+            { opacity: 1, y: 0, ease: 'power2.out' },
+            prevMid
+          );
+        } else {
+          // Middle slides: fade in then fade out
+          const prevMid = ((i - 1) / totalSlides + i / totalSlides) / 2;
+          tl.fromTo(el,
+            { opacity: 0, y: 24 },
+            { opacity: 1, y: 0, ease: 'power2.out' },
+            prevMid
+          )
+          .to(el, { opacity: 0, y: -24, ease: 'power2.in' }, midPct);
         }
-      );
-    }
+      });
+    });
 
     return () => {
+      ctx.revert();
       lenis.destroy();
       ScrollTrigger.getAll().forEach(t => t.kill());
     };
   }, []);
 
   return (
-    <div style={{ background: 'var(--bg)', minHeight: '100vh' }}>
-
-      {/* Google Fonts - Fragment Serif + Inter */}
+    <div style={{ background: 'var(--bg)' }}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500&family=Inter:wght@300;400;500&display=swap');
-        .serif { font-family: 'Playfair Display', Georgia, serif; }
-        .reveal-line { will-change: transform, opacity; }
-        .nav-link { position: relative; text-decoration: none; color: var(--text-secondary); font-size: 0.875rem; }
-        .nav-link::after { content: ''; position: absolute; bottom: -2px; left: 0; width: 0; height: 1px; background: var(--text-primary); transition: width 0.3s ease; }
-        .nav-link:hover::after { width: 100%; }
-        .nav-link:hover { color: var(--text-primary); }
-        .feature-card { will-change: transform, opacity; }
-        .step-item { will-change: transform, opacity; }
-        .hero-cta { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; color: var(--text-primary); font-size: 0.875rem; font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase; border-bottom: 1px solid var(--border-strong); padding-bottom: 2px; transition: gap 0.3s ease, border-color 0.3s ease; }
-        .hero-cta:hover { gap: 16px; border-color: var(--text-primary); }
-        .divider-line { height: 1px; background: var(--border); }
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Inter:wght@300;400;500&display=swap');
+        .lp-nav-link { color: var(--text-secondary); font-size: 0.875rem; text-decoration: none; transition: color 0.2s; }
+        .lp-nav-link:hover { color: var(--text-primary); }
+        .lp-cta { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; color: var(--text-primary); font-size: 0.8125rem; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; border-bottom: 1px solid var(--border-strong); padding-bottom: 3px; transition: gap 0.3s ease; }
+        .lp-cta:hover { gap: 18px; }
+        .lp-slide { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: flex-end; padding: 0 64px 80px; pointer-events: none; }
+        .lp-slide.is-active { pointer-events: auto; }
       `}</style>
 
-      {/* Navigation */}
+      {/* Fixed nav */}
       <nav style={{
-        position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
-        padding: '0 48px', height: 64,
+        position: 'fixed', top: 0, left: 0, right: 0, zIndex: 200,
+        height: 64, padding: '0 64px',
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        background: 'var(--bg)',
-        borderBottom: '1px solid var(--border)',
+        background: 'var(--bg)', borderBottom: '1px solid var(--border)',
       }}>
-        <span style={{ fontFamily: 'Playfair Display, Georgia, serif', fontSize: '1.125rem', fontWeight: 400, letterSpacing: '-0.01em', color: 'var(--text-primary)' }}>
+        <span style={{ fontFamily: 'Playfair Display, Georgia, serif', fontSize: '1.0625rem', fontWeight: 400, letterSpacing: '-0.01em', color: 'var(--text-primary)' }}>
           Launcher
         </span>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 32 }}>
-          <Link to="/login" className="nav-link">Sign in</Link>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
+          <Link to="/login" className="lp-nav-link">Sign in</Link>
           <Link to="/register" style={{
-            display: 'inline-flex', alignItems: 'center', gap: 8,
+            display: 'inline-block', textDecoration: 'none',
             fontSize: '0.8125rem', fontWeight: 500, letterSpacing: '0.06em',
-            textTransform: 'uppercase', textDecoration: 'none',
-            color: 'var(--accent-fg)', background: 'var(--accent)',
-            padding: '9px 20px', borderRadius: 4, transition: 'opacity 0.2s ease',
+            textTransform: 'uppercase', color: 'var(--accent-fg)',
+            background: 'var(--accent)', padding: '8px 18px', borderRadius: 4,
+            transition: 'opacity 0.2s',
           }}
-          onMouseEnter={e => e.currentTarget.style.opacity = '0.85'}
+          onMouseEnter={e => e.currentTarget.style.opacity = '0.8'}
           onMouseLeave={e => e.currentTarget.style.opacity = '1'}
           >
             Get started
@@ -116,140 +154,151 @@ export default function LandingPage() {
         </div>
       </nav>
 
-      {/* Hero */}
-      <section ref={heroRef} style={{
-        minHeight: '100vh', display: 'flex', flexDirection: 'column',
-        justifyContent: 'flex-end', padding: '0 48px 80px',
-        paddingTop: 64,
-      }}>
-        <div ref={heroTextRef} style={{ maxWidth: 900 }}>
-          <div className="reveal-line" style={{ marginBottom: 32 }}>
-            <span style={{
-              fontSize: '0.7rem', fontWeight: 500, letterSpacing: '0.15em',
-              textTransform: 'uppercase', color: 'var(--text-tertiary)',
-            }}>
-              AI-Powered Startup Intelligence
-            </span>
-          </div>
-          <h1 className="reveal-line serif" style={{
-            fontSize: 'clamp(3rem, 7vw, 6rem)',
-            fontWeight: 400, lineHeight: 1.05, letterSpacing: '-0.02em',
-            color: 'var(--text-primary)', marginBottom: 48,
+      {/* Scroll container */}
+      <div
+        ref={containerRef}
+        style={{ height: `${slides.length * 100}vh`, position: 'relative' }}
+      >
+        {/* Sticky panel */}
+        <div
+          ref={panelRef}
+          style={{
+            position: 'sticky',
+            top: 0,
+            height: '100vh',
+            width: '100%',
+            overflow: 'hidden',
+            background: 'var(--bg)',
+          }}
+        >
+          {/* Slide counter */}
+          <div style={{
+            position: 'absolute',
+            bottom: 40,
+            right: 64,
+            zIndex: 10,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 6,
           }}>
-            From idea to investor-ready<br />
-            <em style={{ fontStyle: 'italic', color: 'var(--text-secondary)' }}>in minutes.</em>
-          </h1>
-          <div className="reveal-line" style={{ display: 'flex', alignItems: 'center', gap: 48, flexWrap: 'wrap' }}>
-            <Link to="/register" className="hero-cta">
-              Analyze your idea
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </Link>
-            <p style={{ fontSize: '0.9375rem', color: 'var(--text-tertiary)', maxWidth: 400, lineHeight: 1.6 }}>
-              A 4-step LLM reasoning pipeline backed by ChromaDB RAG — built for founders who need signal, not noise.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      <div className="divider-line" />
-
-      {/* Pipeline steps */}
-      <section ref={stepsRef} style={{ padding: '96px 48px' }}>
-        <div style={{ maxWidth: 1100, margin: '0 auto' }}>
-          <p style={{ fontSize: '0.7rem', fontWeight: 500, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--text-tertiary)', marginBottom: 48 }}>
-            The Pipeline
-          </p>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 1, background: 'var(--border)', border: '1px solid var(--border)', borderRadius: 8, overflow: 'hidden' }}>
-            {[
-              { n: '01', title: 'Market Categorization', desc: 'Industry, market size, target customers, and timing.' },
-              { n: '02', title: 'SWOT Analysis', desc: 'Strengths, weaknesses, opportunities, and threats — conditioned on step one.' },
-              { n: '03', title: 'Competitor Positioning', desc: 'Competitive landscape, moat, and differentiation — conditioned on steps one and two.' },
-              { n: '04', title: 'Pitch Narrative', desc: 'Investor hook, recommendations, and value proposition synthesis.' },
-            ].map((step) => (
-              <div key={step.n} className="step-item" style={{ background: 'var(--surface)', padding: '36px 28px' }}>
-                <div style={{ fontSize: '0.7rem', fontWeight: 500, letterSpacing: '0.1em', color: 'var(--text-tertiary)', marginBottom: 16 }}>{step.n}</div>
-                <div style={{ fontSize: '0.9375rem', fontWeight: 500, color: 'var(--text-primary)', letterSpacing: '-0.01em', marginBottom: 10 }}>{step.title}</div>
-                <div style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', lineHeight: 1.6 }}>{step.desc}</div>
-              </div>
+            {slides.map((_, i) => (
+              <div key={i} ref={el => {
+                // We track active slide via scroll but show dots
+              }} style={{
+                width: 1,
+                height: 20,
+                background: 'var(--border-strong)',
+                borderRadius: 1,
+              }} />
             ))}
           </div>
-        </div>
-      </section>
 
-      <div className="divider-line" />
-
-      {/* Features */}
-      <section ref={featuresRef} style={{ padding: '96px 48px' }}>
-        <div style={{ maxWidth: 1100, margin: '0 auto' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 64, flexWrap: 'wrap', gap: 32 }}>
-            <p style={{ fontSize: '0.7rem', fontWeight: 500, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--text-tertiary)' }}>
-              What You Get
-            </p>
-            <p style={{ fontSize: '0.9375rem', color: 'var(--text-secondary)', maxWidth: 400, lineHeight: 1.7 }}>
-              Each analysis is embedded into a ChromaDB vector store. Future queries on similar ideas benefit from past results via cosine similarity retrieval.
-            </p>
-          </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 24 }}>
-            {[
-              { title: 'Idea Validation', desc: 'Market viability, timing analysis, and feasibility scoring for any startup concept.', link: '/validate-idea' },
-              { title: 'Business Plan', desc: 'Structured plan with market analysis, competitive landscape, strategy, and projections.', link: '/generate-plan' },
-              { title: 'Business Model', desc: 'Lean canvas covering value proposition, customer segments, channels, and revenue.', link: '/business-model' },
-              { title: 'Pitch Deck', desc: '10 investor-ready slides — problem, solution, market, traction, team, and the ask.', link: '/pitch-deck' },
-            ].map((f) => (
-              <Link key={f.title} to="/register" className="feature-card" style={{
-                textDecoration: 'none', display: 'block',
-                padding: '32px 28px',
-                background: 'var(--surface)',
-                border: '1px solid var(--border)',
-                borderRadius: 8,
-                transition: 'border-color 0.2s ease, transform 0.2s ease',
+          {/* Slides */}
+          {slides.map((slide, i) => (
+            <div
+              key={i}
+              ref={el => slideRefs.current[i] = el}
+              className={`lp-slide${i === 0 ? ' is-active' : ''}`}
+              style={{
+                opacity: i === 0 ? 1 : 0,
+                paddingTop: 64,
               }}
-              onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--border-strong)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
-              onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.transform = 'translateY(0)'; }}
-              >
-                <div style={{ fontSize: '0.9375rem', fontWeight: 500, color: 'var(--text-primary)', letterSpacing: '-0.01em', marginBottom: 12 }}>{f.title}</div>
-                <div style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', lineHeight: 1.6 }}>{f.desc}</div>
-              </Link>
-            ))}
-          </div>
+            >
+              <div style={{ maxWidth: 820 }}>
+                <p style={{
+                  fontSize: '0.7rem',
+                  fontWeight: 500,
+                  letterSpacing: '0.14em',
+                  textTransform: 'uppercase',
+                  color: 'var(--text-tertiary)',
+                  marginBottom: 28,
+                }}>
+                  {slide.label}
+                </p>
+
+                <h1 style={{
+                  fontFamily: 'Playfair Display, Georgia, serif',
+                  fontSize: 'clamp(3.5rem, 8vw, 6.5rem)',
+                  fontWeight: 400,
+                  lineHeight: 1.05,
+                  letterSpacing: '-0.02em',
+                  color: 'var(--text-primary)',
+                  marginBottom: 36,
+                  whiteSpace: 'pre-line',
+                }}>
+                  {slide.heading}
+                </h1>
+
+                <p style={{
+                  fontSize: '1rem',
+                  color: 'var(--text-secondary)',
+                  lineHeight: 1.7,
+                  maxWidth: 480,
+                  marginBottom: slide.cta ? 40 : 0,
+                  letterSpacing: '-0.01em',
+                }}>
+                  {slide.sub}
+                </p>
+
+                {slide.cta && (
+                  <div style={{ display: 'flex', gap: 32, alignItems: 'center' }}>
+                    <Link to="/register" className="lp-cta">
+                      {slide.final ? 'Start free' : 'Analyze your idea'}
+                      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                        <path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    </Link>
+                    {!slide.final && (
+                      <Link to="/login" style={{ fontSize: '0.8125rem', color: 'var(--text-tertiary)', textDecoration: 'none' }}>
+                        Sign in
+                      </Link>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* Slide number */}
+              <div style={{
+                position: 'absolute',
+                top: 80,
+                right: 64,
+                fontFamily: 'Playfair Display, Georgia, serif',
+                fontSize: 'clamp(6rem, 15vw, 12rem)',
+                fontWeight: 400,
+                color: 'var(--border)',
+                lineHeight: 1,
+                userSelect: 'none',
+                letterSpacing: '-0.04em',
+              }}>
+                {String(i + 1).padStart(2, '0')}
+              </div>
+            </div>
+          ))}
         </div>
-      </section>
-
-      <div className="divider-line" />
-
-      {/* CTA */}
-      <section ref={ctaRef} style={{ padding: '96px 48px' }}>
-        <div style={{ maxWidth: 1100, margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 48 }}>
-          <h2 className="serif" style={{
-            fontSize: 'clamp(2rem, 4vw, 3.5rem)',
-            fontWeight: 400, letterSpacing: '-0.02em',
-            color: 'var(--text-primary)', lineHeight: 1.1, maxWidth: 500,
-          }}>
-            Ready to validate your next idea?
-          </h2>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-            <Link to="/register" className="hero-cta">
-              Start for free
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </Link>
-            <p style={{ fontSize: '0.8125rem', color: 'var(--text-tertiary)' }}>No credit card required.</p>
-          </div>
-        </div>
-      </section>
-
-      <div className="divider-line" />
+      </div>
 
       {/* Footer */}
-      <footer style={{ padding: '24px 48px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <span style={{ fontSize: '0.8125rem', color: 'var(--text-tertiary)' }}>© {new Date().getFullYear()} Launcher</span>
-        <div style={{ display: 'flex', gap: 24 }}>
-          <a href="https://github.com/VishakBaddur/Launcher" target="_blank" rel="noopener noreferrer" className="nav-link" style={{ fontSize: '0.8125rem' }}>GitHub</a>
-          <Link to="/login" className="nav-link" style={{ fontSize: '0.8125rem' }}>Sign in</Link>
-        </div>
+      <footer style={{
+        borderTop: '1px solid var(--border)',
+        padding: '20px 64px',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        background: 'var(--bg)',
+      }}>
+        <span style={{ fontSize: '0.8125rem', color: 'var(--text-tertiary)' }}>
+          © {new Date().getFullYear()} Launcher
+        </span>
+        
+        <a
+          href="https://github.com/VishakBaddur/Launcher"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="lp-nav-link"
+          style={{ fontSize: '0.8125rem' }}
+        >
+          GitHub
+        </a>
       </footer>
     </div>
   );
