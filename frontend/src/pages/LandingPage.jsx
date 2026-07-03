@@ -97,7 +97,7 @@ export default function LandingPage() {
         .lp-nav-link:hover { color: var(--text-primary); }
         .lp-cta { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; color: var(--text-primary); font-size: 0.8125rem; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; border-bottom: 1px solid var(--border-strong); padding-bottom: 3px; transition: gap 0.3s ease; }
         .lp-cta:hover { gap: 18px; }
-        .lp-slide { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: flex-end; padding: 0 64px 80px; pointer-events: none; }
+        .lp-slide { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 80px 48px; pointer-events: none; }
         .lp-slide.is-active { pointer-events: auto; }
       `}</style>
 
